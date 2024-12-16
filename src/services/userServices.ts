@@ -21,7 +21,20 @@ const userServices = {
     }
   },
 
+  getUserByEmail: async (email) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+      return user;
+    } catch (error) {
+      throw new Error('Failed to fetch user');
+    }
+  },
+
   createUser: async (userData) => {
+    console.log(userData);
+
     try {
       const newUser = await prisma.user.create({
         data: userData,

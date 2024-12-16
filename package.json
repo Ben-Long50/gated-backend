@@ -4,14 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "rimraf dist && npx tsc",
+    "prestart": "npm run build",
     "start": "node ./bin/www",
-    "devstart": "nodemon ./bin/www",
+    "predevstart": "rimraf dist",
+    "devstart": "concurrently \"npx tsc -w\" \"nodemon ./bin/www\"",
     "serverstart": "DEBUG=PROJECT_NAME:* npm run devstart"
   },
   "dependencies": {
     "@prisma/client": "^5.17.0",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.2.0",
+    "concurrently": "^9.1.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "debug": "^4.3.5",
@@ -24,9 +28,18 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.12.0"
+    "passport": "^0.7.0",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.12.0",
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
     "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
@@ -34,6 +47,8 @@
     "nodemon": "^3.1.3",
     "prettier": "3.2.5",
     "prisma": "^5.17.0",
-    "supertest": "^7.0.0"
+    "supertest": "^7.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }

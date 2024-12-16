@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    /* Basic Options */
+    "target": "ES6", // Output ES6 JavaScript
+    "module": "ESNext", // Use ES6 modules
+    "rootDir": "./src", // Set the source directory
+    "outDir": "./dist", // Set the output directory
+    "moduleResolution": "node", // Resolve modules like Node.js
+    "esModuleInterop": true, // Enable interop for CommonJS modules
+    "forceConsistentCasingInFileNames": true, // Enforce consistent file name casing
+    "strict": true, // Enable all strict type-checking options
+    "skipLibCheck": true, // Skip type-checking declaration files
+
+    /* Additional Options */
+    "resolveJsonModule": true, // Allow importing .json files
+    "noImplicitReturns": true, // Report errors for missing return statements
+    "noUnusedLocals": true, // Report errors for unused local variables
+    "noUnusedParameters": true // Report errors for unused function parameters
+  },
+  "include": ["src/**/*.ts", "src/app.ts"], // Include all TypeScript files in the src folder
+  "exclude": ["node_modules", "dist"] // Exclude these folders
+}

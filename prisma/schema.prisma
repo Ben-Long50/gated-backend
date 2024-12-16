@@ -7,15 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String   @db.VarChar(255)
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  profilePicture String?
+  googleId       String?   @unique
+  facebookId     String?   @unique
+  email          String    @unique
+  password       String?
+  role           UserRole  @default(ADMIN)
+  createdAt      DateTime  @default(now())
+  profiles       Profile[]
 }
 
 model Profile {
@@ -25,18 +33,11 @@ model Profile {
   userId Int     @unique
 }
 
-model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
-  profile Profile?
-  role    Role     @default(USER)
-}
-
-enum Role {
-  USER
-  ADMIN
+model Perk {
+  id           Int    @id @default(autoincrement())
+  name         String
+  description  String
+  requirements Json?
 }
 
 //run "npx prisma generate" after updating models

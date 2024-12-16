@@ -6,7 +6,7 @@
 
 import debug from 'debug';
 import http from 'http';
-import app from '../app.js';
+import app from '../dist/app.js';
 
 const debugLogger = debug('PROJECT_NAME:server');
 
