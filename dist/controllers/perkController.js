@@ -10,13 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import userServices from '../services/userServices.js';
 import perkServices from '../services/perkServices.js';
 const perkController = {
-    getAuthenticatedUser: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        res.status(200).json(req.user);
-    }),
-    getUsers: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getPerks: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const users = yield userServices.getAllUsers();
-            res.json(users);
+            const perks = yield perkServices.getPerks();
+            res.status(200).json(perks);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
@@ -36,7 +33,7 @@ const perkController = {
     }),
     createPerk: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const perk = yield perkServices.createPerk(req.body);
+            yield perkServices.createPerk(req.body);
         }
         catch (error) {
             res.status(500).json({ error: error.message });

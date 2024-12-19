@@ -1,17 +1,11 @@
-import { body, validationResult } from 'express-validator';
-import bcrypt from 'bcryptjs';
 import userServices from '../services/userServices.js';
 import perkServices from '../services/perkServices.js';
 
 const perkController = {
-  getAuthenticatedUser: async (req, res) => {
-    res.status(200).json(req.user);
-  },
-
-  getUsers: async (req, res) => {
+  getPerks: async (req, res) => {
     try {
-      const users = await userServices.getAllUsers();
-      res.json(users);
+      const perks = await perkServices.getPerks();
+      res.status(200).json(perks);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -31,7 +25,7 @@ const perkController = {
 
   createPerk: async (req, res) => {
     try {
-      const perk = await perkServices.createPerk(req.body);
+      await perkServices.createPerk(req.body);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

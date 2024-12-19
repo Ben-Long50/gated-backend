@@ -3,6 +3,7 @@ import userServices from '../services/userServices.js';
 import googleStrategy from './passport-google.js';
 import facebookStrategy from './passport-facebook.js';
 import { Request, Response } from 'express';
+import localStrategy from './passport-local.js';
 
 passport.serializeUser((user, done) => {
   done(null, user.id);
@@ -19,6 +20,7 @@ passport.deserializeUser(async (id, done) => {
 
 googleStrategy(passport);
 facebookStrategy(passport);
+localStrategy(passport);
 
 export const sendAuthStatus = (req: Request, res: Response) => {
   if (req.isAuthenticated()) {

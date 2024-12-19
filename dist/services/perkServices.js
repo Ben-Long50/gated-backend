@@ -9,8 +9,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import prisma from '../config/database.js';
 const perkServices = {
+    getPerks: () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const perks = yield prisma.perk.findMany();
+            return perks;
+        }
+        catch (error) {
+            throw new Error('Failed to create user');
+        }
+    }),
     createPerk: (formData) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(formData);
         try {
             const newUser = yield prisma.perk.create({
                 data: {

@@ -8,7 +8,32 @@ const router = express.Router();
 
 router.post('/auth/signup', userController.createUser);
 
-// router.post('/auth/signin', userController.authenticateUser, signin);
+router.post(
+  '/auth/signin',
+  (req, res, next) => {
+    passport.authenticate('local', { session: false }, (err, user, info) => {
+      if (err || !user) {
+        return res
+          .status(400)
+          .json({ message: info?.message || 'Login failed' });
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
+  authentication.issueJwt,
+  (req, res) => {
+    res.cookie('token', req.token, {
+      // httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 8,
+    });
+    res.status(200).json({
+      token: req.token,
+      message: `Signed in as user ${req.user.firstName} ${req.user.lastName}`,
+    });
+  },
+);
 
 // router.post('/auth/signout', verifyAuthentication, signout);
 
@@ -25,6 +50,8 @@ router.get(
   authentication.issueJwt,
   (req, res) => {
     res.cookie('token', req.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
     const redirectUrl = `${process.env.CLIENT_URL}/home`;
@@ -43,6 +70,8 @@ router.get(
   authentication.issueJwt,
   (req, res) => {
     res.cookie('token', req.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
     const redirectUrl = `${process.env.CLIENT_URL}/home`;

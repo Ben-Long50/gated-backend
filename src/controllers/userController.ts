@@ -42,7 +42,7 @@ const userController = {
       .escape()
       .notEmpty()
       .withMessage('The email field cannot be empty')
-      .matches('/^[^s@]+@[^s@]+.[^s@]+$/')
+      .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
       .withMessage('The email input must be in a valid email format')
       .custom(async (value) => {
         const user = await userServices.getUserByEmail(value);

@@ -4,6 +4,8 @@ import perkController from '../controllers/perkController.js';
 
 const router = express.Router();
 
+router.get('/perks', authentication.authenticateUser, perkController.getPerks);
+
 router.post(
   '/perks',
   authentication.authenticateUser,

@@ -49,7 +49,7 @@ const userController = {
             .escape()
             .notEmpty()
             .withMessage('The email field cannot be empty')
-            .matches('/^[^s@]+@[^s@]+.[^s@]+$/')
+            .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
             .withMessage('The email input must be in a valid email format')
             .custom((value) => __awaiter(void 0, void 0, void 0, function* () {
             const user = yield userServices.getUserByEmail(value);

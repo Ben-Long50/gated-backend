@@ -1,9 +1,16 @@
 import prisma from '../config/database.js';
 
 const perkServices = {
-  createPerk: async (formData) => {
-    console.log(formData);
+  getPerks: async () => {
+    try {
+      const perks = await prisma.perk.findMany();
+      return perks;
+    } catch (error) {
+      throw new Error('Failed to create user');
+    }
+  },
 
+  createPerk: async (formData) => {
     try {
       const newUser = await prisma.perk.create({
         data: {
