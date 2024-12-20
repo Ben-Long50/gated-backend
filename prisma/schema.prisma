@@ -13,31 +13,50 @@ enum UserRole {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
+  id             Int         @id @default(autoincrement())
   firstName      String
   lastName       String
   profilePicture String?
-  googleId       String?   @unique
-  facebookId     String?   @unique
-  email          String    @unique
+  googleId       String?     @unique
+  facebookId     String?     @unique
+  email          String      @unique
   password       String?
-  role           UserRole  @default(ADMIN)
-  createdAt      DateTime  @default(now())
-  profiles       Profile[]
+  role           UserRole    @default(ADMIN)
+  createdAt      DateTime    @default(now())
+  characters     Character[]
 }
 
-model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+model Character {
+  id            Int             @id @default(autoincrement())
+  user          User            @relation(fields: [userId], references: [id])
+  userId        Int
+  name          String
+  height        Int
+  weight        Int
+  age           Int
+  sex           String
+  background    String
+  attributes    Json
+  perks         Perk[]          @relation("CharacterPerks")
+  characterPerk CharacterPerk[]
 }
 
 model Perk {
-  id           Int    @id @default(autoincrement())
-  name         String
-  description  String
-  requirements Json?
+  id            Int             @id @default(autoincrement())
+  name          String
+  description   String
+  requirements  Json?
+  characters    Character[]     @relation("CharacterPerks")
+  characterPerk CharacterPerk[]
+}
+
+model CharacterPerk {
+  characterId Int
+  perkId      Int
+  Character   Character @relation(fields: [characterId], references: [id])
+  perk        Perk      @relation(fields: [perkId], references: [id])
+
+  @@id([characterId, perkId]) // Composite primary key
 }
 
 //run "npx prisma generate" after updating models

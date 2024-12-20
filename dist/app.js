@@ -6,13 +6,11 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { fileURLToPath } from 'url';
-// import session from 'express-session';
-// import passport from 'passport';
-// import connectPgSimple from 'connect-pg-simple';
 import pkg from 'pg';
 import userRouter from './routes/userRoutes.js';
 import authRouter from './routes/authRoutes.js';
 import perkRouter from './routes/perkRoutes.js';
+import characterRouter from './routes/characterRoutes.js';
 import './passport/passport.js';
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -21,7 +19,6 @@ const { Pool } = pkg;
 const pgPool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
-// const PgSession = connectPgSimple(session);
 const limiter = rateLimit({
     windowMs: 2 * 60 * 1000,
     max: 100,
@@ -30,28 +27,11 @@ if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, process.env.MOBILE_CLIENT],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
 }));
-// const sess = {
-//   secret: process.env.SECRET_KEY,
-//   resave: false,
-//   saveUninitialized: false,
-//   store: new PgSession({
-//     pool: pgPool,
-//     tableName: 'session',
-//   }),
-//   cookie: {
-//     maxAge: 4 * 60 * 60 * 1000,
-//     secure: process.env.NODE_ENV === 'production',
-//     sameSite: process.env.NODE_ENV === 'production' && 'none',
-//     httpOnly: true,
-//   },
-// };
-// app.use(session(sess));
-// app.use(passport.session());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -61,6 +41,7 @@ app.use(limiter);
 app.use('/', userRouter);
 app.use('/', authRouter);
 app.use('/', perkRouter);
+app.use('/', characterRouter);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
     next(createError(404));
