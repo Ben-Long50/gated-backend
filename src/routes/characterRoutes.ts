@@ -10,10 +10,22 @@ router.get(
   characterController.getCharacters,
 );
 
+router.get(
+  '/characters/:characterId',
+  authentication.authenticateUser,
+  characterController.getCharacterById,
+);
+
 router.post(
   '/characters',
   authentication.authenticateUser,
   characterController.createCharacter,
+);
+
+router.put(
+  '/characters/:characterId',
+  authentication.authenticateUser,
+  characterController.updateCharacter,
 );
 
 export default router;

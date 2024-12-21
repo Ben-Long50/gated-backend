@@ -31,6 +31,10 @@ model Character {
   user          User            @relation(fields: [userId], references: [id])
   userId        Int
   name          String
+  level         Int             @default(1)
+  profits       Int             @default(0)
+  stats         Json            @default("{}")
+  picture       Json?
   height        Int
   weight        Int
   age           Int
@@ -53,8 +57,8 @@ model Perk {
 model CharacterPerk {
   characterId Int
   perkId      Int
-  Character   Character @relation(fields: [characterId], references: [id])
-  perk        Perk      @relation(fields: [perkId], references: [id])
+  Character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  perk        Perk      @relation(fields: [perkId], references: [id], onDelete: Cascade)
 
   @@id([characterId, perkId]) // Composite primary key
 }
