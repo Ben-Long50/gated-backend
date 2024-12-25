@@ -3,7 +3,7 @@ import prisma from '../config/database.js';
 const perkServices = {
   getPerks: async () => {
     try {
-      const perks = await prisma.perk.findMany();
+      const perks = await prisma.perk.findMany({ orderBy: { name: 'asc' } });
       return perks;
     } catch (error) {
       throw new Error('Failed to create user');

@@ -6,4 +6,5 @@ router.get('/characters', authentication.authenticateUser, characterController.g
 router.get('/characters/:characterId', authentication.authenticateUser, characterController.getCharacterById);
 router.post('/characters', authentication.authenticateUser, characterController.createCharacter);
 router.put('/characters/:characterId', authentication.authenticateUser, characterController.updateCharacter);
+router.delete('/characters/:characterId', authentication.authenticateUser, characterController.deleteCharacter);
 export default router;

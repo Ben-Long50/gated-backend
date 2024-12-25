@@ -30,30 +30,6 @@ const characterController = {
             res.status(500).json({ error: error.message });
         }
     }),
-    //   getCharacterById: async (req, res) => {
-    //     try {
-    //       const user = await userServices.getUserById(req.params.id);
-    //       if (!user) {
-    //         return res.status(404).json({ error: 'User not found' });
-    //       }
-    //       res.status(200).json(user);
-    //     } catch (error) {
-    //       res.status(500).json({ error: error.message });
-    //     }
-    //   },
-    updateCharacter: [
-        upload.single('picture'),
-        uploadToCloudinary,
-        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const character = yield characterServices.updateCharacter(req.body, req.user.id, req.params.characterId);
-                res.status(200).json(character);
-            }
-            catch (error) {
-                res.status(500).json({ error: error.message });
-            }
-        }),
-    ],
     createCharacter: [
         upload.single('picture'),
         uploadToCloudinary,
@@ -67,5 +43,27 @@ const characterController = {
             }
         }),
     ],
+    updateCharacter: [
+        upload.single('picture'),
+        uploadToCloudinary,
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+            try {
+                const character = yield characterServices.updateCharacter(req.body, req.user.id, req.params.characterId);
+                res.status(200).json(character);
+            }
+            catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        }),
+    ],
+    deleteCharacter: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield characterServices.deleteCharacter(req.user.id, req.params.characterId);
+            res.status(200).json({ message: 'Successfully deleted character' });
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }),
 };
 export default characterController;

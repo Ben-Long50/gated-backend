@@ -28,4 +28,10 @@ router.put(
   characterController.updateCharacter,
 );
 
+router.delete(
+  '/characters/:characterId',
+  authentication.authenticateUser,
+  characterController.deleteCharacter,
+);
+
 export default router;

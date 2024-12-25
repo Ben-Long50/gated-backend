@@ -8,8 +8,10 @@ datasource db {
 }
 
 enum UserRole {
+  GUEST
   USER
   ADMIN
+  SUPERADMIT
 }
 
 model User {
@@ -27,40 +29,62 @@ model User {
 }
 
 model Character {
-  id            Int             @id @default(autoincrement())
-  user          User            @relation(fields: [userId], references: [id])
-  userId        Int
-  name          String
-  level         Int             @default(1)
-  profits       Int             @default(0)
-  stats         Json            @default("{}")
-  picture       Json?
-  height        Int
-  weight        Int
-  age           Int
-  sex           String
-  background    String
-  attributes    Json
-  perks         Perk[]          @relation("CharacterPerks")
-  characterPerk CharacterPerk[]
+  id         Int    @id @default(autoincrement())
+  user       User   @relation(fields: [userId], references: [id])
+  userId     Int
+  name       String
+  level      Int    @default(1)
+  profits    Int    @default(10)
+  stats      Json   @default("{}")
+  picture    Json?
+  height     Int
+  weight     Int
+  age        Int
+  sex        String
+  background String
+  attributes Json
+  perks      Perk[]
 }
+
+enum KeywordType {
+  Weapon
+  Armor
+}
+
+model Keyword {
+  id          Int         @id @default(autoincrement())
+  keywordType KeywordType
+  name        String      @unique
+  description String
+  value       Int?
+}
+
+// model Weapon {
+//   id          Int          @id @default(autoincrement())
+//   name        String
+//   description String
+//   weaponTypes WeaponType[]
+//   stats       Json
+//   price       Int
+//   keywords    Keyword[]
+// }
+
+// model Armor {
+//   id          Int    @id @default(autoincrement())
+//   name        String
+//   description String
+
+//   stats    Json
+//   price    Int
+//   keywords Keyword[]
+// }
 
 model Perk {
-  id            Int             @id @default(autoincrement())
-  name          String
-  description   String
-  requirements  Json?
-  characters    Character[]     @relation("CharacterPerks")
-  characterPerk CharacterPerk[]
-}
-
-model CharacterPerk {
-  characterId Int
-  perkId      Int
-  Character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  perk        Perk      @relation(fields: [perkId], references: [id], onDelete: Cascade)
-
-  @@id([characterId, perkId]) // Composite primary key
+  id           Int         @id @default(autoincrement())
+  name         String
+  description  String
+  requirements Json?
+  characters   Character[]
 }
 
 //run "npx prisma generate" after updating models

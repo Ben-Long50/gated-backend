@@ -7,31 +7,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import prisma from '../config/database.js';
-const perkServices = {
-    getPerks: () => __awaiter(void 0, void 0, void 0, function* () {
+import keywordServices from '../services/keywordServices.js';
+const keywordController = {
+    getKeywords: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const perks = yield prisma.perk.findMany({ orderBy: { name: 'asc' } });
-            return perks;
+            const keywords = yield keywordServices.getKeywords();
+            res.status(200).json(keywords);
         }
         catch (error) {
-            throw new Error('Failed to create user');
+            res.status(500).json({ error: error.message });
         }
     }),
-    createPerk: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    createKeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const newUser = yield prisma.perk.create({
-                data: {
-                    name: formData.name,
-                    description: formData.description,
-                    requirements: formData.requirements,
-                },
-            });
-            return newUser;
+            const keyword = yield keywordServices.createKeyword(req.body);
+            res.status(200).json(keyword);
         }
         catch (error) {
-            throw new Error('Failed to create user');
+            res.status(500).json({ error: error.message });
         }
     }),
 };
-export default perkServices;
+export default keywordController;

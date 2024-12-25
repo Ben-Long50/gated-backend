@@ -8,30 +8,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import prisma from '../config/database.js';
-const perkServices = {
-    getPerks: () => __awaiter(void 0, void 0, void 0, function* () {
+const keywordServices = {
+    getKeywords: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const perks = yield prisma.perk.findMany({ orderBy: { name: 'asc' } });
-            return perks;
+            const keywords = yield prisma.keyword.findMany({
+                orderBy: { name: 'asc' },
+            });
+            return keywords;
         }
         catch (error) {
-            throw new Error('Failed to create user');
+            throw new Error('Failed to fetch keywords');
         }
     }),
-    createPerk: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    createKeyword: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const newUser = yield prisma.perk.create({
+            const newKeyword = yield prisma.keyword.create({
                 data: {
                     name: formData.name,
                     description: formData.description,
-                    requirements: formData.requirements,
+                    keywordType: formData.keywordType,
                 },
             });
-            return newUser;
+            return newKeyword;
         }
         catch (error) {
-            throw new Error('Failed to create user');
+            throw new Error('Failed to create keyword');
         }
     }),
 };
-export default perkServices;
+export default keywordServices;

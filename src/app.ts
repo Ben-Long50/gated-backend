@@ -11,6 +11,7 @@ import userRouter from './routes/userRoutes.js';
 import authRouter from './routes/authRoutes.js';
 import perkRouter from './routes/perkRoutes.js';
 import characterRouter from './routes/characterRoutes.js';
+import keywordRouter from './routes/keywordRoutes.js';
 import './passport/passport.js';
 
 const app = express();
@@ -53,6 +54,7 @@ app.use('/', userRouter);
 app.use('/', authRouter);
 app.use('/', perkRouter);
 app.use('/', characterRouter);
+app.use('/', keywordRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
