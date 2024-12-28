@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import { promisify } from 'util';
 import passport from 'passport';
 
 const authentication = {
