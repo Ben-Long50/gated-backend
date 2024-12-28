@@ -93,7 +93,6 @@ const characterServices = {
                 .then((character) => (character === null || character === void 0 ? void 0 : character.perks.filter((perk) => !newPerks.includes(perk.id))) ||
                 [])
                 .then((perks) => perks.map((perk) => ({ id: perk.id })));
-            console.log(newPerks, oldPerks);
             const data = Object.assign(Object.assign({ userId, name: JSON.parse(formData.name), level: Number(JSON.parse(formData.level)), profits: Number(JSON.parse(formData.profits)), stats: JSON.parse(formData.stats) }, (formData.picture && {
                 picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
             })), { height: Number(JSON.parse(formData.height)), weight: Number(JSON.parse(formData.weight)), age: Number(JSON.parse(formData.age)), sex: JSON.parse(formData.sex), background: JSON.parse(formData.background), attributes: JSON.parse(formData.attributes) });

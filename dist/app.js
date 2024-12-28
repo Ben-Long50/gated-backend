@@ -12,6 +12,8 @@ import authRouter from './routes/authRoutes.js';
 import perkRouter from './routes/perkRoutes.js';
 import characterRouter from './routes/characterRoutes.js';
 import keywordRouter from './routes/keywordRoutes.js';
+import weaponRouter from './routes/weaponRoutes.js';
+import armorRouter from './routes/armorRoutes.js';
 import './passport/passport.js';
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +46,8 @@ app.use('/', authRouter);
 app.use('/', perkRouter);
 app.use('/', characterRouter);
 app.use('/', keywordRouter);
+app.use('/', weaponRouter);
+app.use('/', armorRouter);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
     next(createError(404));

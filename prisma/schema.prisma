@@ -57,27 +57,29 @@ model Keyword {
   name        String      @unique
   description String
   value       Int?
+  weapons     Weapon[]
+  armor       Armor[]
 }
 
-// model Weapon {
-//   id          Int          @id @default(autoincrement())
-//   name        String
-//   description String
-//   weaponTypes WeaponType[]
-//   stats       Json
-//   price       Int
-//   keywords    Keyword[]
-// }
+model Weapon {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  picture     Json?
+  description String
+  stats       Json
+  price       Int
+  keywords    Keyword[]
+}
 
-// model Armor {
-//   id          Int    @id @default(autoincrement())
-//   name        String
-//   description String
-
-//   stats    Json
-//   price    Int
-//   keywords Keyword[]
-// }
+model Armor {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  picture     Json?
+  description String
+  stats       Json
+  price       Int
+  keywords    Keyword[]
+}
 
 model Perk {
   id           Int         @id @default(autoincrement())

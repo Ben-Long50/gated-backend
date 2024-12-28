@@ -96,8 +96,6 @@ const characterServices = {
         )
         .then((perks) => perks.map((perk) => ({ id: perk.id })));
 
-      console.log(newPerks, oldPerks);
-
       const data = {
         userId,
         name: JSON.parse(formData.name),
