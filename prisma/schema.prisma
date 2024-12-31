@@ -49,16 +49,18 @@ model Character {
 enum KeywordType {
   Weapon
   Armor
+  Cybernetic
 }
 
 model Keyword {
-  id          Int         @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   keywordType KeywordType
-  name        String      @unique
+  name        String       @unique
   description String
   value       Int?
   weapons     Weapon[]
   armor       Armor[]
+  cybernetics Cybernetic[]
 }
 
 model Weapon {
@@ -79,6 +81,27 @@ model Armor {
   stats       Json
   price       Int
   keywords    Keyword[]
+}
+
+enum CyberneticType {
+  Roll
+  Stat
+  Function
+  Defensive
+  Prototype
+}
+
+model Cybernetic {
+  id             Int            @id @default(autoincrement())
+  name           String         @unique
+  cyberneticType CyberneticType
+  cyber          Int
+  picture        Json?
+  description    String
+  body           String[]
+  stats          Json?
+  price          Int?
+  keywords       Keyword[]
 }
 
 model Perk {
