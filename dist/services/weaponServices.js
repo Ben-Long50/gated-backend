@@ -8,16 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import prisma from '../config/database.js';
+import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
 const weaponServices = {
     getWeapons: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const weapons = yield prisma.weapon.findMany({
-                include: {
-                    keywords: true,
-                },
                 orderBy: { name: 'asc' },
             });
-            return weapons;
+            const weaponDetails = yield getGroupKeywords(weapons);
+            return weaponDetails;
         }
         catch (error) {
             throw new Error(error.message || 'Failed to fetch weapons');
@@ -29,80 +28,78 @@ const weaponServices = {
                 where: {
                     id: Number(weaponId),
                 },
-                include: {
-                    keywords: true,
-                },
             });
-            return weapon;
+            const weaponDetails = yield getItemKeywords(weapon);
+            return weaponDetails;
         }
         catch (error) {
             throw new Error(error.message || 'Failed to fetch weapon');
         }
     }),
-    createWeapon: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    createIntegratedWeapon: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const keywords = JSON.parse(formData.keywords).map((id) => ({
-                id,
-            }));
-            const newWeapon = yield prisma.weapon.create({
-                data: {
-                    name: JSON.parse(formData.name),
-                    picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-                    stats: JSON.parse(formData.stats),
-                    price: JSON.parse(formData.price),
-                    description: JSON.parse(formData.description),
-                    keywords: {
-                        connect: keywords,
-                    },
+            const newWeapon = yield prisma.weapon.upsert({
+                where: { name: formData.name },
+                update: {
+                    name: formData.name,
+                    stats: formData.stats,
+                    keywords: formData.keywords,
+                },
+                create: {
+                    name: formData.name,
+                    stats: formData.stats,
+                    keywords: formData.keywords,
                 },
             });
             return newWeapon;
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to create weapon');
+            throw new Error('Failed to create or update integrated weapon');
         }
     }),
-    updateWeapon: (formData, weaponId) => __awaiter(void 0, void 0, void 0, function* () {
+    createWeapon: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const newKeywords = JSON.parse(formData.keywords).map((id) => ({
-                id,
-            }));
-            const oldKeywords = yield prisma.weapon
-                .findUnique({
-                where: {
-                    id: Number(weaponId),
+            const getPictureInfo = () => {
+                if (formData.publicId) {
+                    return { publicId: formData.publicId, imageUrl: formData.imageUrl };
+                }
+                else {
+                    return JSON.parse(formData.picture);
+                }
+            };
+            const pictureInfo = getPictureInfo();
+            const newWeapon = yield prisma.weapon.upsert({
+                where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
+                update: {
+                    name: JSON.parse(formData.name),
+                    picture: pictureInfo,
+                    stats: JSON.parse(formData.stats),
+                    price: JSON.parse(formData.price),
+                    description: JSON.parse(formData.description),
+                    keywords: JSON.parse(formData.keywords),
                 },
-                select: {
-                    keywords: { select: { id: true } },
+                create: {
+                    name: JSON.parse(formData.name),
+                    picture: pictureInfo,
+                    stats: JSON.parse(formData.stats),
+                    price: JSON.parse(formData.price),
+                    description: JSON.parse(formData.description),
+                    keywords: JSON.parse(formData.keywords),
                 },
-            })
-                .then((weapon) => (weapon === null || weapon === void 0 ? void 0 : weapon.keywords.filter((keyword) => !newKeywords.includes(keyword.id))) || [])
-                .then((keywords) => keywords.map((keyword) => ({ id: keyword.id })));
-            const data = Object.assign(Object.assign({ name: JSON.parse(formData.name) }, (formData.picture && {
-                picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-            })), { stats: JSON.parse(formData.stats), price: JSON.parse(formData.price), description: JSON.parse(formData.description) });
-            const updatedWeapon = yield prisma.weapon.update({
-                where: {
-                    id: Number(weaponId),
-                },
-                data: Object.assign(Object.assign({}, data), { perks: {
-                        disconnect: oldKeywords,
-                        connect: newKeywords,
-                    } }),
             });
-            return updatedWeapon;
+            return newWeapon;
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to update weapon');
+            throw new Error('Failed to create or update weapon');
         }
     }),
-    deleteWeapon: (weaponId) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteWeaponByName: (weaponName) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield prisma.weapon.delete({
                 where: {
-                    id: Number(weaponId),
+                    name: weaponName,
                 },
             });
         }

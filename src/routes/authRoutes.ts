@@ -50,11 +50,11 @@ router.get(
   authentication.issueJwt,
   (req, res) => {
     res.cookie('token', req.token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/home`;
+    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
     res.redirect(redirectUrl);
   },
 );
@@ -70,11 +70,11 @@ router.get(
   authentication.issueJwt,
   (req, res) => {
     res.cookie('token', req.token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/home`;
+    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
     res.redirect(redirectUrl);
   },
 );

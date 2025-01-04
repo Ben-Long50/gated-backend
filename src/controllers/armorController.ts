@@ -34,22 +34,6 @@ const armorController = {
     },
   ],
 
-  updateArmor: [
-    upload.single('picture'),
-    uploadToCloudinary,
-    async (req, res) => {
-      try {
-        const armor = await armorServices.updateArmor(
-          req.body,
-          req.params.armorId,
-        );
-        res.status(200).json(armor);
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    },
-  ],
-
   deleteArmor: async (req, res) => {
     try {
       await armorServices.deleteArmor(req.params.armorId);

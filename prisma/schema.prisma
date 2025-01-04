@@ -11,7 +11,7 @@ enum UserRole {
   GUEST
   USER
   ADMIN
-  SUPERADMIT
+  SUPERADMIN
 }
 
 model User {
@@ -29,13 +29,14 @@ model User {
 }
 
 model Character {
-  id         Int    @id @default(autoincrement())
-  user       User   @relation(fields: [userId], references: [id])
+  id         Int     @id @default(autoincrement())
+  user       User    @relation(fields: [userId], references: [id])
   userId     Int
-  name       String
-  level      Int    @default(1)
-  profits    Int    @default(10)
-  stats      Json   @default("{}")
+  firstName  String
+  lastName   String?
+  level      Int     @default(1)
+  profits    Int     @default(10)
+  stats      Json    @default("{}")
   picture    Json?
   height     Int
   weight     Int
@@ -47,69 +48,89 @@ model Character {
 }
 
 enum KeywordType {
-  Weapon
-  Armor
-  Cybernetic
+  weapon
+  armor
+  cybernetic
 }
 
 model Keyword {
-  id          Int          @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   keywordType KeywordType
-  name        String       @unique
+  name        String
   description String
-  value       Int?
-  weapons     Weapon[]
-  armor       Armor[]
-  cybernetics Cybernetic[]
+
+  @@unique([name, keywordType])
 }
 
 model Weapon {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
   picture     Json?
-  description String
+  description String?
   stats       Json
-  price       Int
-  keywords    Keyword[]
+  price       Int?
+  cybernetic  Cybernetic[]
+  keywords    Json[]
 }
 
 model Armor {
-  id          Int       @id @default(autoincrement())
-  name        String    @unique
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
   picture     Json?
-  description String
+  description String?
   stats       Json
-  price       Int
-  keywords    Keyword[]
+  price       Int?
+  cybernetic  Cybernetic[]
+  keywords    Json[]
 }
 
 enum CyberneticType {
-  Roll
-  Stat
-  Function
-  Defensive
-  Prototype
+  roll
+  stat
+  offensive
+  defensive
+  function
 }
 
 model Cybernetic {
   id             Int            @id @default(autoincrement())
   name           String         @unique
   cyberneticType CyberneticType
-  cyber          Int
+  stats          Json
   picture        Json?
   description    String
   body           String[]
-  stats          Json?
   price          Int?
-  keywords       Keyword[]
+  weapons        Weapon[]
+  armor          Armor[]
+  actions        Action[]
+  keywords       Json[]
 }
 
 model Perk {
   id           Int         @id @default(autoincrement())
-  name         String
+  name         String      @unique
   description  String
   requirements Json?
   characters   Character[]
+}
+
+enum ActionType {
+  action
+  extendedAction
+  reaction
+}
+
+model Action {
+  id             Int          @id @default(autoincrement())
+  name           String       @unique
+  description    String
+  costs          Json?
+  attribute      String?
+  skill          String?
+  actionType     ActionType
+  actionSubtypes String[]
+  cybernetics    Cybernetic[]
 }
 
 //run "npx prisma generate" after updating models

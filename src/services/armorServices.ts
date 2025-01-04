@@ -1,16 +1,19 @@
 import prisma from '../config/database.js';
+import {
+  getGroupKeywords,
+  getItemKeywords,
+} from '../utils/getAssociatedKeywords.js';
 
 const armorServices = {
   getArmor: async () => {
     try {
       const armor = await prisma.armor.findMany({
-        include: {
-          keywords: true,
-        },
         orderBy: { name: 'asc' },
       });
 
-      return armor;
+      const armorDetails = await getGroupKeywords(armor);
+
+      return armorDetails;
     } catch (error) {
       throw new Error(error.message || 'Failed to fetch armor');
     }
@@ -22,33 +25,29 @@ const armorServices = {
         where: {
           id: Number(armorId),
         },
-        include: {
-          keywords: true,
-        },
       });
 
-      return armor;
+      const armorDetails = await getItemKeywords(armor);
+
+      return armorDetails;
     } catch (error) {
       throw new Error(error.message || 'Failed to fetch armor');
     }
   },
 
-  createArmor: async (formData) => {
+  createIntegratedArmor: async (formData) => {
     try {
-      const keywords = JSON.parse(formData.keywords).map((id: number) => ({
-        id,
-      }));
-
-      const newArmor = await prisma.armor.create({
-        data: {
-          name: JSON.parse(formData.name),
-          picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-          stats: JSON.parse(formData.stats),
-          price: JSON.parse(formData.price),
-          description: JSON.parse(formData.description),
-          keywords: {
-            connect: keywords,
-          },
+      const newArmor = await prisma.armor.upsert({
+        where: { name: formData.name },
+        update: {
+          name: formData.name,
+          stats: formData.stats,
+          keywords: formData.keywords,
+        },
+        create: {
+          name: formData.name,
+          stats: formData.stats,
+          keywords: formData.keywords,
         },
       });
 
@@ -56,69 +55,55 @@ const armorServices = {
     } catch (error) {
       console.error(error);
 
-      throw new Error('Failed to create armor');
+      throw new Error('Failed to create or update integrated armor');
     }
   },
 
-  updateArmor: async (formData, armorId) => {
+  createArmor: async (formData) => {
     try {
-      const newKeywords = JSON.parse(formData.keywords).map((id: number) => ({
-        id,
-      }));
-
-      const oldKeywords = await prisma.armor
-        .findUnique({
-          where: {
-            id: Number(armorId),
-          },
-          select: {
-            keywords: { select: { id: true } },
-          },
-        })
-        .then(
-          (armor) =>
-            armor?.keywords.filter(
-              (keyword) => !newKeywords.includes(keyword.id),
-            ) || [],
-        )
-        .then((keywords) => keywords.map((keyword) => ({ id: keyword.id })));
-
-      const data = {
-        name: JSON.parse(formData.name),
-        ...(formData.picture && {
-          picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-        }),
-        stats: JSON.parse(formData.stats),
-        price: JSON.parse(formData.price),
-        description: JSON.parse(formData.description),
+      const getPictureInfo = () => {
+        if (formData.publicId) {
+          return { publicId: formData.publicId, imageUrl: formData.imageUrl };
+        } else {
+          return JSON.parse(formData.picture);
+        }
       };
 
-      const updatedArmor = await prisma.armor.update({
-        where: {
-          id: Number(armorId),
+      const pictureInfo = getPictureInfo();
+
+      const newArmor = await prisma.armor.upsert({
+        where: { id: Number(JSON.parse(formData.armorId)) || 0 },
+        update: {
+          name: JSON.parse(formData.name),
+          picture: pictureInfo,
+          stats: JSON.parse(formData.stats),
+          price: JSON.parse(formData.price),
+          description: JSON.parse(formData.description),
+          keywords: JSON.parse(formData.keywords),
         },
-        data: {
-          ...data,
-          perks: {
-            disconnect: oldKeywords,
-            connect: newKeywords,
-          },
+        create: {
+          name: JSON.parse(formData.name),
+          picture: pictureInfo,
+          stats: JSON.parse(formData.stats),
+          price: JSON.parse(formData.price),
+          description: JSON.parse(formData.description),
+          keywords: JSON.parse(formData.keywords),
         },
       });
 
-      return updatedArmor;
+      return newArmor;
     } catch (error) {
       console.error(error);
 
-      throw new Error('Failed to update armor');
+      throw new Error('Failed to create or update armor');
     }
   },
 
-  deleteArmor: async (armorId) => {
+  deleteArmorByName: async (armorName) => {
     try {
       await prisma.armor.delete({
         where: {
-          id: Number(armorId),
+          name: armorName,
         },
       });
     } catch (error) {

@@ -18,12 +18,6 @@ router.post(
   armorController.createArmor,
 );
 
-router.put(
-  '/armor/:armorId',
-  authentication.authenticateUser,
-  armorController.updateArmor,
-);
-
 router.delete(
   '/armor/:armorId',
   authentication.authenticateUser,

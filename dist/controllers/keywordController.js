@@ -18,6 +18,15 @@ const keywordController = {
             res.status(500).json({ error: error.message });
         }
     }),
+    getKeywordById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const keyword = yield keywordServices.getKeywordById(req.params.keywordId);
+            res.status(200).json(keyword);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }),
     createKeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const keyword = yield keywordServices.createKeyword(req.body);

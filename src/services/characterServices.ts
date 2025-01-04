@@ -10,7 +10,7 @@ const characterServices = {
         include: {
           perks: true,
         },
-        orderBy: { name: 'asc' },
+        orderBy: { level: 'desc' },
       });
 
       if (characters.length === 0) {
@@ -43,14 +43,16 @@ const characterServices = {
   createCharacter: async (formData, userId) => {
     try {
       const perks = JSON.parse(formData.perks);
+      const stats = JSON.parse(formData.stats);
 
       const newCharacter = await prisma.character.create({
         data: {
           userId,
-          name: JSON.parse(formData.name),
+          firstName: JSON.parse(formData.firstName),
+          lastName: JSON.parse(formData.lastName),
           stats: {
-            currentHealth: 0,
-            currentSanity: 0,
+            currentHealth: stats.currentHealth,
+            currentSanity: stats.currentSanity,
             injuries: 0,
             insanities: 0,
           },
@@ -98,7 +100,8 @@ const characterServices = {
 
       const data = {
         userId,
-        name: JSON.parse(formData.name),
+        firstName: JSON.parse(formData.firstName),
+        lastName: JSON.parse(formData.lastName),
         level: Number(JSON.parse(formData.level)),
         profits: Number(JSON.parse(formData.profits)),
         stats: JSON.parse(formData.stats),

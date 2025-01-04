@@ -14,6 +14,8 @@ import characterRouter from './routes/characterRoutes.js';
 import keywordRouter from './routes/keywordRoutes.js';
 import weaponRouter from './routes/weaponRoutes.js';
 import armorRouter from './routes/armorRoutes.js';
+import actionRouter from './routes/actionRoutes.js';
+import cybernericRouter from './routes/cyberneticRoutes.js';
 import './passport/passport.js';
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -48,6 +50,8 @@ app.use('/', characterRouter);
 app.use('/', keywordRouter);
 app.use('/', weaponRouter);
 app.use('/', armorRouter);
+app.use('/', actionRouter);
+app.use('/', cybernericRouter);
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
     next(createError(404));

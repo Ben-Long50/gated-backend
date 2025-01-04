@@ -8,16 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import prisma from '../config/database.js';
+import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
 const armorServices = {
     getArmor: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const armor = yield prisma.armor.findMany({
-                include: {
-                    keywords: true,
-                },
                 orderBy: { name: 'asc' },
             });
-            return armor;
+            const armorDetails = yield getGroupKeywords(armor);
+            return armorDetails;
         }
         catch (error) {
             throw new Error(error.message || 'Failed to fetch armor');
@@ -29,80 +28,78 @@ const armorServices = {
                 where: {
                     id: Number(armorId),
                 },
-                include: {
-                    keywords: true,
-                },
             });
-            return armor;
+            const armorDetails = yield getItemKeywords(armor);
+            return armorDetails;
         }
         catch (error) {
             throw new Error(error.message || 'Failed to fetch armor');
         }
     }),
-    createArmor: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    createIntegratedArmor: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const keywords = JSON.parse(formData.keywords).map((id) => ({
-                id,
-            }));
-            const newArmor = yield prisma.armor.create({
-                data: {
-                    name: JSON.parse(formData.name),
-                    picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-                    stats: JSON.parse(formData.stats),
-                    price: JSON.parse(formData.price),
-                    description: JSON.parse(formData.description),
-                    keywords: {
-                        connect: keywords,
-                    },
+            const newArmor = yield prisma.armor.upsert({
+                where: { name: formData.name },
+                update: {
+                    name: formData.name,
+                    stats: formData.stats,
+                    keywords: formData.keywords,
+                },
+                create: {
+                    name: formData.name,
+                    stats: formData.stats,
+                    keywords: formData.keywords,
                 },
             });
             return newArmor;
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to create armor');
+            throw new Error('Failed to create or update integrated armor');
         }
     }),
-    updateArmor: (formData, armorId) => __awaiter(void 0, void 0, void 0, function* () {
+    createArmor: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const newKeywords = JSON.parse(formData.keywords).map((id) => ({
-                id,
-            }));
-            const oldKeywords = yield prisma.armor
-                .findUnique({
-                where: {
-                    id: Number(armorId),
+            const getPictureInfo = () => {
+                if (formData.publicId) {
+                    return { publicId: formData.publicId, imageUrl: formData.imageUrl };
+                }
+                else {
+                    return JSON.parse(formData.picture);
+                }
+            };
+            const pictureInfo = getPictureInfo();
+            const newArmor = yield prisma.armor.upsert({
+                where: { id: Number(JSON.parse(formData.armorId)) || 0 },
+                update: {
+                    name: JSON.parse(formData.name),
+                    picture: pictureInfo,
+                    stats: JSON.parse(formData.stats),
+                    price: JSON.parse(formData.price),
+                    description: JSON.parse(formData.description),
+                    keywords: JSON.parse(formData.keywords),
                 },
-                select: {
-                    keywords: { select: { id: true } },
+                create: {
+                    name: JSON.parse(formData.name),
+                    picture: pictureInfo,
+                    stats: JSON.parse(formData.stats),
+                    price: JSON.parse(formData.price),
+                    description: JSON.parse(formData.description),
+                    keywords: JSON.parse(formData.keywords),
                 },
-            })
-                .then((armor) => (armor === null || armor === void 0 ? void 0 : armor.keywords.filter((keyword) => !newKeywords.includes(keyword.id))) || [])
-                .then((keywords) => keywords.map((keyword) => ({ id: keyword.id })));
-            const data = Object.assign(Object.assign({ name: JSON.parse(formData.name) }, (formData.picture && {
-                picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-            })), { stats: JSON.parse(formData.stats), price: JSON.parse(formData.price), description: JSON.parse(formData.description) });
-            const updatedArmor = yield prisma.armor.update({
-                where: {
-                    id: Number(armorId),
-                },
-                data: Object.assign(Object.assign({}, data), { perks: {
-                        disconnect: oldKeywords,
-                        connect: newKeywords,
-                    } }),
             });
-            return updatedArmor;
+            return newArmor;
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to update armor');
+            throw new Error('Failed to create or update armor');
         }
     }),
-    deleteArmor: (armorId) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteArmorByName: (armorName) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield prisma.armor.delete({
                 where: {
-                    id: Number(armorId),
+                    name: armorName,
                 },
             });
         }

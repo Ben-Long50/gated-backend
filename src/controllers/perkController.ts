@@ -1,4 +1,3 @@
-import userServices from '../services/userServices.js';
 import perkServices from '../services/perkServices.js';
 
 const perkController = {
@@ -11,13 +10,10 @@ const perkController = {
     }
   },
 
-  getUser: async (req, res) => {
+  getPerkById: async (req, res) => {
     try {
-      const user = await userServices.getUserById(req.params.id);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-      res.status(200).json(user);
+      const perk = await perkServices.getPerkById(req.params.perkId);
+      res.status(200).json(perk);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

@@ -1,16 +1,19 @@
 import prisma from '../config/database.js';
+import {
+  getGroupKeywords,
+  getItemKeywords,
+} from '../utils/getAssociatedKeywords.js';
 
 const weaponServices = {
   getWeapons: async () => {
     try {
       const weapons = await prisma.weapon.findMany({
-        include: {
-          keywords: true,
-        },
         orderBy: { name: 'asc' },
       });
 
-      return weapons;
+      const weaponDetails = await getGroupKeywords(weapons);
+
+      return weaponDetails;
     } catch (error) {
       throw new Error(error.message || 'Failed to fetch weapons');
     }
@@ -22,33 +25,29 @@ const weaponServices = {
         where: {
           id: Number(weaponId),
         },
-        include: {
-          keywords: true,
-        },
       });
 
-      return weapon;
+      const weaponDetails = await getItemKeywords(weapon);
+
+      return weaponDetails;
     } catch (error) {
       throw new Error(error.message || 'Failed to fetch weapon');
     }
   },
 
-  createWeapon: async (formData) => {
+  createIntegratedWeapon: async (formData) => {
     try {
-      const keywords = JSON.parse(formData.keywords).map((id: number) => ({
-        id,
-      }));
-
-      const newWeapon = await prisma.weapon.create({
-        data: {
-          name: JSON.parse(formData.name),
-          picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-          stats: JSON.parse(formData.stats),
-          price: JSON.parse(formData.price),
-          description: JSON.parse(formData.description),
-          keywords: {
-            connect: keywords,
-          },
+      const newWeapon = await prisma.weapon.upsert({
+        where: { name: formData.name },
+        update: {
+          name: formData.name,
+          stats: formData.stats,
+          keywords: formData.keywords,
+        },
+        create: {
+          name: formData.name,
+          stats: formData.stats,
+          keywords: formData.keywords,
         },
       });
 
@@ -56,69 +55,55 @@ const weaponServices = {
     } catch (error) {
       console.error(error);
 
-      throw new Error('Failed to create weapon');
+      throw new Error('Failed to create or update integrated weapon');
     }
   },
 
-  updateWeapon: async (formData, weaponId) => {
+  createWeapon: async (formData) => {
     try {
-      const newKeywords = JSON.parse(formData.keywords).map((id: number) => ({
-        id,
-      }));
-
-      const oldKeywords = await prisma.weapon
-        .findUnique({
-          where: {
-            id: Number(weaponId),
-          },
-          select: {
-            keywords: { select: { id: true } },
-          },
-        })
-        .then(
-          (weapon) =>
-            weapon?.keywords.filter(
-              (keyword) => !newKeywords.includes(keyword.id),
-            ) || [],
-        )
-        .then((keywords) => keywords.map((keyword) => ({ id: keyword.id })));
-
-      const data = {
-        name: JSON.parse(formData.name),
-        ...(formData.picture && {
-          picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-        }),
-        stats: JSON.parse(formData.stats),
-        price: JSON.parse(formData.price),
-        description: JSON.parse(formData.description),
+      const getPictureInfo = () => {
+        if (formData.publicId) {
+          return { publicId: formData.publicId, imageUrl: formData.imageUrl };
+        } else {
+          return JSON.parse(formData.picture);
+        }
       };
 
-      const updatedWeapon = await prisma.weapon.update({
-        where: {
-          id: Number(weaponId),
+      const pictureInfo = getPictureInfo();
+
+      const newWeapon = await prisma.weapon.upsert({
+        where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
+        update: {
+          name: JSON.parse(formData.name),
+          picture: pictureInfo,
+          stats: JSON.parse(formData.stats),
+          price: JSON.parse(formData.price),
+          description: JSON.parse(formData.description),
+          keywords: JSON.parse(formData.keywords),
         },
-        data: {
-          ...data,
-          perks: {
-            disconnect: oldKeywords,
-            connect: newKeywords,
-          },
+        create: {
+          name: JSON.parse(formData.name),
+          picture: pictureInfo,
+          stats: JSON.parse(formData.stats),
+          price: JSON.parse(formData.price),
+          description: JSON.parse(formData.description),
+          keywords: JSON.parse(formData.keywords),
         },
       });
 
-      return updatedWeapon;
+      return newWeapon;
     } catch (error) {
       console.error(error);
 
-      throw new Error('Failed to update weapon');
+      throw new Error('Failed to create or update weapon');
     }
   },
 
-  deleteWeapon: async (weaponId) => {
+  deleteWeaponByName: async (weaponName) => {
     try {
       await prisma.weapon.delete({
         where: {
-          id: Number(weaponId),
+          name: weaponName,
         },
       });
     } catch (error) {

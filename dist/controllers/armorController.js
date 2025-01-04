@@ -42,19 +42,6 @@ const armorController = {
             }
         }),
     ],
-    updateArmor: [
-        upload.single('picture'),
-        uploadToCloudinary,
-        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const armor = yield armorServices.updateArmor(req.body, req.params.armorId);
-                res.status(200).json(armor);
-            }
-            catch (error) {
-                res.status(500).json({ error: error.message });
-            }
-        }),
-    ],
     deleteArmor: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield armorServices.deleteArmor(req.params.armorId);

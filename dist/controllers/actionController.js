@@ -7,34 +7,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import perkServices from '../services/perkServices.js';
-const perkController = {
-    getPerks: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+import actionServices from '../services/actionServices.js';
+const actionConroller = {
+    getActions: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const perks = yield perkServices.getPerks();
-            res.status(200).json(perks);
+            const actions = yield actionServices.getActions();
+            res.status(200).json(actions);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
         }
     }),
-    getPerkById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    createAction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const perk = yield perkServices.getPerkById(req.params.perkId);
-            res.status(200).json(perk);
-        }
-        catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }),
-    createPerk: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const perk = yield perkServices.createPerk(req.body);
-            res.status(200).json(perk);
+            const action = yield actionServices.createAction(req.body);
+            res.status(200).json(action);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
         }
     }),
 };
-export default perkController;
+export default actionConroller;

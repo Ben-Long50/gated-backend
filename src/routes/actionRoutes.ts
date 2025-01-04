@@ -1,21 +1,19 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
-import perkController from '../controllers/perkController.js';
+import actionConroller from '../controllers/actionController.js';
 
 const router = express.Router();
 
-router.get('/perks', authentication.authenticateUser, perkController.getPerks);
-
 router.get(
-  '/perks/:perkId',
+  '/actions',
   authentication.authenticateUser,
-  perkController.getPerkById,
+  actionConroller.getActions,
 );
 
 router.post(
-  '/perks',
+  '/actions',
   authentication.authenticateUser,
-  perkController.createPerk,
+  actionConroller.createAction,
 );
 
 export default router;

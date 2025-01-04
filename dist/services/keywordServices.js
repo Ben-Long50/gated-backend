@@ -20,10 +20,27 @@ const keywordServices = {
             throw new Error('Failed to fetch keywords');
         }
     }),
+    getKeywordById: (keywordId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const keyword = yield prisma.keyword.findUnique({
+                where: { id: Number(keywordId) },
+            });
+            return keyword;
+        }
+        catch (error) {
+            throw new Error('Failed to fetch keyword');
+        }
+    }),
     createKeyword: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const newKeyword = yield prisma.keyword.create({
-                data: {
+            const newKeyword = yield prisma.keyword.upsert({
+                where: { id: Number(formData.keywordId) || 0 },
+                update: {
+                    name: formData.name,
+                    description: formData.description,
+                    keywordType: formData.keywordType,
+                },
+                create: {
                     name: formData.name,
                     description: formData.description,
                     keywordType: formData.keywordType,

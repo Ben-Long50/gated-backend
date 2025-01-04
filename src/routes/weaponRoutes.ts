@@ -22,12 +22,6 @@ router.post(
   weaponController.createWeapon,
 );
 
-router.put(
-  '/weapons/:weaponId',
-  authentication.authenticateUser,
-  weaponController.updateWeapon,
-);
-
 router.delete(
   '/weapons/:weaponId',
   authentication.authenticateUser,

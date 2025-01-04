@@ -10,6 +10,12 @@ router.get(
   keywordConroller.getKeywords,
 );
 
+router.get(
+  '/keywords/:keywordId',
+  authentication.authenticateUser,
+  keywordConroller.getKeywordById,
+);
+
 router.post(
   '/keywords',
   authentication.authenticateUser,

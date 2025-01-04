@@ -10,10 +10,27 @@ const perkServices = {
     }
   },
 
+  getPerkById: async (perkId) => {
+    try {
+      const perk = await prisma.perk.findUnique({
+        where: { id: Number(perkId) },
+      });
+      return perk;
+    } catch (error) {
+      throw new Error('Failed to fetch perk');
+    }
+  },
+
   createPerk: async (formData) => {
     try {
-      const newUser = await prisma.perk.create({
-        data: {
+      const newUser = await prisma.perk.upsert({
+        where: { id: Number(formData.perkId) || 0 },
+        update: {
+          name: formData.name,
+          description: formData.description,
+          requirements: formData.requirements,
+        },
+        create: {
           name: formData.name,
           description: formData.description,
           requirements: formData.requirements,
@@ -21,7 +38,7 @@ const perkServices = {
       });
       return newUser;
     } catch (error) {
-      throw new Error('Failed to create user');
+      throw new Error('Failed to create or update perk');
     }
   },
 };

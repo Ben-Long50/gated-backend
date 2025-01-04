@@ -10,6 +10,17 @@ const keywordController = {
     }
   },
 
+  getKeywordById: async (req, res) => {
+    try {
+      const keyword = await keywordServices.getKeywordById(
+        req.params.keywordId,
+      );
+      res.status(200).json(keyword);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   createKeyword: async (req, res) => {
     try {
       const keyword = await keywordServices.createKeyword(req.body);

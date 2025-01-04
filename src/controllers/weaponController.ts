@@ -34,22 +34,6 @@ const weaponController = {
     },
   ],
 
-  updateWeapon: [
-    upload.single('picture'),
-    uploadToCloudinary,
-    async (req, res) => {
-      try {
-        const weapon = await weaponServices.updateWeapon(
-          req.body,
-          req.params.weaponId,
-        );
-        res.status(200).json(weapon);
-      } catch (error) {
-        res.status(500).json({ error: error.message });
-      }
-    },
-  ],
-
   deleteWeapon: async (req, res) => {
     try {
       await weaponServices.deleteWeapon(req.params.weaponId);

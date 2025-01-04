@@ -42,19 +42,6 @@ const weaponController = {
             }
         }),
     ],
-    updateWeapon: [
-        upload.single('picture'),
-        uploadToCloudinary,
-        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const weapon = yield weaponServices.updateWeapon(req.body, req.params.weaponId);
-                res.status(200).json(weapon);
-            }
-            catch (error) {
-                res.status(500).json({ error: error.message });
-            }
-        }),
-    ],
     deleteWeapon: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield weaponServices.deleteWeapon(req.params.weaponId);

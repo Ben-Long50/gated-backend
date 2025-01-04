@@ -34,11 +34,11 @@ router.get('/auth/google/callback', passport.authenticate('google', {
     failureRedirect: '/auth/failure',
 }), authentication.issueJwt, (req, res) => {
     res.cookie('token', req.token, {
-        httpOnly: true,
+        // httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/home`;
+    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
     res.redirect(redirectUrl);
 });
 router.get('/auth/facebook', passport.authenticate('facebook'));
@@ -47,11 +47,11 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
     failureRedirect: '/auth/failure',
 }), authentication.issueJwt, (req, res) => {
     res.cookie('token', req.token, {
-        httpOnly: true,
+        // httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/home`;
+    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
     res.redirect(redirectUrl);
 });
 router.get('/auth/failure', (req, res) => {
