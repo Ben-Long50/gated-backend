@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "rimraf dist && npx tsc",
-    "prestart": "npx prisma generate && npm run build",
+    "build": "npx prisma generate && rimraf dist && npx tsc",
+    "prestart": "npm run build",
     "start": "node ./bin/www",
     "predevstart": "rimraf dist",
     "devstart": "concurrently \"npx tsc -w\" \"nodemon ./bin/www\"",
