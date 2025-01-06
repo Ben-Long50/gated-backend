@@ -1,8 +1,9 @@
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 
 const authentication = {
-  issueJwt: (req, res, next) => {
+  issueJwt: (req: Request, res: Response, next: NextFunction) => {
     try {
       jwt.sign(
         { id: req.user.id },
@@ -19,7 +20,9 @@ const authentication = {
         },
       );
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 

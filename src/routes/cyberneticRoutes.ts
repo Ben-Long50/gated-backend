@@ -22,12 +22,6 @@ router.post(
   cyberneticController.createCybernetic,
 );
 
-router.put(
-  '/cybernetics/:cyberneticId',
-  authentication.authenticateUser,
-  cyberneticController.updateCybernetic,
-);
-
 router.delete(
   '/cybernetics/:cyberneticId',
   authentication.authenticateUser,

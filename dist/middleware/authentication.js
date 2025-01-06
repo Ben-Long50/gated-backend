@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 const authentication = {
-    issueJwt: (req, res, next) => {
+    issueJwt: (req: Request, res: Response, next) => {
         try {
             jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
                 expiresIn: '8h',
@@ -14,7 +14,9 @@ const authentication = {
             });
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+             if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
         }
     },
     authenticateUser: passport.authenticate('jwt', { session: false }),

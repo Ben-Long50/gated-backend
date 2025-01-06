@@ -15,6 +15,7 @@ const userServices = {
       });
       return userArray;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch users');
     }
   },
@@ -32,6 +33,7 @@ const userServices = {
         profilePicture: user?.profilePicture,
       };
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch user');
     }
   },
@@ -49,6 +51,7 @@ const userServices = {
         profilePicture: user?.profilePicture,
       };
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch user');
     }
   },
@@ -68,6 +71,7 @@ const userServices = {
         profilePicture: newUser?.profilePicture,
       };
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to create user');
     }
   },

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import userController from '../controllers/userController.js';
 import { sendAuthStatus } from '../passport/passport.js';
@@ -10,7 +10,7 @@ router.post('/auth/signup', userController.createUser);
 
 router.post(
   '/auth/signin',
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('local', { session: false }, (err, user, info) => {
       if (err || !user) {
         return res
@@ -29,7 +29,7 @@ router.post(
     })(req, res, next);
   },
   authentication.issueJwt,
-  (req, res) => {
+  (req: Request, res: Response) => {
     res.cookie('token', req.token, {
       // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -55,13 +55,13 @@ router.get(
     failureRedirect: '/auth/failure',
   }),
   authentication.issueJwt,
-  (req, res) => {
+  (req: Request, res: Response) => {
     res.cookie('token', req.token, {
       // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
     res.redirect(redirectUrl);
   },
 );
@@ -75,18 +75,18 @@ router.get(
     failureRedirect: '/auth/failure',
   }),
   authentication.issueJwt,
-  (req, res) => {
+  (req: Request, res: Response) => {
     res.cookie('token', req.token, {
       // httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
     res.redirect(redirectUrl);
   },
 );
 
-router.get('/auth/failure', (req, res) => {
+router.get('/auth/failure', (_req: Request, res: Response) => {
   const message = 'Email is already associated with another sign in option';
   const redirectUrl = `${process.env.CLIENT_URL}/signin?error=${message}&status=400`;
   res.redirect(redirectUrl);

@@ -1,18 +1,21 @@
+import { Request, Response } from 'express';
 import characterServices from '../services/characterServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 
 const characterController = {
-  getCharacters: async (req, res) => {
+  getCharacters: async (req: Request, res: Response) => {
     try {
-      const characters = await characterServices.getCharacters(req.user.id);
+      const characters = await characterServices.getCharacters(req.user?.id);
       res.status(200).json(characters);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 
-  getCharacterById: async (req, res) => {
+  getCharacterById: async (req: Request, res: Response) => {
     try {
       console.log(req.params.characterId);
 
@@ -21,22 +24,26 @@ const characterController = {
       );
       res.status(200).json(character);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 
   createCharacter: [
     upload.single('picture'),
     uploadToCloudinary,
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       try {
         const character = await characterServices.createCharacter(
           req.body,
-          req.user.id,
+          req.user?.id,
         );
         res.status(200).json(character);
       } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
       }
     },
   ],
@@ -44,29 +51,33 @@ const characterController = {
   updateCharacter: [
     upload.single('picture'),
     uploadToCloudinary,
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       try {
         const character = await characterServices.updateCharacter(
           req.body,
-          req.user.id,
+          req.user?.id,
           req.params.characterId,
         );
         res.status(200).json(character);
       } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
       }
     },
   ],
 
-  deleteCharacter: async (req, res) => {
+  deleteCharacter: async (req: Request, res: Response) => {
     try {
       await characterServices.deleteCharacter(
-        req.user.id,
+        req.user?.id,
         req.params.characterId,
       );
       res.status(200).json({ message: 'Successfully deleted character' });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 };

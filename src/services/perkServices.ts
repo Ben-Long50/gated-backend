@@ -6,7 +6,8 @@ const perkServices = {
       const perks = await prisma.perk.findMany({ orderBy: { name: 'asc' } });
       return perks;
     } catch (error) {
-      throw new Error('Failed to create user');
+      console.error(error);
+      throw new Error('Failed to fetch perks');
     }
   },
 
@@ -17,6 +18,7 @@ const perkServices = {
       });
       return perk;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch perk');
     }
   },
@@ -38,6 +40,7 @@ const perkServices = {
       });
       return newUser;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to create or update perk');
     }
   },

@@ -11,7 +11,7 @@ import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import userServices from '../services/userServices.js';
 const userController = {
-    getAuthenticatedUser: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getAuthenticatedUser: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e;
         res.status(200).json({
             id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
@@ -21,16 +21,18 @@ const userController = {
             profilePicture: (_e = req.user) === null || _e === void 0 ? void 0 : _e.profilePicture,
         });
     }),
-    getUsers: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getUsers: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const users = yield userServices.getAllUsers();
             res.json(users);
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+             if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
         }
     }),
-    getUser: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getUser: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const user = yield userServices.getUserById(req.params.id);
             if (!user) {
@@ -45,7 +47,9 @@ const userController = {
             });
         }
         catch (error) {
-            res.status(500).json({ error: error.message });
+             if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
         }
     }),
     createUser: [
@@ -90,7 +94,7 @@ const userController = {
             }
             return true;
         }),
-        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 res.status(400).json({ errors: errors.array() });
@@ -108,7 +112,9 @@ const userController = {
                     res.status(200).json({ message: 'Account creation successful' });
                 }
                 catch (error) {
-                    res.status(500).json({ error: error.message });
+                     if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
                 }
             }
         }),

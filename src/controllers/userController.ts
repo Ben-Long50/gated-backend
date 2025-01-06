@@ -1,9 +1,10 @@
+import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import userServices from '../services/userServices.js';
 
 const userController = {
-  getAuthenticatedUser: async (req, res) => {
+  getAuthenticatedUser: async (req: Request, res: Response) => {
     res.status(200).json({
       id: req.user?.id,
       firstName: req.user?.firstName,
@@ -13,22 +14,25 @@ const userController = {
     });
   },
 
-  getUsers: async (req, res) => {
+  getUsers: async (_req: Request, res: Response) => {
     try {
       const users = await userServices.getAllUsers();
       res.json(users);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 
-  getUser: async (req, res) => {
+  getUser: async (req: Request, res: Response) => {
     try {
       const user = await userServices.getUserById(req.params.id);
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        res.status(404).json({ error: 'User not found' });
       }
-      res.json({
+
+      res.status(200).json({
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -36,7 +40,9 @@ const userController = {
         profilePicture: user.profilePicture,
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 
@@ -85,7 +91,7 @@ const userController = {
         return true;
       }),
 
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(400).json({ errors: errors.array() });
@@ -102,7 +108,9 @@ const userController = {
 
           res.status(200).json({ message: 'Account creation successful' });
         } catch (error) {
-          res.status(500).json({ error: error.message });
+          if (error instanceof Error) {
+            res.status(500).json({ error: error.message });
+          }
         }
       }
     },

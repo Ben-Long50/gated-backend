@@ -23,7 +23,8 @@ const cyberneticServices = {
 
       return cyberneticsDetails;
     } catch (error) {
-      throw new Error(error.message || 'Failed to fetch cybernetics');
+      console.error(error);
+      throw new Error('Failed to fetch cybernetics');
     }
   },
 
@@ -50,7 +51,8 @@ const cyberneticServices = {
         armor: armorDetails,
       };
     } catch (error) {
-      throw new Error(error.message || 'Failed to fetch cybernetic');
+      console.error(error);
+      throw new Error('Failed to fetch cybernetic');
     }
   },
 
@@ -177,62 +179,7 @@ const cyberneticServices = {
       return newCybernetic;
     } catch (error) {
       console.error(error);
-
       throw new Error('Failed to create cybernetic');
-    }
-  },
-
-  updateCybernetic: async (formData, cyberneticId) => {
-    try {
-      const newKeywords = JSON.parse(formData.keywords).map((id: number) => ({
-        id,
-      }));
-
-      const oldKeywords = await prisma.cybernetic
-        .findUnique({
-          where: {
-            id: Number(cyberneticId),
-          },
-          select: {
-            keywords: { select: { id: true } },
-          },
-        })
-        .then(
-          (cybernetic) =>
-            cybernetic?.keywords.filter(
-              (keyword) => !newKeywords.includes(keyword.id),
-            ) || [],
-        )
-        .then((keywords) => keywords.map((keyword) => ({ id: keyword.id })));
-
-      const data = {
-        name: JSON.parse(formData.name),
-        ...(formData.picture && {
-          picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-        }),
-        stats: JSON.parse(formData.stats),
-        price: JSON.parse(formData.price),
-        description: JSON.parse(formData.description),
-      };
-
-      const updatedCybernetic = await prisma.cybernetic.update({
-        where: {
-          id: Number(cyberneticId),
-        },
-        data: {
-          ...data,
-          perks: {
-            disconnect: oldKeywords,
-            connect: newKeywords,
-          },
-        },
-      });
-
-      return updatedCybernetic;
-    } catch (error) {
-      console.error(error);
-
-      throw new Error('Failed to update cybernetic');
     }
   },
 
@@ -244,7 +191,8 @@ const cyberneticServices = {
         },
       });
     } catch (error) {
-      throw new Error(error.message || 'Failed to delete cybernetic');
+      console.error(error);
+      throw new Error('Failed to delete cybernetic');
     }
   },
 };

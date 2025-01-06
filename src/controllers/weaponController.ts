@@ -1,45 +1,54 @@
+import { Request, Response } from 'express';
 import weaponServices from '../services/weaponServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 
 const weaponController = {
-  getWeapons: async (req, res) => {
+  getWeapons: async (_req: Request, res: Response) => {
     try {
       const weapons = await weaponServices.getWeapons();
       res.status(200).json(weapons);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 
-  getWeaponById: async (req, res) => {
+  getWeaponById: async (req: Request, res: Response) => {
     try {
       const weapon = await weaponServices.getWeaponById(req.params.weaponId);
       res.status(200).json(weapon);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 
   createWeapon: [
     upload.single('picture'),
     uploadToCloudinary,
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       try {
         const weapon = await weaponServices.createWeapon(req.body);
         res.status(200).json(weapon);
       } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
       }
     },
   ],
 
-  deleteWeapon: async (req, res) => {
+  deleteWeapon: async (req: Request, res: Response) => {
     try {
       await weaponServices.deleteWeapon(req.params.weaponId);
       res.status(200).json({ message: 'Successfully deleted weapon' });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
     }
   },
 };

@@ -5,7 +5,7 @@ import { sendAuthStatus } from '../passport/passport.js';
 import authentication from '../middleware/authentication.js';
 const router = express.Router();
 router.post('/auth/signup', userController.createUser);
-router.post('/auth/signin', (req, res, next) => {
+router.post('/auth/signin', (req: Request, res: Response, next) => {
     passport.authenticate('local', { session: false }, (err, user, info) => {
         if (err || !user) {
             return res
@@ -20,8 +20,8 @@ router.post('/auth/signin', (req, res, next) => {
             profilePicture: user.profilePicture,
         };
         next();
-    })(req, res, next);
-}, authentication.issueJwt, (req, res) => {
+    })(req: Request, res: Response, next);
+}, authentication.issueJwt, (req: Request, res: Response) => {
     res.cookie('token', req.token, {
         // httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -38,7 +38,7 @@ router.get('/auth/google', passport.authenticate('google'));
 router.get('/auth/google/callback', passport.authenticate('google', {
     session: false,
     failureRedirect: '/auth/failure',
-}), authentication.issueJwt, (req, res) => {
+}), authentication.issueJwt, (req: Request, res: Response) => {
     res.cookie('token', req.token, {
         // httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -51,7 +51,7 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', passport.authenticate('facebook', {
     session: false,
     failureRedirect: '/auth/failure',
-}), authentication.issueJwt, (req, res) => {
+}), authentication.issueJwt, (req: Request, res: Response) => {
     res.cookie('token', req.token, {
         // httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -60,7 +60,7 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
     const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
     res.redirect(redirectUrl);
 });
-router.get('/auth/failure', (req, res) => {
+router.get('/auth/failure', (req: Request, res: Response) => {
     const message = 'Email is already associated with another sign in option';
     const redirectUrl = `${process.env.CLIENT_URL}/signin?error=${message}&status=400`;
     res.redirect(redirectUrl);

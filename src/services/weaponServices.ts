@@ -15,7 +15,8 @@ const weaponServices = {
 
       return weaponDetails;
     } catch (error) {
-      throw new Error(error.message || 'Failed to fetch weapons');
+      console.error(error);
+      throw new Error('Failed to fetch weapons');
     }
   },
 
@@ -31,7 +32,8 @@ const weaponServices = {
 
       return weaponDetails;
     } catch (error) {
-      throw new Error(error.message || 'Failed to fetch weapon');
+      console.error(error);
+      throw new Error('Failed to fetch weapon');
     }
   },
 
@@ -54,7 +56,6 @@ const weaponServices = {
       return newWeapon;
     } catch (error) {
       console.error(error);
-
       throw new Error('Failed to create or update integrated weapon');
     }
   },
@@ -94,20 +95,20 @@ const weaponServices = {
       return newWeapon;
     } catch (error) {
       console.error(error);
-
       throw new Error('Failed to create or update weapon');
     }
   },
 
-  deleteWeaponByName: async (weaponName) => {
+  deleteWeapon: async (weaponId) => {
     try {
       await prisma.weapon.delete({
         where: {
-          name: weaponName,
+          id: Number(weaponId),
         },
       });
     } catch (error) {
-      throw new Error(error.message || 'Failed to delete weapon');
+      console.error(error);
+      throw new Error('Failed to delete weapon');
     }
   },
 };

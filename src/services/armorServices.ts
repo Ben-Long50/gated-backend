@@ -15,7 +15,8 @@ const armorServices = {
 
       return armorDetails;
     } catch (error) {
-      throw new Error(error.message || 'Failed to fetch armor');
+      console.error(error);
+      throw new Error('Failed to fetch armor');
     }
   },
 
@@ -31,7 +32,8 @@ const armorServices = {
 
       return armorDetails;
     } catch (error) {
-      throw new Error(error.message || 'Failed to fetch armor');
+      console.error(error);
+      throw new Error('Failed to fetch armor');
     }
   },
 
@@ -54,7 +56,6 @@ const armorServices = {
       return newArmor;
     } catch (error) {
       console.error(error);
-
       throw new Error('Failed to create or update integrated armor');
     }
   },
@@ -94,20 +95,20 @@ const armorServices = {
       return newArmor;
     } catch (error) {
       console.error(error);
-
       throw new Error('Failed to create or update armor');
     }
   },
 
-  deleteArmorByName: async (armorName) => {
+  deleteArmor: async (armorId) => {
     try {
       await prisma.armor.delete({
         where: {
-          name: armorName,
+          id: Number(armorId),
         },
       });
     } catch (error) {
-      throw new Error(error.message || 'Failed to delete armor');
+      console.error(error);
+      throw new Error('Failed to delete armor');
     }
   },
 };

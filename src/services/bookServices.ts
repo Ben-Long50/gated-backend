@@ -9,6 +9,7 @@ const bookServices = {
       });
       return book;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch book');
     }
   },
@@ -23,6 +24,7 @@ const bookServices = {
 
       return bookEntry;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch book');
     }
   },
@@ -42,6 +44,7 @@ const bookServices = {
       });
       return bookEntry;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to create or update book entry');
     }
   },
@@ -54,7 +57,8 @@ const bookServices = {
         },
       });
     } catch (error) {
-      throw new Error(error.message || 'Failed to delete book entry');
+      console.error(error);
+      throw new Error('Failed to delete book entry');
     }
   },
 };

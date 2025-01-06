@@ -12,7 +12,7 @@ const googleStrategy = (passport) => {
         scope: ['profile', 'email'],
         state: false,
       },
-      async (accessToken, refreshToken, profile, done) => {
+      async (_accessToken, _refreshToken, profile, done) => {
         try {
           const email =
             profile.emails && profile.emails[0]

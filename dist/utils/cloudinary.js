@@ -17,7 +17,7 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
     secure: true,
 });
-export const uploadToCloudinary = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+export const uploadToCloudinary = (req: Request, res: Response, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         console.log(req.file);
         try {

@@ -1,6 +1,8 @@
+import { Request, Response } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { NextFunction } from 'express';
 
 dotenv.config();
 
@@ -11,7 +13,11 @@ cloudinary.config({
   secure: true,
 });
 
-export const uploadToCloudinary = async (req, res, next) => {
+export const uploadToCloudinary = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   if (req.file) {
     console.log(req.file);
 
@@ -37,7 +43,7 @@ export const uploadToCloudinary = async (req, res, next) => {
   next();
 };
 
-export const deleteFromCloudinary = (publicId) => {
+export const deleteFromCloudinary = (publicId: string) => {
   try {
     const result = cloudinary.uploader.destroy(publicId);
     if (result.result === 'ok') {
@@ -45,7 +51,7 @@ export const deleteFromCloudinary = (publicId) => {
     }
     throw new Error('Error deleting image');
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
   }
 };
 

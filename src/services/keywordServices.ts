@@ -8,6 +8,7 @@ const keywordServices = {
       });
       return keywords;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch keywords');
     }
   },
@@ -19,6 +20,7 @@ const keywordServices = {
       });
       return keyword;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to fetch keyword');
     }
   },
@@ -40,6 +42,7 @@ const keywordServices = {
       });
       return newKeyword;
     } catch (error) {
+      console.error(error);
       throw new Error('Failed to create or update keyword');
     }
   },

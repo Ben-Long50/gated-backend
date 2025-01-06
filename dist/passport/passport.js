@@ -29,7 +29,7 @@ googleStrategy(passport);
 facebookStrategy(passport);
 localStrategy(passport);
 jwtStrategy(passport);
-export const sendAuthStatus = (req, res) => {
+export const sendAuthStatus = (req: Request, res: Response) => {
     if (req.isAuthenticated()) {
         res.status(200).json({
             message: `Authenticated as user ${req.user.firstName} ${req.user.lastName}`,

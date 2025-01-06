@@ -55,11 +55,11 @@ app.use('/', actionRouter);
 app.use('/', cybernericRouter);
 app.use('/', bookRouter);
 // catch 404 and forward to error handler
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next) => {
     next(createError(404));
 });
 // error handler
-app.use((err, req, res, next) => {
+app.use((err, req: Request, res: Response, next) => {
     if (res.headersSent) {
         return next(err);
     }

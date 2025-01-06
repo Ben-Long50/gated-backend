@@ -12,7 +12,7 @@ const facebookStrategy = (passport) => {
         profileFields: ['id', 'emails', 'name', 'picture'],
         scope: ['email'],
       },
-      async (accessToken, refreshToken, profile, done) => {
+      async (_accessToken, _refreshToken, profile, done) => {
         try {
           const email =
             profile.emails && profile.emails[0]
