@@ -17,7 +17,14 @@ router.post(
           .status(400)
           .json({ message: info?.message || 'Login failed' });
       }
-      req.user = user;
+      req.user = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      };
+
       next();
     })(req, res, next);
   },

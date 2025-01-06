@@ -12,7 +12,13 @@ router.post('/auth/signin', (req, res, next) => {
                 .status(400)
                 .json({ message: (info === null || info === void 0 ? void 0 : info.message) || 'Login failed' });
         }
-        req.user = user;
+        req.user = {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            profilePicture: user.profilePicture,
+        };
         next();
     })(req, res, next);
 }, authentication.issueJwt, (req, res) => {

@@ -4,7 +4,16 @@ const userServices = {
   getAllUsers: async () => {
     try {
       const users = await prisma.user.findMany();
-      return users;
+      const userArray = users.map((user) => {
+        return {
+          id: user?.id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          role: user?.role,
+          profilePicture: user?.profilePicture,
+        };
+      });
+      return userArray;
     } catch (error) {
       throw new Error('Failed to fetch users');
     }
@@ -15,7 +24,13 @@ const userServices = {
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },
       });
-      return user;
+      return {
+        id: user?.id,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        role: user?.role,
+        profilePicture: user?.profilePicture,
+      };
     } catch (error) {
       throw new Error('Failed to fetch user');
     }
@@ -26,7 +41,13 @@ const userServices = {
       const user = await prisma.user.findUnique({
         where: { email },
       });
-      return user;
+      return {
+        id: user?.id,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        role: user?.role,
+        profilePicture: user?.profilePicture,
+      };
     } catch (error) {
       throw new Error('Failed to fetch user');
     }
@@ -39,7 +60,13 @@ const userServices = {
       const newUser = await prisma.user.create({
         data: userData,
       });
-      return newUser;
+      return {
+        id: newUser?.id,
+        firstName: newUser?.firstName,
+        lastName: newUser?.lastName,
+        role: newUser?.role,
+        profilePicture: newUser?.profilePicture,
+      };
     } catch (error) {
       throw new Error('Failed to create user');
     }

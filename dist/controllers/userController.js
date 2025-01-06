@@ -12,7 +12,14 @@ import bcrypt from 'bcryptjs';
 import userServices from '../services/userServices.js';
 const userController = {
     getAuthenticatedUser: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        res.status(200).json(req.user);
+        var _a, _b, _c, _d, _e;
+        res.status(200).json({
+            id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
+            firstName: (_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName,
+            lastName: (_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName,
+            role: (_d = req.user) === null || _d === void 0 ? void 0 : _d.role,
+            profilePicture: (_e = req.user) === null || _e === void 0 ? void 0 : _e.profilePicture,
+        });
     }),
     getUsers: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -29,7 +36,13 @@ const userController = {
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });
             }
-            res.json(user);
+            res.json({
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role,
+                profilePicture: user.profilePicture,
+            });
         }
         catch (error) {
             res.status(500).json({ error: error.message });

@@ -4,7 +4,13 @@ import userServices from '../services/userServices.js';
 
 const userController = {
   getAuthenticatedUser: async (req, res) => {
-    res.status(200).json(req.user);
+    res.status(200).json({
+      id: req.user?.id,
+      firstName: req.user?.firstName,
+      lastName: req.user?.lastName,
+      role: req.user?.role,
+      profilePicture: req.user?.profilePicture,
+    });
   },
 
   getUsers: async (req, res) => {
@@ -22,7 +28,13 @@ const userController = {
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
-      res.json(user);
+      res.json({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        profilePicture: user.profilePicture,
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

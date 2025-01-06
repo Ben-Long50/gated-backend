@@ -12,7 +12,16 @@ const userServices = {
     getAllUsers: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const users = yield prisma.user.findMany();
-            return users;
+            const userArray = users.map((user) => {
+                return {
+                    id: user === null || user === void 0 ? void 0 : user.id,
+                    firstName: user === null || user === void 0 ? void 0 : user.firstName,
+                    lastName: user === null || user === void 0 ? void 0 : user.lastName,
+                    role: user === null || user === void 0 ? void 0 : user.role,
+                    profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
+                };
+            });
+            return userArray;
         }
         catch (error) {
             throw new Error('Failed to fetch users');
@@ -23,7 +32,13 @@ const userServices = {
             const user = yield prisma.user.findUnique({
                 where: { id: Number(id) },
             });
-            return user;
+            return {
+                id: user === null || user === void 0 ? void 0 : user.id,
+                firstName: user === null || user === void 0 ? void 0 : user.firstName,
+                lastName: user === null || user === void 0 ? void 0 : user.lastName,
+                role: user === null || user === void 0 ? void 0 : user.role,
+                profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
+            };
         }
         catch (error) {
             throw new Error('Failed to fetch user');
@@ -34,7 +49,13 @@ const userServices = {
             const user = yield prisma.user.findUnique({
                 where: { email },
             });
-            return user;
+            return {
+                id: user === null || user === void 0 ? void 0 : user.id,
+                firstName: user === null || user === void 0 ? void 0 : user.firstName,
+                lastName: user === null || user === void 0 ? void 0 : user.lastName,
+                role: user === null || user === void 0 ? void 0 : user.role,
+                profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
+            };
         }
         catch (error) {
             throw new Error('Failed to fetch user');
@@ -46,7 +67,13 @@ const userServices = {
             const newUser = yield prisma.user.create({
                 data: userData,
             });
-            return newUser;
+            return {
+                id: newUser === null || newUser === void 0 ? void 0 : newUser.id,
+                firstName: newUser === null || newUser === void 0 ? void 0 : newUser.firstName,
+                lastName: newUser === null || newUser === void 0 ? void 0 : newUser.lastName,
+                role: newUser === null || newUser === void 0 ? void 0 : newUser.role,
+                profilePicture: newUser === null || newUser === void 0 ? void 0 : newUser.profilePicture,
+            };
         }
         catch (error) {
             throw new Error('Failed to create user');
