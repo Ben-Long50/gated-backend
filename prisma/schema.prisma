@@ -124,8 +124,8 @@ model Error {
   createdAt DateTime @default(now())
   title     String
   content   String
-  user      User     @relation(fields: [userId], references: [id])
   userId    Int
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 enum UserRole {
