@@ -12,7 +12,7 @@ import userServices from '../services/userServices.js';
 const localStrategy = (passport) => {
     passport.use(new LocalStrategy({
         usernameField: 'email',
-    }, (email, password, done) => __awaiter(void 0, void 0, void 0, function* () {
+    }, (email, _password, done) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const user = yield userServices.getUserByEmail(email);
             return done(null, user);

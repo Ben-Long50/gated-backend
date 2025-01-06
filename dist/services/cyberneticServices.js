@@ -27,7 +27,8 @@ const cyberneticServices = {
             return cyberneticsDetails;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch cybernetics');
+            console.error(error);
+            throw new Error('Failed to fetch cybernetics');
         }
     }),
     getCyberneticById: (cyberneticId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,13 +43,17 @@ const cyberneticServices = {
                     actions: true,
                 },
             });
+            if (!cybernetic) {
+                throw new Error('Could not find cybernetic');
+            }
             const weaponDetails = yield getGroupKeywords(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons);
             const armorDetails = yield getGroupKeywords(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.armor);
             const cyberneticDetails = yield getItemKeywords(cybernetic);
             return Object.assign(Object.assign({}, cyberneticDetails), { weapons: weaponDetails, armor: armorDetails });
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch cybernetic');
+            console.error(error);
+            throw new Error('Failed to fetch cybernetic');
         }
     }),
     createCybernetic: (formData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -145,41 +150,6 @@ const cyberneticServices = {
             throw new Error('Failed to create cybernetic');
         }
     }),
-    updateCybernetic: (formData, cyberneticId) => __awaiter(void 0, void 0, void 0, function* () {
-        try {
-            const newKeywords = JSON.parse(formData.keywords).map((id) => ({
-                id,
-            }));
-            const oldKeywords = yield prisma.cybernetic
-                .findUnique({
-                where: {
-                    id: Number(cyberneticId),
-                },
-                select: {
-                    keywords: { select: { id: true } },
-                },
-            })
-                .then((cybernetic) => (cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.keywords.filter((keyword) => !newKeywords.includes(keyword.id))) || [])
-                .then((keywords) => keywords.map((keyword) => ({ id: keyword.id })));
-            const data = Object.assign(Object.assign({ name: JSON.parse(formData.name) }, (formData.picture && {
-                picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-            })), { stats: JSON.parse(formData.stats), price: JSON.parse(formData.price), description: JSON.parse(formData.description) });
-            const updatedCybernetic = yield prisma.cybernetic.update({
-                where: {
-                    id: Number(cyberneticId),
-                },
-                data: Object.assign(Object.assign({}, data), { perks: {
-                        disconnect: oldKeywords,
-                        connect: newKeywords,
-                    } }),
-            });
-            return updatedCybernetic;
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to update cybernetic');
-        }
-    }),
     deleteCybernetic: (cyberneticId) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield prisma.cybernetic.delete({
@@ -189,7 +159,8 @@ const cyberneticServices = {
             });
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to delete cybernetic');
+            console.error(error);
+            throw new Error('Failed to delete cybernetic');
         }
     }),
 };

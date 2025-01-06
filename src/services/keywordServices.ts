@@ -1,3 +1,4 @@
+import { KeywordType } from '@prisma/client';
 import prisma from '../config/database.js';
 
 const keywordServices = {
@@ -13,7 +14,7 @@ const keywordServices = {
     }
   },
 
-  getKeywordById: async (keywordId) => {
+  getKeywordById: async (keywordId: string) => {
     try {
       const keyword = await prisma.keyword.findUnique({
         where: { id: Number(keywordId) },
@@ -25,7 +26,12 @@ const keywordServices = {
     }
   },
 
-  createKeyword: async (formData) => {
+  createKeyword: async (formData: {
+    keywordId: string;
+    name: string;
+    description: string;
+    keywordType: KeywordType;
+  }) => {
     try {
       const newKeyword = await prisma.keyword.upsert({
         where: { id: Number(formData.keywordId) || 0 },

@@ -43,9 +43,9 @@ export const uploadToCloudinary = async (
   next();
 };
 
-export const deleteFromCloudinary = (publicId: string) => {
+export const deleteFromCloudinary = async (publicId: string) => {
   try {
-    const result = cloudinary.uploader.destroy(publicId);
+    const result = await cloudinary.uploader.destroy(publicId);
     if (result.result === 'ok') {
       return result;
     }

@@ -43,7 +43,7 @@ const weaponController = {
 
   deleteWeapon: async (req: Request, res: Response) => {
     try {
-      await weaponServices.deleteWeapon(req.params.weaponId);
+      await weaponServices.deleteWeaponByName(req.params.weaponName);
       res.status(200).json({ message: 'Successfully deleted weapon' });
     } catch (error) {
       if (error instanceof Error) {

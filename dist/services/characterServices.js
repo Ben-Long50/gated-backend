@@ -26,7 +26,8 @@ const characterServices = {
             return characters;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch characters');
+            console.error(error);
+            throw new Error('Failed to fetch characters');
         }
     }),
     getCharacterById: (characterId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -42,7 +43,8 @@ const characterServices = {
             return character;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch character');
+            console.error(error);
+            throw new Error('Failed to fetch character');
         }
     }),
     createCharacter: (formData, userId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -125,7 +127,8 @@ const characterServices = {
             });
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to delete character');
+            console.error(error);
+            throw new Error('Failed to delete character');
         }
     }),
 };

@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import { Weapon, WeaponFormData, WeaponStats } from '../types/weapon.js';
 import {
   getGroupKeywords,
   getItemKeywords,
@@ -20,13 +21,17 @@ const weaponServices = {
     }
   },
 
-  getWeaponById: async (weaponId) => {
+  getWeaponById: async (weaponId: string) => {
     try {
       const weapon = await prisma.weapon.findUnique({
         where: {
           id: Number(weaponId),
         },
       });
+
+      if (!weapon) {
+        throw new Error('Could not find weapon');
+      }
 
       const weaponDetails = await getItemKeywords(weapon);
 
@@ -37,7 +42,11 @@ const weaponServices = {
     }
   },
 
-  createIntegratedWeapon: async (formData) => {
+  createIntegratedWeapon: async (formData: {
+    name: string;
+    stats: Partial<WeaponStats>;
+    keywords: { keywordId: number; value?: number }[];
+  }) => {
     try {
       const newWeapon = await prisma.weapon.upsert({
         where: { name: formData.name },
@@ -60,7 +69,7 @@ const weaponServices = {
     }
   },
 
-  createWeapon: async (formData) => {
+  createWeapon: async (formData: WeaponFormData) => {
     try {
       const getPictureInfo = () => {
         if (formData.publicId) {
@@ -78,7 +87,7 @@ const weaponServices = {
           name: JSON.parse(formData.name),
           picture: pictureInfo,
           stats: JSON.parse(formData.stats),
-          price: JSON.parse(formData.price),
+          price: Number(JSON.parse(formData.price)),
           description: JSON.parse(formData.description),
           keywords: JSON.parse(formData.keywords),
         },
@@ -99,11 +108,11 @@ const weaponServices = {
     }
   },
 
-  deleteWeapon: async (weaponId) => {
+  deleteWeaponByName: async (weaponName: string) => {
     try {
       await prisma.weapon.delete({
         where: {
-          id: Number(weaponId),
+          name: weaponName,
         },
       });
     } catch (error) {

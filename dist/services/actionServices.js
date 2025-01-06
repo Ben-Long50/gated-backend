@@ -17,6 +17,7 @@ const actionServices = {
             return actions;
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to fetch actions');
         }
     }),
@@ -28,6 +29,7 @@ const actionServices = {
             return action;
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to fetch action');
         }
     }),
@@ -57,6 +59,7 @@ const actionServices = {
             return newAction;
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to create or update action');
         }
     }),
@@ -69,7 +72,8 @@ const actionServices = {
             });
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to delete action');
+            console.error(error);
+            throw new Error('Failed to delete action');
         }
     }),
 };

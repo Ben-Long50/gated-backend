@@ -9,37 +9,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import actionServices from '../services/actionServices.js';
 const actionConroller = {
-    getActions: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getActions: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const actions = yield actionServices.getActions();
             res.status(200).json(actions);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getActionById: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getActionById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const action = yield actionServices.getActionById(req.params.actionId);
             res.status(200).json(action);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    createAction: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    createAction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const action = yield actionServices.createAction(req.body);
             res.status(200).json(action);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
 };

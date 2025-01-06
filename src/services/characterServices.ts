@@ -1,7 +1,7 @@
 import prisma from '../config/database.js';
 
 const characterServices = {
-  getCharacters: async (userId) => {
+  getCharacters: async (userId: number) => {
     try {
       const characters = await prisma.character.findMany({
         where: {
@@ -24,7 +24,7 @@ const characterServices = {
     }
   },
 
-  getCharacterById: async (characterId) => {
+  getCharacterById: async (characterId: string) => {
     try {
       const character = await prisma.character.findUnique({
         where: {
@@ -42,7 +42,23 @@ const characterServices = {
     }
   },
 
-  createCharacter: async (formData, userId) => {
+  createCharacter: async (
+    formData: {
+      perks: string;
+      stats: string;
+      firstName: string;
+      lastName: string;
+      imageUrl: string;
+      publicId: string;
+      height: string;
+      weight: string;
+      age: string;
+      sex: string;
+      background: string;
+      attributes: string;
+    },
+    userId: number,
+  ) => {
     try {
       const perks = JSON.parse(formData.perks);
       const stats = JSON.parse(formData.stats);
@@ -66,7 +82,7 @@ const characterServices = {
           background: JSON.parse(formData.background),
           attributes: JSON.parse(formData.attributes),
           perks: {
-            connect: perks.map((id) => ({ id })),
+            connect: perks.map((id: number) => ({ id })),
           },
         },
       });
@@ -78,9 +94,29 @@ const characterServices = {
     }
   },
 
-  updateCharacter: async (formData, userId, characterId) => {
+  updateCharacter: async (
+    formData: {
+      perks: string;
+      stats: string;
+      firstName: string;
+      lastName: string;
+      imageUrl: string;
+      publicId: string;
+      height: string;
+      weight: string;
+      age: string;
+      sex: string;
+      level: string;
+      picture: string;
+      profits: string;
+      background: string;
+      attributes: string;
+    },
+    userId: number,
+    characterId: string,
+  ) => {
     try {
-      const newPerks = JSON.parse(formData.perks).map((id) => ({ id }));
+      const newPerks = JSON.parse(formData.perks).map((id: number) => ({ id }));
 
       const oldPerks = await prisma.character
         .findUnique({
@@ -138,7 +174,7 @@ const characterServices = {
     }
   },
 
-  deleteCharacter: async (userId, characterId) => {
+  deleteCharacter: async (userId: number, characterId: string) => {
     try {
       await prisma.character.delete({
         where: {

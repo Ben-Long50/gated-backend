@@ -17,7 +17,7 @@ cloudinary.config({
     api_secret: process.env.API_SECRET,
     secure: true,
 });
-export const uploadToCloudinary = (req: Request, res: Response, next) => __awaiter(void 0, void 0, void 0, function* () {
+export const uploadToCloudinary = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
         console.log(req.file);
         try {
@@ -42,16 +42,16 @@ export const uploadToCloudinary = (req: Request, res: Response, next) => __await
     }
     next();
 });
-export const deleteFromCloudinary = (publicId) => {
+export const deleteFromCloudinary = (publicId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = cloudinary.uploader.destroy(publicId);
+        const result = yield cloudinary.uploader.destroy(publicId);
         if (result.result === 'ok') {
             return result;
         }
         throw new Error('Error deleting image');
     }
     catch (error) {
-        console.error(error.message);
+        console.error(error);
     }
-};
+});
 export default cloudinary;

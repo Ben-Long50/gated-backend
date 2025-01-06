@@ -11,7 +11,7 @@ import { body, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import userServices from '../services/userServices.js';
 const userController = {
-    getAuthenticatedUser: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getAuthenticatedUser: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         var _a, _b, _c, _d, _e;
         res.status(200).json({
             id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
@@ -21,24 +21,24 @@ const userController = {
             profilePicture: (_e = req.user) === null || _e === void 0 ? void 0 : _e.profilePicture,
         });
     }),
-    getUsers: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getUsers: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const users = yield userServices.getAllUsers();
             res.json(users);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getUser: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getUser: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const user = yield userServices.getUserById(req.params.id);
             if (!user) {
-                return res.status(404).json({ error: 'User not found' });
+                res.status(404).json({ error: 'User not found' });
             }
-            res.json({
+            res.status(200).json({
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
@@ -47,9 +47,9 @@ const userController = {
             });
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
     createUser: [
@@ -70,13 +70,7 @@ const userController = {
             .withMessage('The email input must be in a valid email format')
             .custom((value) => __awaiter(void 0, void 0, void 0, function* () {
             const user = yield userServices.getUserByEmail(value);
-            if (user && user.facebookId) {
-                throw new Error('An account with this email already exists using the Facebook sign in option');
-            }
-            else if (user && user.googleId) {
-                throw new Error('An account with this email already exists using the Google sign in option');
-            }
-            else if (user) {
+            if (user) {
                 throw new Error('An account with this email already exists');
             }
             return true;
@@ -94,7 +88,7 @@ const userController = {
             }
             return true;
         }),
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 res.status(400).json({ errors: errors.array() });
@@ -112,9 +106,9 @@ const userController = {
                     res.status(200).json({ message: 'Account creation successful' });
                 }
                 catch (error) {
-                     if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+                    if (error instanceof Error) {
+                        res.status(500).json({ error: error.message });
+                    }
                 }
             }
         }),

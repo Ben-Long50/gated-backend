@@ -1,3 +1,4 @@
+import { ActionType } from '@prisma/client';
 import prisma from '../config/database.js';
 
 const actionServices = {
@@ -13,7 +14,7 @@ const actionServices = {
     }
   },
 
-  getActionById: async (actionId) => {
+  getActionById: async (actionId: string) => {
     try {
       const action = await prisma.action.findUnique({
         where: { id: Number(actionId) },
@@ -25,7 +26,16 @@ const actionServices = {
     }
   },
 
-  createAction: async (formData) => {
+  createAction: async (formData: {
+    name: string;
+    description: string;
+    costs: string;
+    attribute: string;
+    skill: string;
+    actionType: ActionType;
+    actionSubtypes: string[];
+    actionId: string;
+  }) => {
     try {
       const newAction = await prisma.action.upsert({
         where: { id: Number(formData.actionId) || 0 },
@@ -55,7 +65,7 @@ const actionServices = {
     }
   },
 
-  deleteActionByName: async (actionName) => {
+  deleteActionByName: async (actionName: string) => {
     try {
       await prisma.action.delete({
         where: {

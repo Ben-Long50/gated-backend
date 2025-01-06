@@ -15,7 +15,8 @@ const perkServices = {
             return perks;
         }
         catch (error) {
-            throw new Error('Failed to create user');
+            console.error(error);
+            throw new Error('Failed to fetch perks');
         }
     }),
     getPerkById: (perkId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -26,6 +27,7 @@ const perkServices = {
             return perk;
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to fetch perk');
         }
     }),
@@ -47,6 +49,7 @@ const perkServices = {
             return newUser;
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to create or update perk');
         }
     }),

@@ -24,6 +24,7 @@ const userServices = {
             return userArray;
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to fetch users');
         }
     }),
@@ -41,6 +42,7 @@ const userServices = {
             };
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to fetch user');
         }
     }),
@@ -58,11 +60,11 @@ const userServices = {
             };
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to fetch user');
         }
     }),
     createUser: (userData) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(userData);
         try {
             const newUser = yield prisma.user.create({
                 data: userData,
@@ -76,6 +78,7 @@ const userServices = {
             };
         }
         catch (error) {
+            console.error(error);
             throw new Error('Failed to create user');
         }
     }),

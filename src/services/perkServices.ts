@@ -11,7 +11,7 @@ const perkServices = {
     }
   },
 
-  getPerkById: async (perkId) => {
+  getPerkById: async (perkId: string) => {
     try {
       const perk = await prisma.perk.findUnique({
         where: { id: Number(perkId) },
@@ -23,7 +23,12 @@ const perkServices = {
     }
   },
 
-  createPerk: async (formData) => {
+  createPerk: async (formData: {
+    perkId: string;
+    name: string;
+    description: string;
+    requirements: object;
+  }) => {
     try {
       const newUser = await prisma.perk.upsert({
         where: { id: Number(formData.perkId) || 0 },

@@ -9,37 +9,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import keywordServices from '../services/keywordServices.js';
 const keywordController = {
-    getKeywords: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getKeywords: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const keywords = yield keywordServices.getKeywords();
             res.status(200).json(keywords);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getKeywordById: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getKeywordById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const keyword = yield keywordServices.getKeywordById(req.params.keywordId);
             res.status(200).json(keyword);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    createKeyword: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    createKeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const keyword = yield keywordServices.createKeyword(req.body);
             res.status(200).json(keyword);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
 };

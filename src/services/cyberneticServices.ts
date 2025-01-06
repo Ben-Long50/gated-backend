@@ -1,3 +1,4 @@
+import { ActionType } from '@prisma/client';
 import prisma from '../config/database.js';
 import {
   getGroupKeywords,
@@ -6,6 +7,7 @@ import {
 import actionServices from './actionServices.js';
 import armorServices from './armorServices.js';
 import weaponServices from './weaponServices.js';
+import { WeaponStats } from '../types/weapon.js';
 
 const cyberneticServices = {
   getCybernetics: async () => {
@@ -28,7 +30,7 @@ const cyberneticServices = {
     }
   },
 
-  getCyberneticById: async (cyberneticId) => {
+  getCyberneticById: async (cyberneticId: string) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
         where: {
@@ -40,6 +42,10 @@ const cyberneticServices = {
           actions: true,
         },
       });
+
+      if (!cybernetic) {
+        throw new Error('Could not find cybernetic');
+      }
 
       const weaponDetails = await getGroupKeywords(cybernetic?.weapons);
       const armorDetails = await getGroupKeywords(cybernetic?.armor);
@@ -56,7 +62,22 @@ const cyberneticServices = {
     }
   },
 
-  createCybernetic: async (formData) => {
+  createCybernetic: async (formData: {
+    name: string;
+    weapons: string;
+    armor: string;
+    actions: string;
+    publicId: string;
+    imageUrl: string;
+    cyberneticId: string;
+    cyberneticType: string;
+    description: string;
+    body: string;
+    price: string;
+    keywords: string;
+    stats: string;
+    picture: string;
+  }) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
         where: { name: JSON.parse(formData.name) },
@@ -114,24 +135,48 @@ const cyberneticServices = {
       );
 
       const weaponIds = await Promise.all(
-        JSON.parse(formData.weapons).map(async (weapon) => {
-          const newWeapon = await weaponServices.createIntegratedWeapon(weapon);
-          return { id: newWeapon.id };
-        }),
+        JSON.parse(formData.weapons).map(
+          async (weapon: {
+            name: string;
+            stats: Partial<WeaponStats>;
+            keywords: { keywordId: number; value?: number }[];
+          }) => {
+            const newWeapon =
+              await weaponServices.createIntegratedWeapon(weapon);
+            return { id: newWeapon.id };
+          },
+        ),
       );
 
       const armorIds = await Promise.all(
-        JSON.parse(formData.armor).map(async (armor) => {
-          const newArmor = await armorServices.createIntegratedArmor(armor);
-          return { id: newArmor.id };
-        }),
+        JSON.parse(formData.armor).map(
+          async (armor: {
+            name: string;
+            stats: string;
+            keywords: { keywordId: number; value?: number }[];
+          }) => {
+            const newArmor = await armorServices.createIntegratedArmor(armor);
+            return { id: newArmor.id };
+          },
+        ),
       );
 
       const actionIds = await Promise.all(
-        JSON.parse(formData.actions).map(async (action) => {
-          const newAction = await actionServices.createAction(action);
-          return { id: newAction.id };
-        }),
+        JSON.parse(formData.actions).map(
+          async (action: {
+            name: string;
+            description: string;
+            costs: string;
+            attribute: string;
+            skill: string;
+            actionType: ActionType;
+            actionSubtypes: string[];
+            actionId: string;
+          }) => {
+            const newAction = await actionServices.createAction(action);
+            return { id: newAction.id };
+          },
+        ),
       );
 
       const newCybernetic = await prisma.cybernetic.upsert({
@@ -183,7 +228,7 @@ const cyberneticServices = {
     }
   },
 
-  deleteCybernetic: async (cyberneticId) => {
+  deleteCybernetic: async (cyberneticId: string) => {
     try {
       await prisma.cybernetic.delete({
         where: {

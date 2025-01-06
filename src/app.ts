@@ -1,3 +1,4 @@
+import { ErrorRequestHandler, Request, Response } from 'express';
 import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
@@ -6,7 +7,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { fileURLToPath } from 'url';
-import pkg from 'pg';
 import userRouter from './routes/userRoutes.js';
 import authRouter from './routes/authRoutes.js';
 import perkRouter from './routes/perkRoutes.js';
@@ -18,16 +18,12 @@ import actionRouter from './routes/actionRoutes.js';
 import cybernericRouter from './routes/cyberneticRoutes.js';
 import bookRouter from './routes/bookRoutes.js';
 import './passport/passport.js';
+import { NextFunction } from 'express-serve-static-core';
 
 const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const { Pool } = pkg;
-const pgPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
 
 const limiter = rateLimit({
   windowMs: 2 * 60 * 1000,
@@ -67,12 +63,12 @@ app.use('/', cybernericRouter);
 app.use('/', bookRouter);
 
 // catch 404 and forward to error handler
-app.use((req: Request, res: Response, next) => {
+app.use((_req: Request, _res: Response, next) => {
   next(createError(404));
 });
 
 // error handler
-app.use((err, req: Request, res: Response, next) => {
+app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
   if (res.headersSent) {
     return next(err);
   }
@@ -81,7 +77,7 @@ app.use((err, req: Request, res: Response, next) => {
   res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
 
   // Send JSON error response
-  res.status(err.status || 500).json({
+  res.status(500).json({
     message: err.message,
     error: process.env.NODE_ENV === 'development' ? err : {},
   });

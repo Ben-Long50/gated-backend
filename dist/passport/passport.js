@@ -19,6 +19,9 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((id, done) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield userServices.getUserById(id);
+        if (!user) {
+            throw new Error('Deserialization failed. Could not find user');
+        }
         done(null, user);
     }
     catch (err) {
@@ -29,10 +32,10 @@ googleStrategy(passport);
 facebookStrategy(passport);
 localStrategy(passport);
 jwtStrategy(passport);
-export const sendAuthStatus = (req: Request, res: Response) => {
+export const sendAuthStatus = (req, res) => {
     if (req.isAuthenticated()) {
         res.status(200).json({
-            message: `Authenticated as user ${req.user.firstName} ${req.user.lastName}`,
+            message: 'Successfully Authenticated',
         });
     }
     else {

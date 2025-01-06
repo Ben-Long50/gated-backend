@@ -72,7 +72,7 @@ model Weapon {
   description String?
   stats       Json
   price       Int?
-  cybernetic  Cybernetic[]
+  cybernetic  Cybernetic[] @relation("CyberneticWeapons")
   characters  Character[]
   keywords    Json[]
 }
@@ -84,7 +84,7 @@ model Armor {
   description String?
   stats       Json
   price       Int?
-  cybernetic  Cybernetic[]
+  cybernetic  Cybernetic[] @relation("CyberneticArmor")
   characters  Character[]
   keywords    Json[]
 }
@@ -107,9 +107,9 @@ model Cybernetic {
   body           String[]
   price          Int?
   characters     Character[]
-  weapons        Weapon[]
-  armor          Armor[]
-  actions        Action[]
+  weapons        Weapon[]       @relation("CyberneticWeapons")
+  armor          Armor[]        @relation("CyberneticArmor")
+  actions        Action[]       @relation("CyberneticActions")
   keywords       Json[]
 }
 
@@ -136,7 +136,7 @@ model Action {
   skill          String?
   actionType     ActionType
   actionSubtypes String[]
-  cybernetics    Cybernetic[]
+  cybernetics    Cybernetic[] @relation("CyberneticActions")
 }
 
 model BookEntry {

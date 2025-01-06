@@ -1,8 +1,9 @@
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import userServices from '../services/userServices.js';
 import prisma from '../config/database.js';
+import { PassportStatic } from 'passport';
 
-const facebookStrategy = (passport) => {
+const facebookStrategy = (passport: PassportStatic) => {
   passport.use(
     new FacebookStrategy(
       {
@@ -19,14 +20,31 @@ const facebookStrategy = (passport) => {
               ? profile.emails[0].value
               : null;
 
+          if (!email) {
+            throw new Error(
+              'Could not find an email associated with this Facebook account',
+            );
+          }
+
+          if (!profile?.name?.givenName || !profile.name.familyName) {
+            throw new Error(
+              'Could not find an email associated with this Facebook account',
+            );
+          }
+
           const profilePicture =
             profile.photos && profile.photos[0]
               ? profile.photos[0].value
               : null;
 
-          let user = await prisma.user.findUnique({
-            where: { email },
-          });
+          let user;
+
+          if (email) {
+            user = await prisma.user.findUnique({
+              where: { email },
+            });
+          }
+
           if (user) {
             if (user.facebookId !== profile.id) {
               return done(null, false);
@@ -41,7 +59,7 @@ const facebookStrategy = (passport) => {
             };
             user = await userServices.createUser(userData);
           }
-          return done(null, user);
+          return done(null, user as any);
         } catch (err) {
           return done(err);
         }

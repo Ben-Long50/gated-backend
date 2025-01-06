@@ -5,6 +5,5 @@ const router = express.Router();
 router.get('/cybernetics', authentication.authenticateUser, cyberneticController.getCybernetics);
 router.get('/cybernetics/:cyberneticId', authentication.authenticateUser, cyberneticController.getCyberneticById);
 router.post('/cybernetics', authentication.authenticateUser, cyberneticController.createCybernetic);
-router.put('/cybernetics/:cyberneticId', authentication.authenticateUser, cyberneticController.updateCybernetic);
 router.delete('/cybernetics/:cyberneticId', authentication.authenticateUser, cyberneticController.deleteCybernetic);
 export default router;

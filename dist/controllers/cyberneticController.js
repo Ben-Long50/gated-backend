@@ -11,67 +11,52 @@ import cyberneticServices from '../services/cyberneticServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 const cyberneticController = {
-    getCybernetics: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getCybernetics: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const cybernetics = yield cyberneticServices.getCybernetics();
             res.status(200).json(cybernetics);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getCyberneticById: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getCyberneticById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const cybernetic = yield cyberneticServices.getCyberneticById(req.params.cyberneticId);
             res.status(200).json(cybernetic);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
     createCybernetic: [
         upload.single('picture'),
         uploadToCloudinary,
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 const cybernetic = yield cyberneticServices.createCybernetic(req.body);
                 res.status(200).json(cybernetic);
             }
             catch (error) {
-                 if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
             }
         }),
     ],
-    updateCybernetic: [
-        upload.single('picture'),
-        uploadToCloudinary,
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
-            try {
-                const cybernetic = yield cyberneticServices.updateCybernetic(req.body, req.params.cyberneticId);
-                res.status(200).json(cybernetic);
-            }
-            catch (error) {
-                 if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
-            }
-        }),
-    ],
-    deleteCybernetic: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteCybernetic: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield cyberneticServices.deleteCybernetic(req.params.cyberneticId);
             res.status(200).json({ message: 'Successfully deleted cybernetic' });
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
 };

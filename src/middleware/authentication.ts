@@ -6,7 +6,7 @@ const authentication = {
   issueJwt: (req: Request, res: Response, next: NextFunction) => {
     try {
       jwt.sign(
-        { id: req.user.id },
+        { id: req.user?.id },
         process.env.JWT_SECRET,
         {
           expiresIn: '8h',

@@ -1,7 +1,8 @@
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import prisma from '../config/database.js';
+import { PassportStatic } from 'passport';
 
-const jwtStrategy = (passport) => {
+const jwtStrategy = (passport: PassportStatic) => {
   passport.use(
     new JwtStrategy(
       {

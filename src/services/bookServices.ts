@@ -29,7 +29,11 @@ const bookServices = {
     }
   },
 
-  createBookEntry: async (formData) => {
+  createBookEntry: async (formData: {
+    bookEntryId: number;
+    title: string;
+    content: string;
+  }) => {
     try {
       const bookEntry = await prisma.bookEntry.upsert({
         where: { id: formData.bookEntryId || 0 },
@@ -49,7 +53,7 @@ const bookServices = {
     }
   },
 
-  deleteBookEntry: async (bookEntryId) => {
+  deleteBookEntry: async (bookEntryId: string) => {
     try {
       await prisma.bookEntry.delete({
         where: {

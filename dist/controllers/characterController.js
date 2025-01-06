@@ -11,68 +11,72 @@ import characterServices from '../services/characterServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 const characterController = {
-    getCharacters: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getCharacters: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
         try {
-            const characters = yield characterServices.getCharacters(req.user.id);
+            const characters = yield characterServices.getCharacters((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
             res.status(200).json(characters);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getCharacterById: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getCharacterById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             console.log(req.params.characterId);
             const character = yield characterServices.getCharacterById(req.params.characterId);
             res.status(200).json(character);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
     createCharacter: [
         upload.single('picture'),
         uploadToCloudinary,
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+            var _a;
             try {
-                const character = yield characterServices.createCharacter(req.body, req.user.id);
+                const character = yield characterServices.createCharacter(req.body, (_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
                 res.status(200).json(character);
             }
             catch (error) {
-                 if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
             }
         }),
     ],
     updateCharacter: [
         upload.single('picture'),
         uploadToCloudinary,
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+            var _a;
             try {
-                const character = yield characterServices.updateCharacter(req.body, req.user.id, req.params.characterId);
+                const character = yield characterServices.updateCharacter(req.body, (_a = req.user) === null || _a === void 0 ? void 0 : _a.id, req.params.characterId);
                 res.status(200).json(character);
             }
             catch (error) {
-                 if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
             }
         }),
     ],
-    deleteCharacter: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteCharacter: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
         try {
-            yield characterServices.deleteCharacter(req.user.id, req.params.characterId);
+            yield characterServices.deleteCharacter((_a = req.user) === null || _a === void 0 ? void 0 : _a.id, req.params.characterId);
             res.status(200).json({ message: 'Successfully deleted character' });
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
 };

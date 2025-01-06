@@ -10,10 +10,15 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(async (id, done) => {
+passport.deserializeUser(async (id: string, done) => {
   try {
     const user = await userServices.getUserById(id);
-    done(null, user);
+
+    if (!user) {
+      throw new Error('Deserialization failed. Could not find user');
+    }
+
+    done(null, user as any);
   } catch (err) {
     done(err);
   }
@@ -27,7 +32,7 @@ jwtStrategy(passport);
 export const sendAuthStatus = (req: Request, res: Response) => {
   if (req.isAuthenticated()) {
     res.status(200).json({
-      message: `Authenticated as user ${req.user.firstName} ${req.user.lastName}`,
+      message: 'Successfully Authenticated',
     });
   } else {
     res.status(401).json({ message: 'Authentication missing or expired' });

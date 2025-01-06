@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 const authentication = {
-    issueJwt: (req: Request, res: Response, next) => {
+    issueJwt: (req, res, next) => {
+        var _a;
         try {
-            jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
+            jwt.sign({ id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id }, process.env.JWT_SECRET, {
                 expiresIn: '8h',
             }, (err, token) => {
                 if (err) {
@@ -14,9 +15,9 @@ const authentication = {
             });
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     },
     authenticateUser: passport.authenticate('jwt', { session: false }),

@@ -20,13 +20,17 @@ const armorServices = {
     }
   },
 
-  getArmorById: async (armorId) => {
+  getArmorById: async (armorId: string) => {
     try {
       const armor = await prisma.armor.findUnique({
         where: {
           id: Number(armorId),
         },
       });
+
+      if (!armor) {
+        throw new Error('Could not find armor');
+      }
 
       const armorDetails = await getItemKeywords(armor);
 
@@ -37,7 +41,11 @@ const armorServices = {
     }
   },
 
-  createIntegratedArmor: async (formData) => {
+  createIntegratedArmor: async (formData: {
+    name: string;
+    stats: string;
+    keywords: { keywordId: number; value?: number }[];
+  }) => {
     try {
       const newArmor = await prisma.armor.upsert({
         where: { name: formData.name },
@@ -60,7 +68,17 @@ const armorServices = {
     }
   },
 
-  createArmor: async (formData) => {
+  createArmor: async (formData: {
+    publicId: string;
+    imageUrl: string;
+    picture: string;
+    armorId: string;
+    name: string;
+    stats: string;
+    price: string;
+    description: string;
+    keywords: string;
+  }) => {
     try {
       const getPictureInfo = () => {
         if (formData.publicId) {
@@ -99,11 +117,11 @@ const armorServices = {
     }
   },
 
-  deleteArmor: async (armorId) => {
+  deleteArmorByName: async (armorName: string) => {
     try {
       await prisma.armor.delete({
         where: {
-          id: Number(armorId),
+          name: armorName,
         },
       });
     } catch (error) {

@@ -11,52 +11,52 @@ import armorServices from '../services/armorServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 const armorController = {
-    getArmor: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getArmor: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const armors = yield armorServices.getArmor();
             res.status(200).json(armors);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getArmorById: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getArmorById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const armor = yield armorServices.getArmorById(req.params.armorId);
             res.status(200).json(armor);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
     createArmor: [
         upload.single('picture'),
         uploadToCloudinary,
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 const armor = yield armorServices.createArmor(req.body);
                 res.status(200).json(armor);
             }
             catch (error) {
-                 if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
             }
         }),
     ],
-    deleteArmor: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteArmor: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            yield armorServices.deleteArmor(req.params.armorId);
+            yield armorServices.deleteArmorByName(req.params.armorId);
             res.status(200).json({ message: 'Successfully deleted armor' });
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
 };

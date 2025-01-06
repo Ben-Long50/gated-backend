@@ -2,13 +2,13 @@ import multer from 'multer';
 import path from 'path';
 const storage = multer.diskStorage({
     destination: './public/images',
-    filename: (req, file, cb) => {
+    filename: (_req, file, cb) => {
         cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
     },
 });
 const upload = multer({
     storage,
-    fileFilter: (req, file, cb) => {
+    fileFilter: (_req, file, cb) => {
         if (!file) {
             return cb(null, true);
         }
@@ -18,7 +18,7 @@ const upload = multer({
         if (mimetype && extname) {
             return cb(null, true);
         }
-        cb('Error: Images Only!');
+        cb(new Error('Error: Images Only!'));
     },
 });
 export default upload;

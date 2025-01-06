@@ -17,18 +17,24 @@ const googleStrategy = (passport) => {
         callbackURL: `${process.env.API_URL}/auth/google/callback`,
         scope: ['profile', 'email'],
         state: false,
-    }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
+    }, (_accessToken, _refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const email = profile.emails && profile.emails[0]
                 ? profile.emails[0].value
                 : null;
+            if (!email) {
+                throw new Error('Could not find an email associated with this Google account');
+            }
             const [firstName, lastName] = profile.displayName.split(' ');
             const profilePicture = profile.photos && profile.photos[0]
                 ? profile.photos[0].value
                 : null;
-            let user = yield prisma.user.findUnique({
-                where: { email },
-            });
+            let user;
+            if (email) {
+                user = yield prisma.user.findUnique({
+                    where: { email },
+                });
+            }
             if (user) {
                 if (user.googleId !== profile.id) {
                     return done(null, false);

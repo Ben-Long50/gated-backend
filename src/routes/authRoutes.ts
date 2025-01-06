@@ -11,22 +11,26 @@ router.post('/auth/signup', userController.createUser);
 router.post(
   '/auth/signin',
   (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('local', { session: false }, (err, user, info) => {
-      if (err || !user) {
-        return res
-          .status(400)
-          .json({ message: info?.message || 'Login failed' });
-      }
-      req.user = {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role,
-        profilePicture: user.profilePicture,
-      };
+    passport.authenticate(
+      'local',
+      { session: false },
+      (err: any, user: any, info: any) => {
+        if (err || !user) {
+          return res
+            .status(400)
+            .json({ message: info?.message || 'Login failed' });
+        }
+        req.user = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          profilePicture: user.profilePicture,
+        };
 
-      next();
-    })(req, res, next);
+        next();
+      },
+    )(req, res, next);
   },
   authentication.issueJwt,
   (req: Request, res: Response) => {
@@ -37,7 +41,7 @@ router.post(
     });
     res.status(200).json({
       token: req.token,
-      message: `Signed in as user ${req.user.firstName} ${req.user.lastName}`,
+      message: `Signed in as user ${req.user?.firstName} ${req.user?.lastName}`,
     });
   },
 );

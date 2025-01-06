@@ -19,7 +19,8 @@ const armorServices = {
             return armorDetails;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch armor');
+            console.error(error);
+            throw new Error('Failed to fetch armor');
         }
     }),
     getArmorById: (armorId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,11 +30,15 @@ const armorServices = {
                     id: Number(armorId),
                 },
             });
+            if (!armor) {
+                throw new Error('Could not find armor');
+            }
             const armorDetails = yield getItemKeywords(armor);
             return armorDetails;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch armor');
+            console.error(error);
+            throw new Error('Failed to fetch armor');
         }
     }),
     createIntegratedArmor: (formData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -104,7 +109,8 @@ const armorServices = {
             });
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to delete armor');
+            console.error(error);
+            throw new Error('Failed to delete armor');
         }
     }),
 };

@@ -20,7 +20,7 @@ const userServices = {
     }
   },
 
-  getUserById: async (id) => {
+  getUserById: async (id: string) => {
     try {
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },
@@ -38,7 +38,7 @@ const userServices = {
     }
   },
 
-  getUserByEmail: async (email) => {
+  getUserByEmail: async (email: string) => {
     try {
       const user = await prisma.user.findUnique({
         where: { email },
@@ -56,9 +56,11 @@ const userServices = {
     }
   },
 
-  createUser: async (userData) => {
-    console.log(userData);
-
+  createUser: async (userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  }) => {
     try {
       const newUser = await prisma.user.create({
         data: userData,

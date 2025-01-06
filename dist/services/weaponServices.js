@@ -19,7 +19,8 @@ const weaponServices = {
             return weaponDetails;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch weapons');
+            console.error(error);
+            throw new Error('Failed to fetch weapons');
         }
     }),
     getWeaponById: (weaponId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,11 +30,15 @@ const weaponServices = {
                     id: Number(weaponId),
                 },
             });
+            if (!weapon) {
+                throw new Error('Could not find weapon');
+            }
             const weaponDetails = yield getItemKeywords(weapon);
             return weaponDetails;
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to fetch weapon');
+            console.error(error);
+            throw new Error('Failed to fetch weapon');
         }
     }),
     createIntegratedWeapon: (formData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -75,7 +80,7 @@ const weaponServices = {
                     name: JSON.parse(formData.name),
                     picture: pictureInfo,
                     stats: JSON.parse(formData.stats),
-                    price: JSON.parse(formData.price),
+                    price: Number(JSON.parse(formData.price)),
                     description: JSON.parse(formData.description),
                     keywords: JSON.parse(formData.keywords),
                 },
@@ -104,7 +109,8 @@ const weaponServices = {
             });
         }
         catch (error) {
-            throw new Error(error.message || 'Failed to delete weapon');
+            console.error(error);
+            throw new Error('Failed to delete weapon');
         }
     }),
 };

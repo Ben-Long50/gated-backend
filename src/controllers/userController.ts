@@ -64,15 +64,7 @@ const userController = {
       .withMessage('The email input must be in a valid email format')
       .custom(async (value) => {
         const user = await userServices.getUserByEmail(value);
-        if (user && user.facebookId) {
-          throw new Error(
-            'An account with this email already exists using the Facebook sign in option',
-          );
-        } else if (user && user.googleId) {
-          throw new Error(
-            'An account with this email already exists using the Google sign in option',
-          );
-        } else if (user) {
+        if (user) {
           throw new Error('An account with this email already exists');
         }
         return true;

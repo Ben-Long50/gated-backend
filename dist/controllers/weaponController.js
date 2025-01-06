@@ -11,52 +11,52 @@ import weaponServices from '../services/weaponServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 const weaponController = {
-    getWeapons: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getWeapons: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const weapons = yield weaponServices.getWeapons();
             res.status(200).json(weapons);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
-    getWeaponById: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    getWeaponById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const weapon = yield weaponServices.getWeaponById(req.params.weaponId);
             res.status(200).json(weapon);
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
     createWeapon: [
         upload.single('picture'),
         uploadToCloudinary,
-        (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+        (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 const weapon = yield weaponServices.createWeapon(req.body);
                 res.status(200).json(weapon);
             }
             catch (error) {
-                 if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
             }
         }),
     ],
-    deleteWeapon: (req: Request, res: Response) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteWeapon: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            yield weaponServices.deleteWeapon(req.params.weaponId);
+            yield weaponServices.deleteWeaponByName(req.params.weaponName);
             res.status(200).json({ message: 'Successfully deleted weapon' });
         }
         catch (error) {
-             if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
         }
     }),
 };
