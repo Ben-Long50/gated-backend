@@ -1,4 +1,4 @@
-import { ErrorRequestHandler, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
