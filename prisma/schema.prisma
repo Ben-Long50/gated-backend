@@ -19,6 +19,7 @@ model User {
   role           UserRole    @default(ADMIN)
   createdAt      DateTime    @default(now())
   characters     Character[]
+  errorReports   Error[]
 }
 
 model Character {
@@ -116,6 +117,15 @@ model BookEntry {
   id      Int    @id @default(autoincrement())
   title   String @unique
   content String
+}
+
+model Error {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  title     String
+  content   String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
 }
 
 enum UserRole {

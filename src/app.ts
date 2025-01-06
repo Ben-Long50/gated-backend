@@ -18,6 +18,7 @@ import armorRouter from './routes/armorRoutes.js';
 import actionRouter from './routes/actionRoutes.js';
 import cybernericRouter from './routes/cyberneticRoutes.js';
 import bookRouter from './routes/bookRoutes.js';
+import errorRouter from './routes/errorRoutes.js';
 import './passport/passport.js';
 import { NextFunction } from 'express-serve-static-core';
 
@@ -66,6 +67,7 @@ app.use('/', armorRouter);
 app.use('/', actionRouter);
 app.use('/', cybernericRouter);
 app.use('/', bookRouter);
+app.use('/', errorRouter);
 
 // catch 404 and forward to error handler
 app.use((_req: Request, _res: Response, next) => {
