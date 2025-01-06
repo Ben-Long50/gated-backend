@@ -3,8 +3,8 @@
     /* Basic Options */
     "target": "ES6", // Output ES6 JavaScript
     "module": "ESNext", // Use ES6 modules
-    "rootDir": "./src", // Set the source directory
-    "outDir": "./dist", // Set the output directory
+    "rootDir": "src", // Set the source directory
+    "outDir": "dist", // Set the output directory
     "moduleResolution": "node", // Resolve modules like Node.js
     "esModuleInterop": true, // Enable interop for CommonJS modules
     "forceConsistentCasingInFileNames": true, // Enforce consistent file name casing
