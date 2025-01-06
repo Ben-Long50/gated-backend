@@ -6,7 +6,10 @@ import upload from '../utils/multer.js';
 const characterController = {
   getCharacters: async (req: Request, res: Response) => {
     try {
-      const characters = await characterServices.getCharacters(req.user?.id);
+      if (!req.user) {
+        throw new Error('Could not find authenticated user');
+      }
+      const characters = await characterServices.getCharacters(req.user.id);
       res.status(200).json(characters);
     } catch (error) {
       if (error instanceof Error) {
@@ -35,9 +38,12 @@ const characterController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
+        if (!req.user) {
+          throw new Error('Could not find authenticated user');
+        }
         const character = await characterServices.createCharacter(
           req.body,
-          req.user?.id,
+          req.user.id,
         );
         res.status(200).json(character);
       } catch (error) {
@@ -53,9 +59,12 @@ const characterController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
+        if (!req.user) {
+          throw new Error('Could not find authenticated user');
+        }
         const character = await characterServices.updateCharacter(
           req.body,
-          req.user?.id,
+          req.user.id,
           req.params.characterId,
         );
         res.status(200).json(character);
@@ -69,8 +78,11 @@ const characterController = {
 
   deleteCharacter: async (req: Request, res: Response) => {
     try {
+      if (!req.user) {
+        throw new Error('Could not find authenticated user');
+      }
       await characterServices.deleteCharacter(
-        req.user?.id,
+        req.user.id,
         req.params.characterId,
       );
       res.status(200).json({ message: 'Successfully deleted character' });

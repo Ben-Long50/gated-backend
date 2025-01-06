@@ -14,7 +14,7 @@ router.post(
     passport.authenticate(
       'local',
       { session: false },
-      (err: any, user: any, info: any) => {
+      (err: Error, user: any, info: any) => {
         if (err || !user) {
           return res
             .status(400)
@@ -27,8 +27,7 @@ router.post(
           role: user.role,
           profilePicture: user.profilePicture,
         };
-
-        next();
+        return next();
       },
     )(req, res, next);
   },

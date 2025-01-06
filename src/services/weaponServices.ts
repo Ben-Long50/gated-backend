@@ -1,5 +1,5 @@
 import prisma from '../config/database.js';
-import { Weapon, WeaponFormData, WeaponStats } from '../types/weapon.js';
+import { WeaponStats } from '../types/weapon.js';
 import {
   getGroupKeywords,
   getItemKeywords,
@@ -69,7 +69,17 @@ const weaponServices = {
     }
   },
 
-  createWeapon: async (formData: WeaponFormData) => {
+  createWeapon: async (formData: {
+    publicId: string;
+    imageUrl: string;
+    picture: string;
+    weaponId: string;
+    name: string;
+    stats: string;
+    price: string;
+    description: string;
+    keywords: string;
+  }) => {
     try {
       const getPictureInfo = () => {
         if (formData.publicId) {

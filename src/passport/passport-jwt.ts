@@ -15,10 +15,10 @@ const jwtStrategy = (passport: PassportStatic) => {
             where: { id: jwt_payload.id },
           });
 
-          if (user) {
-            return done(null, user);
-          } else {
+          if (!user) {
             return done(null, false);
+          } else {
+            return done(null, user);
           }
         } catch (err) {
           return done(err, false);
