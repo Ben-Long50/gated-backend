@@ -10,6 +10,15 @@ const actionConroller = {
     }
   },
 
+  getActionById: async (req, res) => {
+    try {
+      const action = await actionServices.getActionById(req.params.actionId);
+      res.status(200).json(action);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   createAction: async (req, res) => {
     try {
       const action = await actionServices.createAction(req.body);

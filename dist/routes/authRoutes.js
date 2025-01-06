@@ -38,7 +38,7 @@ router.get('/auth/google/callback', passport.authenticate('google', {
         secure: process.env.NODE_ENV === 'production',
         maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
     res.redirect(redirectUrl);
 });
 router.get('/auth/facebook', passport.authenticate('facebook'));
@@ -51,7 +51,7 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
         secure: process.env.NODE_ENV === 'production',
         maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
     res.redirect(redirectUrl);
 });
 router.get('/auth/failure', (req, res) => {

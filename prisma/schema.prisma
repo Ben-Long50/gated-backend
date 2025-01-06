@@ -29,22 +29,25 @@ model User {
 }
 
 model Character {
-  id         Int     @id @default(autoincrement())
-  user       User    @relation(fields: [userId], references: [id])
-  userId     Int
-  firstName  String
-  lastName   String?
-  level      Int     @default(1)
-  profits    Int     @default(10)
-  stats      Json    @default("{}")
-  picture    Json?
-  height     Int
-  weight     Int
-  age        Int
-  sex        String
-  background String
-  attributes Json
-  perks      Perk[]
+  id          Int          @id @default(autoincrement())
+  user        User         @relation(fields: [userId], references: [id])
+  userId      Int
+  firstName   String
+  lastName    String?
+  level       Int          @default(1)
+  profits     Int          @default(10)
+  stats       Json         @default("{}")
+  picture     Json?
+  height      Int
+  weight      Int
+  age         Int
+  sex         String
+  background  String
+  attributes  Json
+  perks       Perk[]
+  weapons     Weapon[]
+  armor       Armor[]
+  cybernetics Cybernetic[]
 }
 
 enum KeywordType {
@@ -70,6 +73,7 @@ model Weapon {
   stats       Json
   price       Int?
   cybernetic  Cybernetic[]
+  characters  Character[]
   keywords    Json[]
 }
 
@@ -81,6 +85,7 @@ model Armor {
   stats       Json
   price       Int?
   cybernetic  Cybernetic[]
+  characters  Character[]
   keywords    Json[]
 }
 
@@ -101,6 +106,7 @@ model Cybernetic {
   description    String
   body           String[]
   price          Int?
+  characters     Character[]
   weapons        Weapon[]
   armor          Armor[]
   actions        Action[]
@@ -131,6 +137,12 @@ model Action {
   actionType     ActionType
   actionSubtypes String[]
   cybernetics    Cybernetic[]
+}
+
+model BookEntry {
+  id      Int    @id @default(autoincrement())
+  title   String @unique
+  content String
 }
 
 //run "npx prisma generate" after updating models

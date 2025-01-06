@@ -12,10 +12,21 @@ const actionServices = {
     }
   },
 
+  getActionById: async (actionId) => {
+    try {
+      const action = await prisma.action.findUnique({
+        where: { id: Number(actionId) },
+      });
+      return action;
+    } catch (error) {
+      throw new Error('Failed to fetch action');
+    }
+  },
+
   createAction: async (formData) => {
     try {
       const newAction = await prisma.action.upsert({
-        where: { name: formData.name },
+        where: { id: Number(formData.actionId) || 0 },
         update: {
           name: formData.name,
           description: formData.description,

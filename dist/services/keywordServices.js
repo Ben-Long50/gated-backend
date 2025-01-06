@@ -49,7 +49,7 @@ const keywordServices = {
             return newKeyword;
         }
         catch (error) {
-            throw new Error('Failed to create keyword');
+            throw new Error('Failed to create or update keyword');
         }
     }),
 };

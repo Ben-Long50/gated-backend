@@ -18,6 +18,15 @@ const actionConroller = {
             res.status(500).json({ error: error.message });
         }
     }),
+    getActionById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const action = yield actionServices.getActionById(req.params.actionId);
+            res.status(200).json(action);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }),
     createAction: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const action = yield actionServices.createAction(req.body);

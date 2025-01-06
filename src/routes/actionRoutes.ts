@@ -10,6 +10,12 @@ router.get(
   actionConroller.getActions,
 );
 
+router.get(
+  '/actions/:actionId',
+  authentication.authenticateUser,
+  actionConroller.getActionById,
+);
+
 router.post(
   '/actions',
   authentication.authenticateUser,

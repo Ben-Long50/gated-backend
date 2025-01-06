@@ -20,10 +20,21 @@ const actionServices = {
             throw new Error('Failed to fetch actions');
         }
     }),
+    getActionById: (actionId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const action = yield prisma.action.findUnique({
+                where: { id: Number(actionId) },
+            });
+            return action;
+        }
+        catch (error) {
+            throw new Error('Failed to fetch action');
+        }
+    }),
     createAction: (formData) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const newAction = yield prisma.action.upsert({
-                where: { name: formData.name },
+                where: { id: Number(formData.actionId) || 0 },
                 update: {
                     name: formData.name,
                     description: formData.description,

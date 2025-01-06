@@ -54,7 +54,7 @@ router.get(
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
     res.redirect(redirectUrl);
   },
 );
@@ -74,7 +74,7 @@ router.get(
       secure: process.env.NODE_ENV === 'production',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/characters`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/Introduction`;
     res.redirect(redirectUrl);
   },
 );
