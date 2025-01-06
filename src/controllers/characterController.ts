@@ -20,8 +20,6 @@ const characterController = {
 
   getCharacterById: async (req: Request, res: Response) => {
     try {
-      console.log(req.params.characterId);
-
       const character = await characterServices.getCharacterById(
         req.params.characterId,
       );

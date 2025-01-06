@@ -82,7 +82,6 @@ export const getItemKeywords = async (item: Cybernetic | Weapon | Armor) => {
     }
     return { keyword };
   });
-  console.log(keywordDetails);
 
   return { ...item, keywords: keywordDetails };
 };

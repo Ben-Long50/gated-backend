@@ -57,6 +57,5 @@ export const getItemKeywords = (item) => __awaiter(void 0, void 0, void 0, funct
         }
         return { keyword };
     });
-    console.log(keywordDetails);
     return Object.assign(Object.assign({}, item), { keywords: keywordDetails });
 });

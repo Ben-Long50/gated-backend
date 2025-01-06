@@ -22,7 +22,6 @@ const jwtStrategy = (passport) => {
         jwtFromRequest: cookieExtractor,
     }, (jwt_payload, done) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log(jwt_payload);
             const user = yield prisma.user.findUnique({
                 where: { id: jwt_payload.id },
             });

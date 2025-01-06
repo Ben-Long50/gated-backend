@@ -24,7 +24,6 @@ const bookServices = {
     }),
     getBookEntryByTitle: (bookEntryTitle) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log(bookEntryTitle);
             const bookEntry = yield prisma.bookEntry.findUnique({
                 where: { title: bookEntryTitle },
             });

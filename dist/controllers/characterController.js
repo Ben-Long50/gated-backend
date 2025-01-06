@@ -27,7 +27,6 @@ const characterController = {
     }),
     getCharacterById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            console.log(req.params.characterId);
             const character = yield characterServices.getCharacterById(req.params.characterId);
             res.status(200).json(character);
         }

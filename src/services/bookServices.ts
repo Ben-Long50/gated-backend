@@ -16,8 +16,6 @@ const bookServices = {
 
   getBookEntryByTitle: async (bookEntryTitle: string) => {
     try {
-      console.log(bookEntryTitle);
-
       const bookEntry = await prisma.bookEntry.findUnique({
         where: { title: bookEntryTitle },
       });
