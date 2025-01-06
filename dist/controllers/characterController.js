@@ -12,9 +12,11 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 const characterController = {
     getCharacters: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
         try {
-            const characters = yield characterServices.getCharacters((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
+            if (!req.user) {
+                throw new Error('Could not find authenticated user');
+            }
+            const characters = yield characterServices.getCharacters(req.user.id);
             res.status(200).json(characters);
         }
         catch (error) {
@@ -39,9 +41,11 @@ const characterController = {
         upload.single('picture'),
         uploadToCloudinary,
         (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-            var _a;
             try {
-                const character = yield characterServices.createCharacter(req.body, (_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
+                if (!req.user) {
+                    throw new Error('Could not find authenticated user');
+                }
+                const character = yield characterServices.createCharacter(req.body, req.user.id);
                 res.status(200).json(character);
             }
             catch (error) {
@@ -55,9 +59,11 @@ const characterController = {
         upload.single('picture'),
         uploadToCloudinary,
         (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-            var _a;
             try {
-                const character = yield characterServices.updateCharacter(req.body, (_a = req.user) === null || _a === void 0 ? void 0 : _a.id, req.params.characterId);
+                if (!req.user) {
+                    throw new Error('Could not find authenticated user');
+                }
+                const character = yield characterServices.updateCharacter(req.body, req.user.id, req.params.characterId);
                 res.status(200).json(character);
             }
             catch (error) {
@@ -68,9 +74,11 @@ const characterController = {
         }),
     ],
     deleteCharacter: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
         try {
-            yield characterServices.deleteCharacter((_a = req.user) === null || _a === void 0 ? void 0 : _a.id, req.params.characterId);
+            if (!req.user) {
+                throw new Error('Could not find authenticated user');
+            }
+            yield characterServices.deleteCharacter(req.user.id, req.params.characterId);
             res.status(200).json({ message: 'Successfully deleted character' });
         }
         catch (error) {

@@ -22,10 +22,6 @@ router.post(
         }
         req.user = {
           id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          profilePicture: user.profilePicture,
         };
         return next();
       },
@@ -34,13 +30,13 @@ router.post(
   authentication.issueJwt,
   (req: Request, res: Response) => {
     res.cookie('token', req.token, {
-      // httpOnly: true,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 1000 * 60 * 60 * 8,
     });
     res.status(200).json({
-      token: req.token,
-      message: `Signed in as user ${req.user?.firstName} ${req.user?.lastName}`,
+      message: `Signed in as user ${req.user?.id}`,
     });
   },
 );
@@ -60,8 +56,9 @@ router.get(
   authentication.issueJwt,
   (req: Request, res: Response) => {
     res.cookie('token', req.token, {
-      // httpOnly: true,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 1000 * 60 * 60 * 8,
     });
     const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
@@ -80,8 +77,9 @@ router.get(
   authentication.issueJwt,
   (req: Request, res: Response) => {
     res.cookie('token', req.token, {
-      // httpOnly: true,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 1000 * 60 * 60 * 8,
     });
     const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;

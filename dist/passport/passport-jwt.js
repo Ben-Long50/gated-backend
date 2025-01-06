@@ -7,22 +7,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
+import { Strategy as JwtStrategy } from 'passport-jwt';
 import prisma from '../config/database.js';
+const cookieExtractor = function (req) {
+    let token = null;
+    if (req && req.cookies) {
+        token = req.cookies['token'];
+    }
+    return token;
+};
 const jwtStrategy = (passport) => {
     passport.use(new JwtStrategy({
         secretOrKey: process.env.JWT_SECRET,
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        jwtFromRequest: cookieExtractor,
     }, (jwt_payload, done) => __awaiter(void 0, void 0, void 0, function* () {
         try {
+            console.log(jwt_payload);
             const user = yield prisma.user.findUnique({
                 where: { id: jwt_payload.id },
             });
-            if (user) {
-                return done(null, user);
+            if (!user) {
+                return done(null, false);
             }
             else {
-                return done(null, false);
+                return done(null, user);
             }
         }
         catch (err) {

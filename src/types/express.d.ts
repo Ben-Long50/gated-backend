@@ -4,10 +4,10 @@ declare global {
   namespace Express {
     interface User {
       id: number;
-      firstName: string;
-      lastName: string;
-      role: string;
-      profilePicture: string;
+      firstName?: string;
+      lastName?: string;
+      role?: string;
+      profilePicture?: string;
       facebookId?: string;
       googleId?: string;
     }

@@ -21,7 +21,7 @@ export const getGroupKeywords = (array) => __awaiter(void 0, void 0, void 0, fun
             }
         }
         const updatedItem = isCybernetic(item)
-            ? Object.assign(Object.assign({}, item), { weapons: weaponDetails, armor: armorDetails }) : Object.assign({}, item);
+            ? Object.assign(Object.assign({}, item), { weapons: weaponDetails, armor: armorDetails }) : item;
         if (updatedItem.keywords.length === 0)
             return updatedItem;
         const keywordIds = updatedItem.keywords.map((keyword) => keyword === null || keyword === void 0 ? void 0 : keyword.keywordId);

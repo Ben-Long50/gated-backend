@@ -14,23 +14,19 @@ router.post('/auth/signin', (req, res, next) => {
         }
         req.user = {
             id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
-            profilePicture: user.profilePicture,
         };
-        next();
+        return next();
     })(req, res, next);
 }, authentication.issueJwt, (req, res) => {
-    var _a, _b;
+    var _a;
     res.cookie('token', req.token, {
-        // httpOnly: true,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 1000 * 60 * 60 * 8,
     });
     res.status(200).json({
-        token: req.token,
-        message: `Signed in as user ${(_a = req.user) === null || _a === void 0 ? void 0 : _a.firstName} ${(_b = req.user) === null || _b === void 0 ? void 0 : _b.lastName}`,
+        message: `Signed in as user ${(_a = req.user) === null || _a === void 0 ? void 0 : _a.id}`,
     });
 });
 // router.post('/auth/signout', verifyAuthentication, signout);
@@ -41,8 +37,9 @@ router.get('/auth/google/callback', passport.authenticate('google', {
     failureRedirect: '/auth/failure',
 }), authentication.issueJwt, (req, res) => {
     res.cookie('token', req.token, {
-        // httpOnly: true,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 1000 * 60 * 60 * 8,
     });
     const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
@@ -54,8 +51,9 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
     failureRedirect: '/auth/failure',
 }), authentication.issueJwt, (req, res) => {
     res.cookie('token', req.token, {
-        // httpOnly: true,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 1000 * 60 * 60 * 8,
     });
     const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;

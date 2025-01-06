@@ -19,7 +19,6 @@ cloudinary.config({
 });
 export const uploadToCloudinary = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (req.file) {
-        console.log(req.file);
         try {
             const result = yield cloudinary.uploader.upload(req.file.path, {
                 folder: '/gated',

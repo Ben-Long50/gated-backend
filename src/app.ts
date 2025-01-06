@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import createError from 'http-errors';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import logger from 'morgan';
 import cors from 'cors';
@@ -36,19 +37,23 @@ if (process.env.NODE_ENV === 'production') {
 
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL, process.env.MOBILE_CLIENT],
+    origin: [
+      process.env.CLIENT_URL,
+      process.env.MOBILE_CLIENT,
+      'http://localhost:3000',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
   }),
 );
 
+app.use(cookieParser());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(helmet());
-
 app.use(limiter);
 
 app.use('/', userRouter);
