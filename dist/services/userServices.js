@@ -51,13 +51,18 @@ const userServices = {
             const user = yield prisma.user.findUnique({
                 where: { email },
             });
-            return {
-                id: user === null || user === void 0 ? void 0 : user.id,
-                firstName: user === null || user === void 0 ? void 0 : user.firstName,
-                lastName: user === null || user === void 0 ? void 0 : user.lastName,
-                role: user === null || user === void 0 ? void 0 : user.role,
-                profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
-            };
+            if (user) {
+                return {
+                    id: user === null || user === void 0 ? void 0 : user.id,
+                    firstName: user === null || user === void 0 ? void 0 : user.firstName,
+                    lastName: user === null || user === void 0 ? void 0 : user.lastName,
+                    role: user === null || user === void 0 ? void 0 : user.role,
+                    profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
+                };
+            }
+            else {
+                return null;
+            }
         }
         catch (error) {
             console.error(error);

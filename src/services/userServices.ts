@@ -43,13 +43,17 @@ const userServices = {
       const user = await prisma.user.findUnique({
         where: { email },
       });
-      return {
-        id: user?.id,
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        role: user?.role,
-        profilePicture: user?.profilePicture,
-      };
+      if (user) {
+        return {
+          id: user?.id,
+          firstName: user?.firstName,
+          lastName: user?.lastName,
+          role: user?.role,
+          profilePicture: user?.profilePicture,
+        };
+      } else {
+        return null;
+      }
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch user');
