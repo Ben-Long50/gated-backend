@@ -43,7 +43,7 @@ router.post(
 
 router.post(
   '/auth/signout',
-  authentication.authenticateUser,
+  authentication.authenticate,
   (_req: Request, res: Response) => {
     res.cookie('token', null);
     res.status(200).json({

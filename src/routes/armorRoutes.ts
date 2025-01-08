@@ -4,23 +4,25 @@ import armorController from '../controllers/armorController.js';
 
 const router = express.Router();
 
-router.get('/armor', authentication.authenticateUser, armorController.getArmor);
+router.get('/armor', authentication.authenticate, armorController.getArmor);
 
 router.get(
   '/armor/:armorId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   armorController.getArmorById,
 );
 
 router.post(
   '/armor',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   armorController.createArmor,
 );
 
 router.delete(
   '/armor/:armorId',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   armorController.deleteArmor,
 );
 

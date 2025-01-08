@@ -6,25 +6,27 @@ const router = express.Router();
 
 router.get(
   '/weapons',
-  authentication.authenticateUser,
+  authentication.authenticate,
   weaponController.getWeapons,
 );
 
 router.get(
   '/weapons/:weaponId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   weaponController.getWeaponById,
 );
 
 router.post(
   '/weapons',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   weaponController.createWeapon,
 );
 
 router.delete(
   '/weapons/:weaponId',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   weaponController.deleteWeapon,
 );
 

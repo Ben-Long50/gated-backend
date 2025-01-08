@@ -6,25 +6,27 @@ const router = express.Router();
 
 router.get(
   '/cybernetics',
-  authentication.authenticateUser,
+  authentication.authenticate,
   cyberneticController.getCybernetics,
 );
 
 router.get(
   '/cybernetics/:cyberneticId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   cyberneticController.getCyberneticById,
 );
 
 router.post(
   '/cybernetics',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   cyberneticController.createCybernetic,
 );
 
 router.delete(
   '/cybernetics/:cyberneticId',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   cyberneticController.deleteCybernetic,
 );
 

@@ -6,19 +6,21 @@ const router = express.Router();
 
 router.get(
   '/keywords',
-  authentication.authenticateUser,
+  authentication.authenticate,
   keywordConroller.getKeywords,
 );
 
 router.get(
   '/keywords/:keywordId',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   keywordConroller.getKeywordById,
 );
 
 router.post(
   '/keywords',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   keywordConroller.createKeyword,
 );
 

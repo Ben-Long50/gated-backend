@@ -6,31 +6,31 @@ const router = express.Router();
 
 router.get(
   '/characters',
-  authentication.authenticateUser,
+  authentication.authenticate,
   characterController.getCharacters,
 );
 
 router.get(
   '/characters/:characterId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   characterController.getCharacterById,
 );
 
 router.post(
   '/characters',
-  authentication.authenticateUser,
+  authentication.authenticate,
   characterController.createCharacter,
 );
 
 router.put(
   '/characters/:characterId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   characterController.updateCharacter,
 );
 
 router.delete(
   '/characters/:characterId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   characterController.deleteCharacter,
 );
 

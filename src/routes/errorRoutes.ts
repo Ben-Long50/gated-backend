@@ -6,13 +6,13 @@ const router = express.Router();
 
 router.get(
   '/errors',
-  authentication.authenticateUser,
+  authentication.authenticate,
   errorController.getErrorReports,
 );
 
 router.post(
   '/errors',
-  authentication.authenticateUser,
+  authentication.authenticate,
   errorController.createErrorReport,
 );
 

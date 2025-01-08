@@ -4,21 +4,18 @@ import actionConroller from '../controllers/actionController.js';
 
 const router = express.Router();
 
-router.get(
-  '/actions',
-  authentication.authenticateUser,
-  actionConroller.getActions,
-);
+router.get('/actions', authentication.authenticate, actionConroller.getActions);
 
 router.get(
   '/actions/:actionId',
-  authentication.authenticateUser,
+  authentication.authenticate,
   actionConroller.getActionById,
 );
 
 router.post(
   '/actions',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   actionConroller.createAction,
 );
 

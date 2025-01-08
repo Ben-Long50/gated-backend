@@ -20,6 +20,42 @@ const authentication = {
             }
         }
     },
-    authenticateUser: passport.authenticate('jwt', { session: false }),
+    authenticate: passport.authenticate('jwt', { session: false }),
+    authenticateSuperadmin: (req, res, next) => {
+        const allowedRoles = ['SUPERADMIN'];
+        if (!req.user) {
+            res.status(401).json({ error: 'No user found' });
+        }
+        else if (req.user.role && !allowedRoles.includes(req.user.role)) {
+            res.status(403).json({
+                error: 'You do not have the correct permissions to use this function',
+            });
+        }
+        return next();
+    },
+    authenticateAdmin: (req, res, next) => {
+        const allowedRoles = ['SUPERADMIN', 'ADMIN'];
+        if (!req.user) {
+            res.status(401).json({ error: 'No user found' });
+        }
+        else if (req.user.role && !allowedRoles.includes(req.user.role)) {
+            res.status(403).json({
+                error: 'You do not have the correct permissions to use this function',
+            });
+        }
+        return next();
+    },
+    authenticateUser: (req, res, next) => {
+        const allowedRoles = ['SUPERADMIN', 'ADMIN', 'USER'];
+        if (!req.user) {
+            res.status(401).json({ error: 'No user found' });
+        }
+        else if (req.user.role && !allowedRoles.includes(req.user.role)) {
+            res.status(403).json({
+                error: 'You do not have the correct permissions to use this function',
+            });
+        }
+        return next();
+    },
 };
 export default authentication;

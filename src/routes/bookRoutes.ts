@@ -4,23 +4,25 @@ import bookController from '../controllers/bookController.js';
 
 const router = express.Router();
 
-router.get('/book', authentication.authenticateUser, bookController.getBook);
+router.get('/book', authentication.authenticate, bookController.getBook);
 
 router.get(
   '/book/:bookEntryTitle',
-  authentication.authenticateUser,
+  authentication.authenticate,
   bookController.getBookEntryByTitle,
 );
 
 router.post(
   '/book',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   bookController.createBookEntry,
 );
 
 router.delete(
   '/book/:bookEntryId',
-  authentication.authenticateUser,
+  authentication.authenticate,
+  authentication.authenticateAdmin,
   bookController.deleteBookEntry,
 );
 
