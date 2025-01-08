@@ -41,7 +41,16 @@ router.post(
   },
 );
 
-// router.post('/auth/signout', verifyAuthentication, signout);
+router.post(
+  '/auth/signout',
+  authentication.authenticateUser,
+  (_req: Request, res: Response) => {
+    res.cookie('token', null);
+    res.status(200).json({
+      message: `You have been signed out`,
+    });
+  },
+);
 
 router.get('/auth/status', sendAuthStatus);
 

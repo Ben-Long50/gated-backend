@@ -29,7 +29,12 @@ router.post('/auth/signin', (req, res, next) => {
         message: `Signed in as user ${(_a = req.user) === null || _a === void 0 ? void 0 : _a.id}`,
     });
 });
-// router.post('/auth/signout', verifyAuthentication, signout);
+router.post('/auth/signout', authentication.authenticateUser, (_req, res) => {
+    res.cookie('token', null);
+    res.status(200).json({
+        message: `You have been signed out`,
+    });
+});
 router.get('/auth/status', sendAuthStatus);
 router.get('/auth/google', passport.authenticate('google'));
 router.get('/auth/google/callback', passport.authenticate('google', {
