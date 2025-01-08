@@ -14,6 +14,7 @@ const authentication = {
         (err, token) => {
           if (err) {
             res.status(500).json({ message: 'Error generating token' });
+            return;
           }
           req.token = token;
           next();
@@ -22,6 +23,7 @@ const authentication = {
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ error: error.message });
+        return;
       }
     }
   },
@@ -32,10 +34,12 @@ const authentication = {
     const allowedRoles = ['SUPERADMIN'];
     if (!req.user) {
       res.status(401).json({ error: 'No user found' });
+      return;
     } else if (req.user.role && !allowedRoles.includes(req.user.role)) {
       res.status(403).json({
-        error: 'You do not have the correct permissions to use this function',
+        error: 'You do not have the required permissions to use this function',
       });
+      return;
     }
     return next();
   },
@@ -44,10 +48,12 @@ const authentication = {
     const allowedRoles = ['SUPERADMIN', 'ADMIN'];
     if (!req.user) {
       res.status(401).json({ error: 'No user found' });
+      return;
     } else if (req.user.role && !allowedRoles.includes(req.user.role)) {
       res.status(403).json({
-        error: 'You do not have the correct permissions to use this function',
+        error: 'You do not have the required permissions to use this function',
       });
+      return;
     }
     return next();
   },
@@ -56,10 +62,12 @@ const authentication = {
     const allowedRoles = ['SUPERADMIN', 'ADMIN', 'USER'];
     if (!req.user) {
       res.status(401).json({ error: 'No user found' });
+      return;
     } else if (req.user.role && !allowedRoles.includes(req.user.role)) {
       res.status(403).json({
-        error: 'You do not have the correct permissions to use this function',
+        error: 'You do not have the required permissions to use this function',
       });
+      return;
     }
     return next();
   },
