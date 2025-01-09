@@ -31,7 +31,20 @@ const errorServices = {
       return errorReport;
     } catch (error) {
       console.error(error);
-      throw new Error('Failed to create or error report');
+      throw new Error('Failed to create error report');
+    }
+  },
+
+  deleteErrorReport: async (errorId: string) => {
+    try {
+      await prisma.error.delete({
+        where: {
+          id: Number(errorId),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete error report');
     }
   },
 };

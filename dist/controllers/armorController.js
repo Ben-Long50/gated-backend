@@ -48,9 +48,20 @@ const armorController = {
             }
         }),
     ],
-    deleteArmor: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    deleteArmorByName: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield armorServices.deleteArmorByName(req.params.armorId);
+            res.status(200).json({ message: 'Successfully deleted armor' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
+    deleteArmor: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield armorServices.deleteArmor(req.params.armorId);
             res.status(200).json({ message: 'Successfully deleted armor' });
         }
         catch (error) {

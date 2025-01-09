@@ -129,6 +129,19 @@ const armorServices = {
       throw new Error('Failed to delete armor');
     }
   },
+
+  deleteArmor: async (armorId: string) => {
+    try {
+      await prisma.armor.delete({
+        where: {
+          id: Number(armorId),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete armor');
+    }
+  },
 };
 
 export default armorServices;

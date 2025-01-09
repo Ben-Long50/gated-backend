@@ -42,5 +42,16 @@ const perkController = {
             }
         }
     }),
+    deletePerk: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield perkServices.deletePerk(req.params.perkId);
+            res.status(200).json({ message: 'Successfully deleted perk' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
 };
 export default perkController;

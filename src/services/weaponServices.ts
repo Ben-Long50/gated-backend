@@ -130,6 +130,19 @@ const weaponServices = {
       throw new Error('Failed to delete weapon');
     }
   },
+
+  deleteWeapon: async (weaponId: string) => {
+    try {
+      await prisma.weapon.delete({
+        where: {
+          id: Number(weaponId),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete weapon');
+    }
+  },
 };
 
 export default weaponServices;

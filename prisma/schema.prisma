@@ -16,7 +16,7 @@ model User {
   facebookId     String?     @unique
   email          String      @unique
   password       String?
-  role           UserRole    @default(ADMIN)
+  role           UserRole    @default(USER)
   createdAt      DateTime    @default(now())
   characters     Character[]
   errorReports   Error[]

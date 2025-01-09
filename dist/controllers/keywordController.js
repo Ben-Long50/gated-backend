@@ -42,5 +42,16 @@ const keywordController = {
             }
         }
     }),
+    deleteKeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield keywordServices.deleteKeyword(req.params.keywordId);
+            res.status(200).json({ message: 'Successfully deleted keyword' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
 };
 export default keywordController;

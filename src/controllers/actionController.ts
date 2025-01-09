@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import actionServices from '../services/actionServices.js';
 
-const actionConroller = {
+const actionController = {
   getActions: async (_req: Request, res: Response) => {
     try {
       const actions = await actionServices.getActions();
@@ -34,6 +34,17 @@ const actionConroller = {
       }
     }
   },
+
+  deleteAction: async (req: Request, res: Response) => {
+    try {
+      await actionServices.deleteAction(req.params.actionId);
+      res.status(200).json({ message: 'Successfully deleted action' });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
 };
 
-export default actionConroller;
+export default actionController;

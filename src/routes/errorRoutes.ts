@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get(
   '/errors',
-  authentication.authenticate,
+  authentication.authenticateSuperadmin,
   errorController.getErrorReports,
 );
 
@@ -14,6 +14,12 @@ router.post(
   '/errors',
   authentication.authenticate,
   errorController.createErrorReport,
+);
+
+router.delete(
+  '/errors/:errorId',
+  authentication.authenticateSuperadmin,
+  errorController.deleteErrorReport,
 );
 
 export default router;

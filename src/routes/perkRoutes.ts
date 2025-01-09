@@ -19,4 +19,11 @@ router.post(
   perkController.createPerk,
 );
 
+router.delete(
+  '/perks/:perkId',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  perkController.deletePerk,
+);
+
 export default router;

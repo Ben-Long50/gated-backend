@@ -53,5 +53,18 @@ const perkServices = {
             throw new Error('Failed to create or update perk');
         }
     }),
+    deletePerk: (perkId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield prisma.perk.delete({
+                where: {
+                    id: Number(perkId),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete perk');
+        }
+    }),
 };
 export default perkServices;

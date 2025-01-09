@@ -77,6 +77,19 @@ const actionServices = {
       throw new Error('Failed to delete action');
     }
   },
+
+  deleteAction: async (actionId: string) => {
+    try {
+      await prisma.action.delete({
+        where: {
+          id: Number(actionId),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete action');
+    }
+  },
 };
 
 export default actionServices;

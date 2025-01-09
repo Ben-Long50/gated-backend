@@ -41,9 +41,20 @@ const armorController = {
     },
   ],
 
-  deleteArmor: async (req: Request, res: Response) => {
+  deleteArmorByName: async (req: Request, res: Response) => {
     try {
       await armorServices.deleteArmorByName(req.params.armorId);
+      res.status(200).json({ message: 'Successfully deleted armor' });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
+  deleteArmor: async (req: Request, res: Response) => {
+    try {
+      await armorServices.deleteArmor(req.params.armorId);
       res.status(200).json({ message: 'Successfully deleted armor' });
     } catch (error) {
       if (error instanceof Error) {

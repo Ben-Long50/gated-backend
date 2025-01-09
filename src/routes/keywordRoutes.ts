@@ -1,27 +1,34 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
-import keywordConroller from '../controllers/keywordController.js';
+import keywordController from '../controllers/keywordController.js';
 
 const router = express.Router();
 
 router.get(
   '/keywords',
   authentication.authenticate,
-  keywordConroller.getKeywords,
+  keywordController.getKeywords,
 );
 
 router.get(
   '/keywords/:keywordId',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  keywordConroller.getKeywordById,
+  keywordController.getKeywordById,
 );
 
 router.post(
   '/keywords',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  keywordConroller.createKeyword,
+  keywordController.createKeyword,
+);
+
+router.delete(
+  '/keywords/:keywordId',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  keywordController.deleteKeyword,
 );
 
 export default router;

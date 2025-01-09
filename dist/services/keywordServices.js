@@ -55,5 +55,18 @@ const keywordServices = {
             throw new Error('Failed to create or update keyword');
         }
     }),
+    deleteKeyword: (keywordId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield prisma.keyword.delete({
+                where: {
+                    id: Number(keywordId),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete keyword');
+        }
+    }),
 };
 export default keywordServices;

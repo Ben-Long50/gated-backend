@@ -34,7 +34,20 @@ const errorServices = {
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to create or error report');
+            throw new Error('Failed to create error report');
+        }
+    }),
+    deleteErrorReport: (errorId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield prisma.error.delete({
+                where: {
+                    id: Number(errorId),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete error report');
         }
     }),
 };

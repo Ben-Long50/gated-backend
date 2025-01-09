@@ -31,7 +31,7 @@ const authentication = {
         }
         else if (req.user.role && !allowedRoles.includes(req.user.role)) {
             res.status(403).json({
-                error: 'You do not have the correct permissions to use this function',
+                error: 'You do not have the required permissions to use this function',
             });
             return;
         }
@@ -45,7 +45,7 @@ const authentication = {
         }
         else if (req.user.role && !allowedRoles.includes(req.user.role)) {
             res.status(403).json({
-                error: 'You do not have the correct permissions to use this function',
+                error: 'You do not have the required permissions to use this function',
             });
             return;
         }
@@ -59,7 +59,7 @@ const authentication = {
         }
         else if (req.user.role && !allowedRoles.includes(req.user.role)) {
             res.status(403).json({
-                error: 'You do not have the correct permissions to use this function',
+                error: 'You do not have the required permissions to use this function',
             });
             return;
         }
