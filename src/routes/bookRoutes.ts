@@ -4,12 +4,16 @@ import bookController from '../controllers/bookController.js';
 
 const router = express.Router();
 
-router.get('/book', authentication.authenticate, bookController.getBook);
+router.get(
+  '/book/sections',
+  authentication.authenticate,
+  bookController.getBookSections,
+);
 
 router.get(
-  '/book/:bookEntryTitle',
+  '/book/:bookEntryId',
   authentication.authenticate,
-  bookController.getBookEntryByTitle,
+  bookController.getBookEntry,
 );
 
 router.post(
@@ -17,6 +21,13 @@ router.post(
   authentication.authenticate,
   authentication.authenticateAdmin,
   bookController.createBookEntry,
+);
+
+router.post(
+  '/book/sections',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  bookController.createBookSection,
 );
 
 router.delete(

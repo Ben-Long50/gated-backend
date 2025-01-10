@@ -11,9 +11,9 @@ import bookServices from '../services/bookServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 const bookController = {
-    getBook: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getBookSections: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const book = yield bookServices.getBook();
+            const book = yield bookServices.getBookSections();
             res.status(200).json(book);
         }
         catch (error) {
@@ -22,9 +22,9 @@ const bookController = {
             }
         }
     }),
-    getBookEntryByTitle: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    getBookEntry: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const bookEntry = yield bookServices.getBookEntryByTitle(req.params.bookEntryTitle.toLowerCase());
+            const bookEntry = yield bookServices.getBookEntry(req.params.bookEntryId);
             res.status(200).json(bookEntry);
         }
         catch (error) {
@@ -35,8 +35,20 @@ const bookController = {
     }),
     createBookEntry: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
+            console.log(req.body);
             const bookEntry = yield bookServices.createBookEntry(req.body);
             res.status(200).json(bookEntry);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
+    createBookSection: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const bookSection = yield bookServices.createBookSection(req.body);
+            res.status(200).json(bookSection);
         }
         catch (error) {
             if (error instanceof Error) {

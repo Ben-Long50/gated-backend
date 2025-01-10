@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import prisma from '../config/database.js';
 const bookServices = {
-    getBook: () => __awaiter(void 0, void 0, void 0, function* () {
+    getBookSections: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const book = yield prisma.bookEntry.findMany({
-                select: { id: true, title: true },
-                orderBy: { id: 'asc' },
+            const book = yield prisma.bookSection.findMany({
+                include: { entries: { orderBy: { page: 'asc' } } },
+                orderBy: { order: 'asc' },
             });
             return book;
         }
@@ -22,10 +22,10 @@ const bookServices = {
             throw new Error('Failed to fetch book');
         }
     }),
-    getBookEntryByTitle: (bookEntryTitle) => __awaiter(void 0, void 0, void 0, function* () {
+    getBookEntry: (bookEntryId) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const bookEntry = yield prisma.bookEntry.findUnique({
-                where: { title: bookEntryTitle },
+                where: { id: Number(bookEntryId) },
             });
             return bookEntry;
         }
@@ -39,15 +39,45 @@ const bookServices = {
             const bookEntry = yield prisma.bookEntry.upsert({
                 where: { id: formData.bookEntryId || 0 },
                 update: {
+                    page: formData.page,
                     title: formData.title.toLowerCase(),
+                    sectionId: Number(formData.section),
                     content: formData.content,
                 },
                 create: {
+                    page: formData.page,
                     title: formData.title.toLowerCase(),
+                    sectionId: Number(formData.section),
                     content: formData.content,
                 },
             });
             return bookEntry;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update book entry');
+        }
+    }),
+    createBookSection: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const highestOrder = yield prisma.bookSection.aggregate({
+                _max: {
+                    order: true,
+                },
+            });
+            const greatest = highestOrder._max.order || 0;
+            const bookSection = yield prisma.bookSection.upsert({
+                where: { id: formData.bookSectionId || 0 },
+                update: {
+                    title: formData.title.toLowerCase(),
+                    order: formData === null || formData === void 0 ? void 0 : formData.order,
+                },
+                create: {
+                    title: formData.title.toLowerCase(),
+                    order: greatest + 1,
+                },
+            });
+            return bookSection;
         }
         catch (error) {
             console.error(error);

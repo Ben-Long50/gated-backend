@@ -114,10 +114,22 @@ model Action {
   cybernetics    Cybernetic[] @relation("CyberneticActions")
 }
 
+model BookSection {
+  id      Int         @id @default(autoincrement())
+  order   Int         @unique
+  title   String      @unique
+  entries BookEntry[]
+}
+
 model BookEntry {
-  id      Int    @id @default(autoincrement())
-  title   String @unique
-  content String
+  id        Int         @id @default(autoincrement())
+  page      Int         @unique
+  title     String
+  section   BookSection @relation(fields: [sectionId], references: [id])
+  sectionId Int
+  content   Json
+
+  @@unique([title, sectionId])
 }
 
 model Error {
