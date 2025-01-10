@@ -47,7 +47,7 @@ router.get('/auth/google/callback', passport.authenticate('google', {
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex`;
     res.redirect(redirectUrl);
 });
 router.get('/auth/facebook', passport.authenticate('facebook'));
@@ -61,7 +61,7 @@ router.get('/auth/facebook/callback', passport.authenticate('facebook', {
         sameSite: 'strict',
         maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex`;
     res.redirect(redirectUrl);
 });
 router.get('/auth/failure', (_req, res) => {

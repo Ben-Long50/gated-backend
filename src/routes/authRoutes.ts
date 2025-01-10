@@ -70,7 +70,7 @@ router.get(
       sameSite: 'strict',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex`;
     res.redirect(redirectUrl);
   },
 );
@@ -91,7 +91,7 @@ router.get(
       sameSite: 'strict',
       maxAge: 1000 * 60 * 60 * 8,
     });
-    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex/book/introduction`;
+    const redirectUrl = `${process.env.CLIENT_URL}/glam/codex`;
     res.redirect(redirectUrl);
   },
 );
