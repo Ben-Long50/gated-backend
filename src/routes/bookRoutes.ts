@@ -11,13 +11,13 @@ router.get(
 );
 
 router.get(
-  '/book/:bookEntryId',
+  '/book/entries/:bookEntryId',
   authentication.authenticate,
   bookController.getBookEntry,
 );
 
 router.post(
-  '/book',
+  '/book/entries',
   authentication.authenticate,
   authentication.authenticateAdmin,
   bookController.createBookEntry,
@@ -31,10 +31,17 @@ router.post(
 );
 
 router.delete(
-  '/book/:bookEntryId',
+  '/book/entries/:bookEntryId',
   authentication.authenticate,
   authentication.authenticateAdmin,
   bookController.deleteBookEntry,
+);
+
+router.delete(
+  '/book/sections/:bookSectionId',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  bookController.deleteBookSection,
 );
 
 router.post('/book/image', bookController.uploadBookImage);

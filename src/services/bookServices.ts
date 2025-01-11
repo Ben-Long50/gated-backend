@@ -90,6 +90,8 @@ const bookServices = {
   },
 
   deleteBookEntry: async (bookEntryId: string) => {
+    console.log(bookEntryId);
+
     try {
       await prisma.bookEntry.delete({
         where: {
@@ -99,6 +101,21 @@ const bookServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to delete book entry');
+    }
+  },
+
+  deleteBookSection: async (bookSectionId: string) => {
+    console.log(bookSectionId);
+
+    try {
+      await prisma.bookSection.delete({
+        where: {
+          id: Number(bookSectionId),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete book section');
     }
   },
 };

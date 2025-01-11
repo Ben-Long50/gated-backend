@@ -85,6 +85,7 @@ const bookServices = {
         }
     }),
     deleteBookEntry: (bookEntryId) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(bookEntryId);
         try {
             yield prisma.bookEntry.delete({
                 where: {
@@ -95,6 +96,20 @@ const bookServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to delete book entry');
+        }
+    }),
+    deleteBookSection: (bookSectionId) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log(bookSectionId);
+        try {
+            yield prisma.bookSection.delete({
+                where: {
+                    id: Number(bookSectionId),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete book section');
         }
     }),
 };

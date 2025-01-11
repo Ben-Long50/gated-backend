@@ -67,6 +67,17 @@ const bookController = {
             }
         }
     }),
+    deleteBookSection: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield bookServices.deleteBookSection(req.params.bookSectionId);
+            res.status(200).json({ message: 'Book section successfully deleted' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
     uploadBookImage: [
         upload.single('picture'),
         uploadToCloudinary,
