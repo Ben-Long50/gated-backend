@@ -14,6 +14,7 @@ const vehicleServices = {
         try {
             const vehicles = yield prisma.vehicle.findMany({
                 orderBy: { name: 'asc' },
+                include: { modifications: true },
             });
             const vehicleDetails = yield getGroupWeapons(vehicles);
             return vehicleDetails;
@@ -23,18 +24,45 @@ const vehicleServices = {
             throw new Error('Failed to fetch vehicles');
         }
     }),
+    getVehicleMods: () => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const vehicleMods = yield prisma.modification.findMany({
+                orderBy: { name: 'asc' },
+            });
+            return vehicleMods;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch vehicle modifications');
+        }
+    }),
     getVehicleById: (vehicleId) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const vehicle = yield prisma.vehicle.findUnique({
                 where: {
                     id: Number(vehicleId),
                 },
+                include: { modifications: true },
             });
             if (!vehicle) {
                 throw new Error('Could not find vehicle');
             }
             const vehicleDetails = yield getItemWeapons(vehicle);
             return vehicleDetails;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch vehicle');
+        }
+    }),
+    getVehicleModById: (modId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const vehicleMod = yield prisma.modification.findUnique({
+                where: {
+                    id: Number(modId),
+                },
+            });
+            return vehicleMod;
         }
         catch (error) {
             console.error(error);
@@ -52,6 +80,9 @@ const vehicleServices = {
                 }
             };
             const pictureInfo = getPictureInfo();
+            const modIds = JSON.parse(formData.modifications).map((modId) => {
+                return { id: modId };
+            });
             const newVehicle = yield prisma.vehicle.upsert({
                 where: { id: Number(JSON.parse(formData.vehicleId)) || 0 },
                 update: {
@@ -61,6 +92,7 @@ const vehicleServices = {
                     price: Number(JSON.parse(formData.price)),
                     description: JSON.parse(formData.description),
                     weapons: JSON.parse(formData.weapons),
+                    modifications: { connect: modIds },
                 },
                 create: {
                     name: JSON.parse(formData.name),
@@ -69,6 +101,7 @@ const vehicleServices = {
                     price: JSON.parse(formData.price),
                     description: JSON.parse(formData.description),
                     weapons: JSON.parse(formData.weapons),
+                    modifications: { connect: modIds },
                 },
             });
             return newVehicle;
@@ -76,6 +109,30 @@ const vehicleServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to create or update vehicle');
+        }
+    }),
+    createVehicleMod: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const newVehicleMod = yield prisma.modification.upsert({
+                where: { id: Number(formData.modId) || 0 },
+                update: {
+                    name: formData.name,
+                    price: Number(formData.price),
+                    modificationType: formData.modificationType,
+                    description: formData.description,
+                },
+                create: {
+                    name: formData.name,
+                    price: Number(formData.price),
+                    modificationType: formData.modificationType,
+                    description: formData.description,
+                },
+            });
+            return newVehicleMod;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update vehicle modification');
         }
     }),
     deleteVehicleByName: (vehicleName) => __awaiter(void 0, void 0, void 0, function* () {
@@ -102,6 +159,19 @@ const vehicleServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to delete vehicle');
+        }
+    }),
+    deleteVehicleMod: (modId) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield prisma.modification.delete({
+                where: {
+                    id: Number(modId),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete vehicle modification');
         }
     }),
 };

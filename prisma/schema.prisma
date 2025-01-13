@@ -99,15 +99,25 @@ model Cybernetic {
 }
 
 model Vehicle {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
-  picture     Json?
-  description String?
-  stats       Json
-  price       Int?
-  weapons     Json[]
-  characterId Int?
-  character   Character? @relation(fields: [characterId], references: [id])
+  id            Int            @id @default(autoincrement())
+  name          String         @unique
+  picture       Json?
+  description   String?
+  stats         Json
+  price         Int?
+  weapons       Json[]
+  modifications Modification[]
+  characterId   Int?
+  character     Character?     @relation(fields: [characterId], references: [id])
+}
+
+model Modification {
+  id               Int       @id @default(autoincrement())
+  name             String    @unique
+  price            Int?
+  modificationType String
+  description      String?
+  vehicles         Vehicle[]
 }
 
 model Perk {

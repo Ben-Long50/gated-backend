@@ -9,6 +9,7 @@ const vehicleServices = {
     try {
       const vehicles = await prisma.vehicle.findMany({
         orderBy: { name: 'asc' },
+        include: { modifications: true },
       });
 
       const vehicleDetails = await getGroupWeapons(vehicles);
@@ -20,12 +21,26 @@ const vehicleServices = {
     }
   },
 
+  getVehicleMods: async () => {
+    try {
+      const vehicleMods = await prisma.modification.findMany({
+        orderBy: { name: 'asc' },
+      });
+
+      return vehicleMods;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch vehicle modifications');
+    }
+  },
+
   getVehicleById: async (vehicleId: string) => {
     try {
       const vehicle = await prisma.vehicle.findUnique({
         where: {
           id: Number(vehicleId),
         },
+        include: { modifications: true },
       });
 
       if (!vehicle) {
@@ -35,6 +50,21 @@ const vehicleServices = {
       const vehicleDetails = await getItemWeapons(vehicle);
 
       return vehicleDetails;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch vehicle');
+    }
+  },
+
+  getVehicleModById: async (modId: string) => {
+    try {
+      const vehicleMod = await prisma.modification.findUnique({
+        where: {
+          id: Number(modId),
+        },
+      });
+
+      return vehicleMod;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch vehicle');
@@ -51,6 +81,7 @@ const vehicleServices = {
     price: string;
     description: string;
     weapons: string;
+    modifications: string;
   }) => {
     try {
       const getPictureInfo = () => {
@@ -63,6 +94,10 @@ const vehicleServices = {
 
       const pictureInfo = getPictureInfo();
 
+      const modIds = JSON.parse(formData.modifications).map((modId: number) => {
+        return { id: modId };
+      });
+
       const newVehicle = await prisma.vehicle.upsert({
         where: { id: Number(JSON.parse(formData.vehicleId)) || 0 },
         update: {
@@ -72,6 +107,7 @@ const vehicleServices = {
           price: Number(JSON.parse(formData.price)),
           description: JSON.parse(formData.description),
           weapons: JSON.parse(formData.weapons),
+          modifications: { connect: modIds },
         },
         create: {
           name: JSON.parse(formData.name),
@@ -80,6 +116,7 @@ const vehicleServices = {
           price: JSON.parse(formData.price),
           description: JSON.parse(formData.description),
           weapons: JSON.parse(formData.weapons),
+          modifications: { connect: modIds },
         },
       });
 
@@ -87,6 +124,37 @@ const vehicleServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create or update vehicle');
+    }
+  },
+
+  createVehicleMod: async (formData: {
+    modId: string;
+    name: string;
+    price: string;
+    modificationType: string;
+    description: string;
+  }) => {
+    try {
+      const newVehicleMod = await prisma.modification.upsert({
+        where: { id: Number(formData.modId) || 0 },
+        update: {
+          name: formData.name,
+          price: Number(formData.price),
+          modificationType: formData.modificationType,
+          description: formData.description,
+        },
+        create: {
+          name: formData.name,
+          price: Number(formData.price),
+          modificationType: formData.modificationType,
+          description: formData.description,
+        },
+      });
+
+      return newVehicleMod;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to create or update vehicle modification');
     }
   },
 
@@ -113,6 +181,19 @@ const vehicleServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to delete vehicle');
+    }
+  },
+
+  deleteVehicleMod: async (modId: string) => {
+    try {
+      await prisma.modification.delete({
+        where: {
+          id: Number(modId),
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete vehicle modification');
     }
   },
 };

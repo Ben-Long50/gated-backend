@@ -15,12 +15,36 @@ const vehicleController = {
     }
   },
 
+  getVehicleMods: async (_req: Request, res: Response) => {
+    try {
+      const vehicleMods = await vehicleServices.getVehicleMods();
+      res.status(200).json(vehicleMods);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
   getVehicleById: async (req: Request, res: Response) => {
     try {
       const vehicle = await vehicleServices.getVehicleById(
         req.params.vehicleId,
       );
       res.status(200).json(vehicle);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
+  getVehicleModById: async (req: Request, res: Response) => {
+    try {
+      const vehicleMod = await vehicleServices.getVehicleModById(
+        req.params.modId,
+      );
+      res.status(200).json(vehicleMod);
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ error: error.message });
@@ -43,6 +67,17 @@ const vehicleController = {
     },
   ],
 
+  createVehicleMod: async (req: Request, res: Response) => {
+    try {
+      const vehicleMod = await vehicleServices.createVehicleMod(req.body);
+      res.status(200).json(vehicleMod);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
   deleteVehicleByName: async (req: Request, res: Response) => {
     try {
       await vehicleServices.deleteVehicleByName(req.params.vehicleName);
@@ -58,6 +93,19 @@ const vehicleController = {
     try {
       await vehicleServices.deleteVehicle(req.params.vehicleId);
       res.status(200).json({ message: 'Successfully deleted vehicle' });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
+  deleteVehicleMod: async (req: Request, res: Response) => {
+    try {
+      await vehicleServices.deleteVehicleMod(req.params.modId);
+      res
+        .status(200)
+        .json({ message: 'Successfully deleted vehicle modification' });
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ error: error.message });

@@ -22,10 +22,32 @@ const vehicleController = {
             }
         }
     }),
+    getVehicleMods: (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const vehicleMods = yield vehicleServices.getVehicleMods();
+            res.status(200).json(vehicleMods);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
     getVehicleById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const vehicle = yield vehicleServices.getVehicleById(req.params.vehicleId);
             res.status(200).json(vehicle);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
+    getVehicleModById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const vehicleMod = yield vehicleServices.getVehicleModById(req.params.modId);
+            res.status(200).json(vehicleMod);
         }
         catch (error) {
             if (error instanceof Error) {
@@ -48,6 +70,17 @@ const vehicleController = {
             }
         }),
     ],
+    createVehicleMod: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const vehicleMod = yield vehicleServices.createVehicleMod(req.body);
+            res.status(200).json(vehicleMod);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
     deleteVehicleByName: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             yield vehicleServices.deleteVehicleByName(req.params.vehicleName);
@@ -63,6 +96,19 @@ const vehicleController = {
         try {
             yield vehicleServices.deleteVehicle(req.params.vehicleId);
             res.status(200).json({ message: 'Successfully deleted vehicle' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
+    deleteVehicleMod: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            yield vehicleServices.deleteVehicleMod(req.params.modId);
+            res
+                .status(200)
+                .json({ message: 'Successfully deleted vehicle modification' });
         }
         catch (error) {
             if (error instanceof Error) {

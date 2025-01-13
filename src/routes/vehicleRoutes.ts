@@ -11,9 +11,21 @@ router.get(
 );
 
 router.get(
+  '/vehicles/modifications',
+  authentication.authenticate,
+  vehicleController.getVehicleMods,
+);
+
+router.get(
   '/vehicles/:vehicleId',
   authentication.authenticate,
   vehicleController.getVehicleById,
+);
+
+router.get(
+  '/vehicles/modifications/:modId',
+  authentication.authenticate,
+  vehicleController.getVehicleModById,
 );
 
 router.post(
@@ -23,11 +35,25 @@ router.post(
   vehicleController.createVehicle,
 );
 
+router.post(
+  '/vehicles/modifications',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  vehicleController.createVehicleMod,
+);
+
 router.delete(
   '/vehicles/:vehicleId',
   authentication.authenticate,
   authentication.authenticateAdmin,
   vehicleController.deleteVehicle,
+);
+
+router.delete(
+  '/vehicles/modifications/:modId',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  vehicleController.deleteVehicleMod,
 );
 
 export default router;
