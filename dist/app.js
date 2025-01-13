@@ -16,6 +16,7 @@ import weaponRouter from './routes/weaponRoutes.js';
 import armorRouter from './routes/armorRoutes.js';
 import actionRouter from './routes/actionRoutes.js';
 import cybernericRouter from './routes/cyberneticRoutes.js';
+import vehicleRouter from './routes/vehicleRoutes.js';
 import bookRouter from './routes/bookRoutes.js';
 import errorRouter from './routes/errorRoutes.js';
 import './passport/passport.js';
@@ -55,6 +56,7 @@ app.use('/', weaponRouter);
 app.use('/', armorRouter);
 app.use('/', actionRouter);
 app.use('/', cybernericRouter);
+app.use('/', vehicleRouter);
 app.use('/', bookRouter);
 app.use('/', errorRouter);
 // catch 404 and forward to error handler

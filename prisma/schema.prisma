@@ -39,10 +39,11 @@ model Character {
   firstName   String
   lastName    String?
   user        User         @relation(fields: [userId], references: [id])
-  armor       Armor[]      @relation("ArmorToCharacter")
-  cybernetics Cybernetic[] @relation("CharacterToCybernetic")
+  weapons     Weapon[]
+  armor       Armor[]
+  cybernetics Cybernetic[]
+  vehicles    Vehicle[]
   perks       Perk[]       @relation("CharacterToPerk")
-  weapons     Weapon[]     @relation("CharacterToWeapon")
 }
 
 model Keyword {
@@ -62,7 +63,8 @@ model Weapon {
   stats       Json
   price       Int?
   keywords    Json[]
-  characters  Character[]  @relation("CharacterToWeapon")
+  characterId Int?
+  character   Character?   @relation(fields: [characterId], references: [id])
   cybernetic  Cybernetic[] @relation("CyberneticWeapons")
 }
 
@@ -74,7 +76,8 @@ model Armor {
   stats       Json
   price       Int?
   keywords    Json[]
-  characters  Character[]  @relation("ArmorToCharacter")
+  characterId Int?
+  character   Character?   @relation(fields: [characterId], references: [id])
   cybernetic  Cybernetic[] @relation("CyberneticArmor")
 }
 
@@ -88,10 +91,23 @@ model Cybernetic {
   body           String[]
   price          Int?
   keywords       Json[]
-  characters     Character[]    @relation("CharacterToCybernetic")
+  characterId    Int?
+  character      Character?     @relation(fields: [characterId], references: [id])
   actions        Action[]       @relation("CyberneticActions")
   armor          Armor[]        @relation("CyberneticArmor")
   weapons        Weapon[]       @relation("CyberneticWeapons")
+}
+
+model Vehicle {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  picture     Json?
+  description String?
+  stats       Json
+  price       Int?
+  weapons     Json[]
+  characterId Int?
+  character   Character? @relation(fields: [characterId], references: [id])
 }
 
 model Perk {
