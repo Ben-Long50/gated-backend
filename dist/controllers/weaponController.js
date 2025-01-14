@@ -22,6 +22,17 @@ const weaponController = {
             }
         }
     }),
+    getWeaponsByKeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const weaponsByKeyword = yield weaponServices.getWeaponsByKeyword(req.params.keywordName);
+            res.status(200).json(weaponsByKeyword);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    }),
     getWeaponById: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const weapon = yield weaponServices.getWeaponById(req.params.weaponId);

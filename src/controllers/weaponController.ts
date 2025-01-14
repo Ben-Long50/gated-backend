@@ -15,6 +15,19 @@ const weaponController = {
     }
   },
 
+  getWeaponsByKeyword: async (req: Request, res: Response) => {
+    try {
+      const weaponsByKeyword = await weaponServices.getWeaponsByKeyword(
+        req.params.keywordName,
+      );
+      res.status(200).json(weaponsByKeyword);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
   getWeaponById: async (req: Request, res: Response) => {
     try {
       const weapon = await weaponServices.getWeaponById(req.params.weaponId);

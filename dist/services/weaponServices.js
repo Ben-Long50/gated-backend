@@ -12,7 +12,55 @@ import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywor
 const weaponServices = {
     getWeapons: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
+            const keyword = yield prisma.keyword.findUnique({
+                where: {
+                    name_keywordType: { name: 'Vehicle', keywordType: 'weapon' },
+                },
+                select: { id: true },
+            });
+            let weapons;
+            if (keyword) {
+                weapons = yield prisma.weapon.findMany({
+                    where: {
+                        NOT: {
+                            keywords: {
+                                has: { keywordId: keyword.id },
+                            },
+                        },
+                    },
+                    orderBy: { name: 'asc' },
+                });
+            }
+            else {
+                weapons = yield prisma.weapon.findMany({
+                    orderBy: { name: 'asc' },
+                });
+            }
+            const weaponDetails = yield getGroupKeywords(weapons);
+            return weaponDetails;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch weapons');
+        }
+    }),
+    getWeaponsByKeyword: (keywordName) => __awaiter(void 0, void 0, void 0, function* () {
+        try {
+            const keyword = yield prisma.keyword.findUnique({
+                where: {
+                    name_keywordType: { name: keywordName, keywordType: 'weapon' },
+                },
+                select: { id: true },
+            });
+            if (!keyword) {
+                throw new Error('The queried weapon keyword does not exist');
+            }
             const weapons = yield prisma.weapon.findMany({
+                where: {
+                    keywords: {
+                        has: { keywordId: keyword.id },
+                    },
+                },
                 orderBy: { name: 'asc' },
             });
             const weaponDetails = yield getGroupKeywords(weapons);
@@ -20,6 +68,9 @@ const weaponServices = {
         }
         catch (error) {
             console.error(error);
+            if (error) {
+                throw error;
+            }
             throw new Error('Failed to fetch weapons');
         }
     }),

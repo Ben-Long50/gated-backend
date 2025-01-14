@@ -8,7 +8,60 @@ import {
 const weaponServices = {
   getWeapons: async () => {
     try {
+      const keyword = await prisma.keyword.findUnique({
+        where: {
+          name_keywordType: { name: 'Vehicle', keywordType: 'weapon' },
+        },
+        select: { id: true },
+      });
+
+      let weapons;
+
+      if (keyword) {
+        weapons = await prisma.weapon.findMany({
+          where: {
+            NOT: {
+              keywords: {
+                has: { keywordId: keyword.id },
+              },
+            },
+          },
+          orderBy: { name: 'asc' },
+        });
+      } else {
+        weapons = await prisma.weapon.findMany({
+          orderBy: { name: 'asc' },
+        });
+      }
+
+      const weaponDetails = await getGroupKeywords(weapons);
+
+      return weaponDetails;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch weapons');
+    }
+  },
+
+  getWeaponsByKeyword: async (keywordName: string) => {
+    try {
+      const keyword = await prisma.keyword.findUnique({
+        where: {
+          name_keywordType: { name: keywordName, keywordType: 'weapon' },
+        },
+        select: { id: true },
+      });
+
+      if (!keyword) {
+        throw new Error('The queried weapon keyword does not exist');
+      }
+
       const weapons = await prisma.weapon.findMany({
+        where: {
+          keywords: {
+            has: { keywordId: keyword.id },
+          },
+        },
         orderBy: { name: 'asc' },
       });
 
@@ -17,6 +70,9 @@ const weaponServices = {
       return weaponDetails;
     } catch (error) {
       console.error(error);
+      if (error) {
+        throw error;
+      }
       throw new Error('Failed to fetch weapons');
     }
   },

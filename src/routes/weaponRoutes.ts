@@ -11,6 +11,12 @@ router.get(
 );
 
 router.get(
+  '/weapons/keywords/:keywordName',
+  authentication.authenticate,
+  weaponController.getWeaponsByKeyword,
+);
+
+router.get(
   '/weapons/:weaponId',
   authentication.authenticate,
   weaponController.getWeaponById,
