@@ -18,6 +18,7 @@ import actionRouter from './routes/actionRoutes.js';
 import cybernericRouter from './routes/cyberneticRoutes.js';
 import vehicleRouter from './routes/vehicleRoutes.js';
 import bookRouter from './routes/bookRoutes.js';
+import patchNoteRouter from './routes/patchNoteRoutes.js';
 import errorRouter from './routes/errorRoutes.js';
 import './passport/passport.js';
 const app = express();
@@ -58,6 +59,7 @@ app.use('/', actionRouter);
 app.use('/', cybernericRouter);
 app.use('/', vehicleRouter);
 app.use('/', bookRouter);
+app.use('/', patchNoteRouter);
 app.use('/', errorRouter);
 // catch 404 and forward to error handler
 app.use((_req, _res, next) => {

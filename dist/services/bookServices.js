@@ -85,7 +85,6 @@ const bookServices = {
         }
     }),
     deleteBookEntry: (bookEntryId) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(bookEntryId);
         try {
             yield prisma.bookEntry.delete({
                 where: {
@@ -99,7 +98,6 @@ const bookServices = {
         }
     }),
     deleteBookSection: (bookSectionId) => __awaiter(void 0, void 0, void 0, function* () {
-        console.log(bookSectionId);
         try {
             yield prisma.bookSection.delete({
                 where: {

@@ -90,8 +90,6 @@ const bookServices = {
   },
 
   deleteBookEntry: async (bookEntryId: string) => {
-    console.log(bookEntryId);
-
     try {
       await prisma.bookEntry.delete({
         where: {
@@ -105,8 +103,6 @@ const bookServices = {
   },
 
   deleteBookSection: async (bookSectionId: string) => {
-    console.log(bookSectionId);
-
     try {
       await prisma.bookSection.delete({
         where: {

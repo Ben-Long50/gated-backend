@@ -158,6 +158,14 @@ model BookEntry {
   @@unique([title, sectionId])
 }
 
+model PatchNote {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  version   Float    @unique
+  title     String
+  content   Json
+}
+
 model Error {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
