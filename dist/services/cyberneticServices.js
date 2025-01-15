@@ -23,8 +23,7 @@ const cyberneticServices = {
                 },
                 orderBy: { name: 'asc' },
             });
-            const cyberneticsDetails = yield getGroupKeywords(cybernetics);
-            return cyberneticsDetails;
+            return cybernetics;
         }
         catch (error) {
             console.error(error);

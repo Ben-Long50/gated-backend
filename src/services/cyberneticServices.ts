@@ -21,9 +21,7 @@ const cyberneticServices = {
         orderBy: { name: 'asc' },
       });
 
-      const cyberneticsDetails = await getGroupKeywords(cybernetics);
-
-      return cyberneticsDetails;
+      return cybernetics;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch cybernetics');

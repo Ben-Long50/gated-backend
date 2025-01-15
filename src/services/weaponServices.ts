@@ -8,64 +8,52 @@ import {
 const weaponServices = {
   getWeapons: async () => {
     try {
-      const keyword = await prisma.keyword.findUnique({
-        where: {
-          name_keywordType: { name: 'Vehicle', keywordType: 'weapon' },
-        },
-        select: { id: true },
+      const weapons = await prisma.weapon.findMany({
+        orderBy: { name: 'asc' },
       });
 
-      let weapons;
-
-      if (keyword) {
-        weapons = await prisma.weapon.findMany({
-          where: {
-            NOT: {
-              keywords: {
-                has: { keywordId: keyword.id },
-              },
-            },
-          },
-          orderBy: { name: 'asc' },
-        });
-      } else {
-        weapons = await prisma.weapon.findMany({
-          orderBy: { name: 'asc' },
-        });
-      }
-
-      const weaponDetails = await getGroupKeywords(weapons);
-
-      return weaponDetails;
+      return weapons;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch weapons');
     }
   },
 
-  getWeaponsByKeyword: async (keywordName: string) => {
+  getWeaponsByKeyword: async (keywordNames: string[]) => {
     try {
-      const keyword = await prisma.keyword.findUnique({
-        where: {
-          name_keywordType: { name: keywordName, keywordType: 'weapon' },
-        },
-        select: { id: true },
-      });
+      const keywordIds = await Promise.all(
+        keywordNames.map((keywordName) =>
+          prisma.keyword.findUnique({
+            where: {
+              name_keywordType: { name: keywordName, keywordType: 'weapon' },
+            },
+            select: { id: true },
+          }),
+        ),
+      );
 
-      if (!keyword) {
-        throw new Error('The queried weapon keyword does not exist');
+      const combinedIds = keywordIds.filter((keywordId) => keywordId !== null);
+
+      if (combinedIds.length < 1) {
+        throw new Error('The queried weapon keywords do not exist');
       }
 
-      const weapons = await prisma.weapon.findMany({
-        where: {
-          keywords: {
-            has: { keywordId: keyword.id },
-          },
-        },
-        orderBy: { name: 'asc' },
-      });
+      const weapons = await Promise.all(
+        combinedIds.map((keyword) =>
+          prisma.weapon.findMany({
+            where: {
+              keywords: {
+                has: { keywordId: keyword.id },
+              },
+            },
+            orderBy: { name: 'asc' },
+          }),
+        ),
+      );
 
-      const weaponDetails = await getGroupKeywords(weapons);
+      const combinedWeapons = weapons.flat();
+
+      const weaponDetails = await getGroupKeywords(combinedWeapons);
 
       return weaponDetails;
     } catch (error) {

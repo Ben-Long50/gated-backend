@@ -10,8 +10,8 @@ router.get(
   weaponController.getWeapons,
 );
 
-router.get(
-  '/weapons/keywords/:keywordName',
+router.post(
+  '/weapons/keywords',
   authentication.authenticate,
   weaponController.getWeaponsByKeyword,
 );

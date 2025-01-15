@@ -1,8 +1,5 @@
 import prisma from '../config/database.js';
-import {
-  getGroupKeywords,
-  getItemKeywords,
-} from '../utils/getAssociatedKeywords.js';
+import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 
 const armorServices = {
   getArmor: async () => {
@@ -11,9 +8,7 @@ const armorServices = {
         orderBy: { name: 'asc' },
       });
 
-      const armorDetails = await getGroupKeywords(armor);
-
-      return armorDetails;
+      return armor;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch armor');

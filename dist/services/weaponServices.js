@@ -12,58 +12,38 @@ import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywor
 const weaponServices = {
     getWeapons: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const keyword = yield prisma.keyword.findUnique({
-                where: {
-                    name_keywordType: { name: 'Vehicle', keywordType: 'weapon' },
-                },
-                select: { id: true },
+            const weapons = yield prisma.weapon.findMany({
+                orderBy: { name: 'asc' },
             });
-            let weapons;
-            if (keyword) {
-                weapons = yield prisma.weapon.findMany({
-                    where: {
-                        NOT: {
-                            keywords: {
-                                has: { keywordId: keyword.id },
-                            },
-                        },
-                    },
-                    orderBy: { name: 'asc' },
-                });
-            }
-            else {
-                weapons = yield prisma.weapon.findMany({
-                    orderBy: { name: 'asc' },
-                });
-            }
-            const weaponDetails = yield getGroupKeywords(weapons);
-            return weaponDetails;
+            return weapons;
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to fetch weapons');
         }
     }),
-    getWeaponsByKeyword: (keywordName) => __awaiter(void 0, void 0, void 0, function* () {
+    getWeaponsByKeyword: (keywordNames) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const keyword = yield prisma.keyword.findUnique({
+            const keywordIds = yield Promise.all(keywordNames.map((keywordName) => prisma.keyword.findUnique({
                 where: {
                     name_keywordType: { name: keywordName, keywordType: 'weapon' },
                 },
                 select: { id: true },
-            });
-            if (!keyword) {
-                throw new Error('The queried weapon keyword does not exist');
+            })));
+            const combinedIds = keywordIds.filter((keywordId) => keywordId !== null);
+            if (combinedIds.length < 1) {
+                throw new Error('The queried weapon keywords do not exist');
             }
-            const weapons = yield prisma.weapon.findMany({
+            const weapons = yield Promise.all(combinedIds.map((keyword) => prisma.weapon.findMany({
                 where: {
                     keywords: {
                         has: { keywordId: keyword.id },
                     },
                 },
                 orderBy: { name: 'asc' },
-            });
-            const weaponDetails = yield getGroupKeywords(weapons);
+            })));
+            const combinedWeapons = weapons.flat();
+            const weaponDetails = yield getGroupKeywords(combinedWeapons);
             return weaponDetails;
         }
         catch (error) {

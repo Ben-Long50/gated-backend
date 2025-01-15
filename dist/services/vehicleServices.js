@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import prisma from '../config/database.js';
-import { getGroupWeapons, getItemWeapons, } from '../utils/getAssociatedWeapons.js';
+import { getItemWeapons } from '../utils/getAssociatedWeapons.js';
 const vehicleServices = {
     getVehicles: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -16,8 +16,7 @@ const vehicleServices = {
                 orderBy: { name: 'asc' },
                 include: { modifications: true },
             });
-            const vehicleDetails = yield getGroupWeapons(vehicles);
-            return vehicleDetails;
+            return vehicles;
         }
         catch (error) {
             console.error(error);

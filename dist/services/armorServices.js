@@ -8,15 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import prisma from '../config/database.js';
-import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
+import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 const armorServices = {
     getArmor: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const armor = yield prisma.armor.findMany({
                 orderBy: { name: 'asc' },
             });
-            const armorDetails = yield getGroupKeywords(armor);
-            return armorDetails;
+            return armor;
         }
         catch (error) {
             console.error(error);

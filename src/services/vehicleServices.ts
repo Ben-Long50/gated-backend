@@ -1,8 +1,5 @@
 import prisma from '../config/database.js';
-import {
-  getGroupWeapons,
-  getItemWeapons,
-} from '../utils/getAssociatedWeapons.js';
+import { getItemWeapons } from '../utils/getAssociatedWeapons.js';
 
 const vehicleServices = {
   getVehicles: async () => {
@@ -12,9 +9,7 @@ const vehicleServices = {
         include: { modifications: true },
       });
 
-      const vehicleDetails = await getGroupWeapons(vehicles);
-
-      return vehicleDetails;
+      return vehicles;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch vehicles');

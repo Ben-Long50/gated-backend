@@ -24,7 +24,7 @@ const weaponController = {
     }),
     getWeaponsByKeyword: (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const weaponsByKeyword = yield weaponServices.getWeaponsByKeyword(req.params.keywordName);
+            const weaponsByKeyword = yield weaponServices.getWeaponsByKeyword(req.body.keywordNames);
             res.status(200).json(weaponsByKeyword);
         }
         catch (error) {
