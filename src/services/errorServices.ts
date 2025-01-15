@@ -4,7 +4,8 @@ const errorServices = {
   getErrorReports: async () => {
     try {
       const errorReports = await prisma.error.findMany({
-        orderBy: { createdAt: 'asc' },
+        include: { user: true },
+        orderBy: { createdAt: 'desc' },
       });
       return errorReports;
     } catch (error) {
