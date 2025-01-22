@@ -38,11 +38,13 @@ const perkServices = {
                 update: {
                     name: formData.name,
                     description: formData.description,
+                    modifiers: formData.modifiers,
                     requirements: formData.requirements,
                 },
                 create: {
                     name: formData.name,
                     description: formData.description,
+                    modifiers: formData.modifiers,
                     requirements: formData.requirements,
                 },
             });

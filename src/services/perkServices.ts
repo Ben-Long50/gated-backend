@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import { Modifier } from '../types/modifier.js';
 
 const perkServices = {
   getPerks: async () => {
@@ -27,6 +28,7 @@ const perkServices = {
     perkId: string;
     name: string;
     description: string;
+    modifiers: Modifier[];
     requirements: object;
   }) => {
     try {
@@ -35,11 +37,13 @@ const perkServices = {
         update: {
           name: formData.name,
           description: formData.description,
+          modifiers: formData.modifiers,
           requirements: formData.requirements,
         },
         create: {
           name: formData.name,
           description: formData.description,
+          modifiers: formData.modifiers,
           requirements: formData.requirements,
         },
       });
