@@ -12,7 +12,8 @@ const errorServices = {
     getErrorReports: () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const errorReports = yield prisma.error.findMany({
-                orderBy: { createdAt: 'asc' },
+                include: { user: true },
+                orderBy: { createdAt: 'desc' },
             });
             return errorReports;
         }
