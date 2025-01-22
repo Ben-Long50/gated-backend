@@ -73,6 +73,7 @@ const cyberneticServices = {
     body: string;
     price: string;
     keywords: string;
+    modifiers: string;
     stats: string;
     picture: string;
   }) => {
@@ -197,6 +198,7 @@ const cyberneticServices = {
             connect: actionIds,
           },
           keywords: JSON.parse(formData.keywords),
+          modifiers: JSON.parse(formData.modifiers),
         },
         create: {
           name: JSON.parse(formData.name),
@@ -216,6 +218,7 @@ const cyberneticServices = {
             connect: actionIds,
           },
           keywords: JSON.parse(formData.keywords),
+          modifiers: JSON.parse(formData.modifiers),
         },
       });
 

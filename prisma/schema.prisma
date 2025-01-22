@@ -44,6 +44,19 @@ model Character {
   cybernetics Cybernetic[]
   vehicles    Vehicle[]
   perks       Perk[]       @relation("CharacterToPerk")
+  conditions  Json?
+}
+
+enum ConditionType {
+  character
+  item
+}
+
+model Condition {
+  id            Int           @id @default(autoincrement())
+  name          String
+  conditionType ConditionType
+  description   String
 }
 
 model Keyword {
@@ -91,6 +104,7 @@ model Cybernetic {
   body           String[]
   price          Int?
   keywords       Json[]
+  modifiers      Json?
   characterId    Int?
   character      Character?     @relation(fields: [characterId], references: [id])
   actions        Action[]       @relation("CyberneticActions")

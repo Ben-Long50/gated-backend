@@ -121,6 +121,7 @@ const cyberneticServices = {
                         connect: actionIds,
                     },
                     keywords: JSON.parse(formData.keywords),
+                    modifiers: JSON.parse(formData.modifiers),
                 },
                 create: {
                     name: JSON.parse(formData.name),
@@ -140,6 +141,7 @@ const cyberneticServices = {
                         connect: actionIds,
                     },
                     keywords: JSON.parse(formData.keywords),
+                    modifiers: JSON.parse(formData.modifiers),
                 },
             });
             return newCybernetic;
