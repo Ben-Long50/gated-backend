@@ -1,17 +1,8 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 const actionServices = {
-    getActions: () => __awaiter(void 0, void 0, void 0, function* () {
+    getActions: async () => {
         try {
-            const actions = yield prisma.action.findMany({
+            const actions = await prisma.action.findMany({
                 orderBy: { name: 'asc' },
             });
             return actions;
@@ -20,10 +11,10 @@ const actionServices = {
             console.error(error);
             throw new Error('Failed to fetch actions');
         }
-    }),
-    getActionById: (actionId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getActionById: async (actionId) => {
         try {
-            const action = yield prisma.action.findUnique({
+            const action = await prisma.action.findUnique({
                 where: { id: Number(actionId) },
             });
             return action;
@@ -32,10 +23,10 @@ const actionServices = {
             console.error(error);
             throw new Error('Failed to fetch action');
         }
-    }),
-    createAction: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createAction: async (formData) => {
         try {
-            const newAction = yield prisma.action.upsert({
+            const newAction = await prisma.action.upsert({
                 where: { id: Number(formData.actionId) || 0 },
                 update: {
                     name: formData.name,
@@ -62,10 +53,10 @@ const actionServices = {
             console.error(error);
             throw new Error('Failed to create or update action');
         }
-    }),
-    deleteActionByName: (actionName) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteActionByName: async (actionName) => {
         try {
-            yield prisma.action.delete({
+            await prisma.action.delete({
                 where: {
                     name: actionName,
                 },
@@ -75,10 +66,10 @@ const actionServices = {
             console.error(error);
             throw new Error('Failed to delete action');
         }
-    }),
-    deleteAction: (actionId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteAction: async (actionId) => {
         try {
-            yield prisma.action.delete({
+            await prisma.action.delete({
                 where: {
                     id: Number(actionId),
                 },
@@ -88,6 +79,6 @@ const actionServices = {
             console.error(error);
             throw new Error('Failed to delete action');
         }
-    }),
+    },
 };
 export default actionServices;

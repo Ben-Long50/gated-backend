@@ -1,17 +1,8 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 const userServices = {
-    getAllUsers: () => __awaiter(void 0, void 0, void 0, function* () {
+    getAllUsers: async () => {
         try {
-            const users = yield prisma.user.findMany();
+            const users = await prisma.user.findMany();
             const userArray = users.map((user) => {
                 return {
                     id: user === null || user === void 0 ? void 0 : user.id,
@@ -27,10 +18,10 @@ const userServices = {
             console.error(error);
             throw new Error('Failed to fetch users');
         }
-    }),
-    getUserById: (id) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getUserById: async (id) => {
         try {
-            const user = yield prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { id: Number(id) },
             });
             return {
@@ -45,10 +36,10 @@ const userServices = {
             console.error(error);
             throw new Error('Failed to fetch user');
         }
-    }),
-    getUserByEmail: (email) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getUserByEmail: async (email) => {
         try {
-            const user = yield prisma.user.findUnique({
+            const user = await prisma.user.findUnique({
                 where: { email },
             });
             if (user) {
@@ -68,10 +59,10 @@ const userServices = {
             console.error(error);
             throw new Error('Failed to fetch user');
         }
-    }),
-    createUser: (userData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createUser: async (userData) => {
         try {
-            const newUser = yield prisma.user.create({
+            const newUser = await prisma.user.create({
                 data: userData,
             });
             return {
@@ -86,6 +77,6 @@ const userServices = {
             console.error(error);
             throw new Error('Failed to create user');
         }
-    }),
+    },
 };
 export default userServices;

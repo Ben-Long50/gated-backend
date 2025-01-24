@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     /* Basic Options */
-    "target": "ES6", // Output ES6 JavaScript
-    "module": "ESNext", // Use ES6 modules
+    "target": "ES2017", // Output ES6 JavaScript
+    "module": "ES2022", // Use ES6 modules
     "rootDir": "src", // Set the source directory
     "outDir": "dist", // Set the output directory
     "moduleResolution": "node", // Resolve modules like Node.js
@@ -17,6 +17,11 @@
     "noUnusedLocals": true, // Report errors for unused local variables
     "noUnusedParameters": true // Report errors for unused function parameters
   },
-  "include": ["src/**/*.ts", "src/app.ts", "types/**/*.d.ts"], // Include all TypeScript files in the src folder
+  "include": [
+    "src/**/*.ts",
+    "src/app.ts",
+    "types/**/*.d.ts",
+    "src/utils/createCartAndInv.js"
+  ], // Include all TypeScript files in the src folder
   "exclude": ["node_modules", "dist"] // Exclude these folders
 }

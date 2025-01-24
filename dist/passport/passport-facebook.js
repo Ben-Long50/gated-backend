@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import userServices from '../services/userServices.js';
 import prisma from '../config/database.js';
@@ -17,7 +8,7 @@ const facebookStrategy = (passport) => {
         callbackURL: `${process.env.API_URL}/auth/facebook/callback`,
         profileFields: ['id', 'emails', 'name', 'picture'],
         scope: ['email'],
-    }, (_accessToken, _refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
+    }, async (_accessToken, _refreshToken, profile, done) => {
         var _a;
         try {
             const email = profile.emails && profile.emails[0]
@@ -34,7 +25,7 @@ const facebookStrategy = (passport) => {
                 : null;
             let user;
             if (email) {
-                user = yield prisma.user.findUnique({
+                user = await prisma.user.findUnique({
                     where: { email },
                 });
             }
@@ -51,13 +42,13 @@ const facebookStrategy = (passport) => {
                     email,
                     profilePicture,
                 };
-                user = yield userServices.createUser(userData);
+                user = await userServices.createUser(userData);
             }
             return done(null, user);
         }
         catch (err) {
             return done(err);
         }
-    })));
+    }));
 };
 export default facebookStrategy;

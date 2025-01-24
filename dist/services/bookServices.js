@@ -1,17 +1,8 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 const bookServices = {
-    getBookSections: () => __awaiter(void 0, void 0, void 0, function* () {
+    getBookSections: async () => {
         try {
-            const book = yield prisma.bookSection.findMany({
+            const book = await prisma.bookSection.findMany({
                 include: { entries: { orderBy: { page: 'asc' } } },
                 orderBy: { order: 'asc' },
             });
@@ -21,10 +12,10 @@ const bookServices = {
             console.error(error);
             throw new Error('Failed to fetch book');
         }
-    }),
-    getBookEntry: (bookEntryId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getBookEntry: async (bookEntryId) => {
         try {
-            const bookEntry = yield prisma.bookEntry.findUnique({
+            const bookEntry = await prisma.bookEntry.findUnique({
                 where: { id: Number(bookEntryId) },
             });
             return bookEntry;
@@ -33,10 +24,10 @@ const bookServices = {
             console.error(error);
             throw new Error('Failed to fetch book');
         }
-    }),
-    createBookEntry: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createBookEntry: async (formData) => {
         try {
-            const bookEntry = yield prisma.bookEntry.upsert({
+            const bookEntry = await prisma.bookEntry.upsert({
                 where: { id: formData.bookEntryId || 0 },
                 update: {
                     page: formData.page,
@@ -57,16 +48,16 @@ const bookServices = {
             console.error(error);
             throw new Error('Failed to create or update book entry');
         }
-    }),
-    createBookSection: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createBookSection: async (formData) => {
         try {
-            const highestOrder = yield prisma.bookSection.aggregate({
+            const highestOrder = await prisma.bookSection.aggregate({
                 _max: {
                     order: true,
                 },
             });
             const greatest = highestOrder._max.order || 0;
-            const bookSection = yield prisma.bookSection.upsert({
+            const bookSection = await prisma.bookSection.upsert({
                 where: { id: formData.bookSectionId || 0 },
                 update: {
                     title: formData.title.toLowerCase(),
@@ -83,10 +74,10 @@ const bookServices = {
             console.error(error);
             throw new Error('Failed to create or update book entry');
         }
-    }),
-    deleteBookEntry: (bookEntryId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteBookEntry: async (bookEntryId) => {
         try {
-            yield prisma.bookEntry.delete({
+            await prisma.bookEntry.delete({
                 where: {
                     id: Number(bookEntryId),
                 },
@@ -96,10 +87,10 @@ const bookServices = {
             console.error(error);
             throw new Error('Failed to delete book entry');
         }
-    }),
-    deleteBookSection: (bookSectionId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteBookSection: async (bookSectionId) => {
         try {
-            yield prisma.bookSection.delete({
+            await prisma.bookSection.delete({
                 where: {
                     id: Number(bookSectionId),
                 },
@@ -109,6 +100,6 @@ const bookServices = {
             console.error(error);
             throw new Error('Failed to delete book section');
         }
-    }),
+    },
 };
 export default bookServices;

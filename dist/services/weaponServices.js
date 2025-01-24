@@ -1,18 +1,9 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
 const weaponServices = {
-    getWeapons: () => __awaiter(void 0, void 0, void 0, function* () {
+    getWeapons: async () => {
         try {
-            const weapons = yield prisma.weapon.findMany({
+            const weapons = await prisma.weapon.findMany({
                 orderBy: { name: 'asc' },
             });
             return weapons;
@@ -21,10 +12,10 @@ const weaponServices = {
             console.error(error);
             throw new Error('Failed to fetch weapons');
         }
-    }),
-    getWeaponsByKeyword: (keywordNames) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getWeaponsByKeyword: async (keywordNames) => {
         try {
-            const keywordIds = yield Promise.all(keywordNames.map((keywordName) => prisma.keyword.findUnique({
+            const keywordIds = await Promise.all(keywordNames.map((keywordName) => prisma.keyword.findUnique({
                 where: {
                     name_keywordType: { name: keywordName, keywordType: 'weapon' },
                 },
@@ -34,7 +25,7 @@ const weaponServices = {
             if (combinedIds.length < 1) {
                 throw new Error('The queried weapon keywords do not exist');
             }
-            const weapons = yield Promise.all(combinedIds.map((keyword) => prisma.weapon.findMany({
+            const weapons = await Promise.all(combinedIds.map((keyword) => prisma.weapon.findMany({
                 where: {
                     keywords: {
                         has: { keywordId: keyword.id },
@@ -43,7 +34,7 @@ const weaponServices = {
                 orderBy: { name: 'asc' },
             })));
             const combinedWeapons = weapons.flat();
-            const weaponDetails = yield getGroupKeywords(combinedWeapons);
+            const weaponDetails = await getGroupKeywords(combinedWeapons);
             return weaponDetails;
         }
         catch (error) {
@@ -53,10 +44,10 @@ const weaponServices = {
             }
             throw new Error('Failed to fetch weapons');
         }
-    }),
-    getWeaponById: (weaponId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getWeaponById: async (weaponId) => {
         try {
-            const weapon = yield prisma.weapon.findUnique({
+            const weapon = await prisma.weapon.findUnique({
                 where: {
                     id: Number(weaponId),
                 },
@@ -64,17 +55,17 @@ const weaponServices = {
             if (!weapon) {
                 throw new Error('Could not find weapon');
             }
-            const weaponDetails = yield getItemKeywords(weapon);
+            const weaponDetails = await getItemKeywords(weapon);
             return weaponDetails;
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to fetch weapon');
         }
-    }),
-    createIntegratedWeapon: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createIntegratedWeapon: async (formData) => {
         try {
-            const newWeapon = yield prisma.weapon.upsert({
+            const newWeapon = await prisma.weapon.upsert({
                 where: { name: formData.name },
                 update: {
                     name: formData.name,
@@ -93,8 +84,8 @@ const weaponServices = {
             console.error(error);
             throw new Error('Failed to create or update integrated weapon');
         }
-    }),
-    createWeapon: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createWeapon: async (formData) => {
         try {
             const getPictureInfo = () => {
                 if (formData.publicId) {
@@ -105,7 +96,7 @@ const weaponServices = {
                 }
             };
             const pictureInfo = getPictureInfo();
-            const newWeapon = yield prisma.weapon.upsert({
+            const newWeapon = await prisma.weapon.upsert({
                 where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
                 update: {
                     name: JSON.parse(formData.name),
@@ -130,10 +121,10 @@ const weaponServices = {
             console.error(error);
             throw new Error('Failed to create or update weapon');
         }
-    }),
-    deleteWeaponByName: (weaponName) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteWeaponByName: async (weaponName) => {
         try {
-            yield prisma.weapon.delete({
+            await prisma.weapon.delete({
                 where: {
                     name: weaponName,
                 },
@@ -143,10 +134,10 @@ const weaponServices = {
             console.error(error);
             throw new Error('Failed to delete weapon');
         }
-    }),
-    deleteWeapon: (weaponId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteWeapon: async (weaponId) => {
         try {
-            yield prisma.weapon.delete({
+            await prisma.weapon.delete({
                 where: {
                     id: Number(weaponId),
                 },
@@ -156,6 +147,6 @@ const weaponServices = {
             console.error(error);
             throw new Error('Failed to delete weapon');
         }
-    }),
+    },
 };
 export default weaponServices;

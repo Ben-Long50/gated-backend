@@ -10,7 +10,7 @@ const characterServices = {
         include: {
           perks: true,
         },
-        orderBy: { level: 'desc' },
+        orderBy: [{ active: 'desc' }, { level: 'desc' }],
       });
 
       if (characters.length === 0) {
@@ -21,6 +21,41 @@ const characterServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch characters');
+    }
+  },
+
+  getActiveCharacter: async (userId: number) => {
+    try {
+      const activeCharacter = await prisma.character.findFirst({
+        where: {
+          userId,
+          active: true,
+        },
+        include: {
+          perks: true,
+          characterCart: {
+            include: {
+              weapons: true,
+              armor: true,
+              cybernetics: true,
+              vehicles: true,
+            },
+          },
+          CharacterInventory: {
+            include: {
+              weapons: true,
+              armor: true,
+              cybernetics: true,
+              vehicles: true,
+            },
+          },
+        },
+      });
+
+      return activeCharacter;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to find active character');
     }
   },
 
@@ -39,6 +74,26 @@ const characterServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch character');
+    }
+  },
+
+  setActiveCharacter: async (userId: number, characterId: string) => {
+    try {
+      console.log(characterId);
+
+      await prisma.character.updateMany({
+        where: { id: { not: Number(characterId) }, userId },
+        data: { active: false },
+      });
+      const activeCharacter = await prisma.character.update({
+        where: { id: Number(characterId), userId },
+        data: { active: true },
+      });
+
+      return activeCharacter;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to switch active character');
     }
   },
 
@@ -91,6 +146,94 @@ const characterServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create character');
+    }
+  },
+
+  createCharacterCart: async (characterId: number) => {
+    try {
+      await prisma.characterCart.create({
+        data: {
+          id: characterId,
+          characterId,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to create character cart');
+    }
+  },
+
+  addToCart: async (characterId: string, category: string, itemId: string) => {
+    try {
+      let itemCategory = '';
+
+      switch (category) {
+        case 'weapon':
+          itemCategory = 'weapons';
+          break;
+        case 'armor':
+          itemCategory = 'armor';
+          break;
+        case 'cybernetic':
+          itemCategory = 'cybernetics';
+          break;
+        case 'vehicle':
+          itemCategory = 'vehicles';
+          break;
+        default:
+          throw new Error(`Invalid category: ${category}`);
+      }
+
+      const data = {
+        [itemCategory]: { connect: { id: Number(itemId) } },
+      };
+
+      await prisma.characterCart.update({
+        where: { id: Number(characterId) },
+        data,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to add item to cart');
+    }
+  },
+
+  clearCart: async (characterId: string) => {
+    try {
+      await prisma.characterCart.update({
+        where: { id: Number(characterId) },
+        data: {
+          weapons: {
+            set: [],
+          },
+          armor: {
+            set: [],
+          },
+          cybernetics: {
+            set: [],
+          },
+          vehicles: {
+            set: [],
+          },
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to clear cart');
+    }
+  },
+
+  createCharacterInventory: async (characterId: number) => {
+    try {
+      await prisma.characterInventory.create({
+        data: {
+          id: characterId,
+          characterId,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to create character inventory');
     }
   },
 
@@ -151,6 +294,8 @@ const characterServices = {
         sex: JSON.parse(formData.sex),
         background: JSON.parse(formData.background),
         attributes: JSON.parse(formData.attributes),
+        characterCartId: Number(characterId),
+        characterInventoryId: Number(characterId),
       };
 
       const updatedCharacter = await prisma.character.update({

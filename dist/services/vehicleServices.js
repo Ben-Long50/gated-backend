@@ -1,18 +1,9 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 import { getItemWeapons } from '../utils/getAssociatedWeapons.js';
 const vehicleServices = {
-    getVehicles: () => __awaiter(void 0, void 0, void 0, function* () {
+    getVehicles: async () => {
         try {
-            const vehicles = yield prisma.vehicle.findMany({
+            const vehicles = await prisma.vehicle.findMany({
                 orderBy: { name: 'asc' },
                 include: { modifications: true },
             });
@@ -22,10 +13,10 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to fetch vehicles');
         }
-    }),
-    getVehicleMods: () => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getVehicleMods: async () => {
         try {
-            const vehicleMods = yield prisma.modification.findMany({
+            const vehicleMods = await prisma.modification.findMany({
                 orderBy: { name: 'asc' },
             });
             return vehicleMods;
@@ -34,10 +25,10 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to fetch vehicle modifications');
         }
-    }),
-    getVehicleById: (vehicleId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getVehicleById: async (vehicleId) => {
         try {
-            const vehicle = yield prisma.vehicle.findUnique({
+            const vehicle = await prisma.vehicle.findUnique({
                 where: {
                     id: Number(vehicleId),
                 },
@@ -46,17 +37,17 @@ const vehicleServices = {
             if (!vehicle) {
                 throw new Error('Could not find vehicle');
             }
-            const vehicleDetails = yield getItemWeapons(vehicle);
+            const vehicleDetails = await getItemWeapons(vehicle);
             return vehicleDetails;
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to fetch vehicle');
         }
-    }),
-    getVehicleModById: (modId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getVehicleModById: async (modId) => {
         try {
-            const vehicleMod = yield prisma.modification.findUnique({
+            const vehicleMod = await prisma.modification.findUnique({
                 where: {
                     id: Number(modId),
                 },
@@ -67,8 +58,8 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to fetch vehicle');
         }
-    }),
-    createVehicle: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createVehicle: async (formData) => {
         try {
             const getPictureInfo = () => {
                 if (formData.publicId) {
@@ -82,7 +73,7 @@ const vehicleServices = {
             const modIds = JSON.parse(formData.modifications).map((modId) => {
                 return { id: modId };
             });
-            const newVehicle = yield prisma.vehicle.upsert({
+            const newVehicle = await prisma.vehicle.upsert({
                 where: { id: Number(JSON.parse(formData.vehicleId)) || 0 },
                 update: {
                     name: JSON.parse(formData.name),
@@ -109,10 +100,10 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to create or update vehicle');
         }
-    }),
-    createVehicleMod: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createVehicleMod: async (formData) => {
         try {
-            const newVehicleMod = yield prisma.modification.upsert({
+            const newVehicleMod = await prisma.modification.upsert({
                 where: { id: Number(formData.modId) || 0 },
                 update: {
                     name: formData.name,
@@ -133,10 +124,10 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to create or update vehicle modification');
         }
-    }),
-    deleteVehicleByName: (vehicleName) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteVehicleByName: async (vehicleName) => {
         try {
-            yield prisma.vehicle.delete({
+            await prisma.vehicle.delete({
                 where: {
                     name: vehicleName,
                 },
@@ -146,10 +137,10 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to delete vehicle');
         }
-    }),
-    deleteVehicle: (vehicleId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteVehicle: async (vehicleId) => {
         try {
-            yield prisma.vehicle.delete({
+            await prisma.vehicle.delete({
                 where: {
                     id: Number(vehicleId),
                 },
@@ -159,10 +150,10 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to delete vehicle');
         }
-    }),
-    deleteVehicleMod: (modId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteVehicleMod: async (modId) => {
         try {
-            yield prisma.modification.delete({
+            await prisma.modification.delete({
                 where: {
                     id: Number(modId),
                 },
@@ -172,6 +163,6 @@ const vehicleServices = {
             console.error(error);
             throw new Error('Failed to delete vehicle modification');
         }
-    }),
+    },
 };
 export default vehicleServices;

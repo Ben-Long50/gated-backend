@@ -24,27 +24,52 @@ model User {
 }
 
 model Character {
-  id          Int          @id @default(autoincrement())
-  userId      Int
-  level       Int          @default(1)
-  profits     Int          @default(10)
-  stats       Json         @default("{}")
-  picture     Json?
-  height      Int
-  weight      Int
-  age         Int
-  sex         String
-  background  String
-  attributes  Json
-  firstName   String
-  lastName    String?
-  user        User         @relation(fields: [userId], references: [id])
+  id                   Int                 @id @default(autoincrement())
+  userId               Int
+  level                Int                 @default(1)
+  profits              Int                 @default(10)
+  stats                Json                @default("{}")
+  picture              Json?
+  height               Int
+  weight               Int
+  age                  Int
+  sex                  String
+  background           String
+  attributes           Json
+  firstName            String
+  lastName             String?
+  user                 User                @relation(fields: [userId], references: [id])
+  active               Boolean             @default(false)
+  weapons              Weapon[]
+  armor                Armor[]
+  cybernetics          Cybernetic[]
+  vehicles             Vehicle[]
+  perks                Perk[]              @relation("CharacterToPerk")
+  conditions           Json?
+  characterCart        CharacterCart?      @relation(fields: [characterCartId], references: [id])
+  CharacterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterCartId      Int?                @unique
+  characterInventoryId Int?                @unique
+}
+
+model CharacterCart {
+  id          Int          @id
+  character   Character?
+  characterId Int?         @unique
   weapons     Weapon[]
   armor       Armor[]
   cybernetics Cybernetic[]
   vehicles    Vehicle[]
-  perks       Perk[]       @relation("CharacterToPerk")
-  conditions  Json?
+}
+
+model CharacterInventory {
+  id          Int          @id
+  character   Character?
+  characterId Int?         @unique
+  weapons     Weapon[]
+  armor       Armor[]
+  cybernetics Cybernetic[]
+  vehicles    Vehicle[]
 }
 
 enum ConditionType {
@@ -69,60 +94,75 @@ model Keyword {
 }
 
 model Weapon {
-  id          Int          @id @default(autoincrement())
-  name        String       @unique
-  picture     Json?
-  description String?
-  stats       Json
-  price       Int?
-  keywords    Json[]
-  characterId Int?
-  character   Character?   @relation(fields: [characterId], references: [id])
-  cybernetic  Cybernetic[] @relation("CyberneticWeapons")
+  id                   Int                 @id @default(autoincrement())
+  name                 String              @unique
+  picture              Json?
+  description          String?
+  stats                Json
+  price                Int?
+  keywords             Json[]
+  characterId          Int?
+  character            Character?          @relation(fields: [characterId], references: [id])
+  equipped             Boolean?            @default(false)
+  cybernetic           Cybernetic[]        @relation("CyberneticWeapons")
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventoryId Int?
 }
 
 model Armor {
-  id          Int          @id @default(autoincrement())
-  name        String       @unique
-  picture     Json?
-  description String?
-  stats       Json
-  price       Int?
-  keywords    Json[]
-  characterId Int?
-  character   Character?   @relation(fields: [characterId], references: [id])
-  cybernetic  Cybernetic[] @relation("CyberneticArmor")
+  id                   Int                 @id @default(autoincrement())
+  name                 String              @unique
+  picture              Json?
+  description          String?
+  stats                Json
+  price                Int?
+  keywords             Json[]
+  characterId          Int?
+  character            Character?          @relation(fields: [characterId], references: [id])
+  equipped             Boolean?            @default(false)
+  cybernetic           Cybernetic[]        @relation("CyberneticArmor")
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventoryId Int?
 }
 
 model Cybernetic {
-  id             Int            @id @default(autoincrement())
-  name           String         @unique
-  cyberneticType CyberneticType
-  stats          Json
-  picture        Json?
-  description    String
-  body           String[]
-  price          Int?
-  keywords       Json[]
-  modifiers      Json?
-  characterId    Int?
-  character      Character?     @relation(fields: [characterId], references: [id])
-  actions        Action[]       @relation("CyberneticActions")
-  armor          Armor[]        @relation("CyberneticArmor")
-  weapons        Weapon[]       @relation("CyberneticWeapons")
+  id                   Int                 @id @default(autoincrement())
+  name                 String              @unique
+  cyberneticType       CyberneticType
+  stats                Json
+  picture              Json?
+  description          String
+  body                 String[]
+  price                Int?
+  keywords             Json[]
+  modifiers            Json?
+  characterId          Int?
+  character            Character?          @relation(fields: [characterId], references: [id])
+  equipped             Boolean?            @default(false)
+  actions              Action[]            @relation("CyberneticActions")
+  armor                Armor[]             @relation("CyberneticArmor")
+  weapons              Weapon[]            @relation("CyberneticWeapons")
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventoryId Int?
 }
 
 model Vehicle {
-  id            Int            @id @default(autoincrement())
-  name          String         @unique
-  picture       Json?
-  description   String?
-  stats         Json
-  price         Int?
-  weapons       Json[]
-  modifications Modification[]
-  characterId   Int?
-  character     Character?     @relation(fields: [characterId], references: [id])
+  id                   Int                 @id @default(autoincrement())
+  name                 String              @unique
+  picture              Json?
+  description          String?
+  stats                Json
+  price                Int?
+  weapons              Json[]
+  modifications        Modification[]
+  characterId          Int?
+  character            Character?          @relation(fields: [characterId], references: [id])
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventoryId Int?
 }
 
 model Modification {
@@ -138,7 +178,7 @@ model Perk {
   id           Int         @id @default(autoincrement())
   name         String      @unique
   description  String
-  modifiers    Json[]
+  modifiers    Json?
   requirements Json?
   characters   Character[] @relation("CharacterToPerk")
 }

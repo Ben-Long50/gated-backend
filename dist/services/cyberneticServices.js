@@ -1,21 +1,12 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
 import armorServices from './armorServices.js';
 import weaponServices from './weaponServices.js';
 const cyberneticServices = {
-    getCybernetics: () => __awaiter(void 0, void 0, void 0, function* () {
+    getCybernetics: async () => {
         try {
-            const cybernetics = yield prisma.cybernetic.findMany({
+            const cybernetics = await prisma.cybernetic.findMany({
                 include: {
                     weapons: true,
                     armor: true,
@@ -29,10 +20,10 @@ const cyberneticServices = {
             console.error(error);
             throw new Error('Failed to fetch cybernetics');
         }
-    }),
-    getCyberneticById: (cyberneticId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getCyberneticById: async (cyberneticId) => {
         try {
-            const cybernetic = yield prisma.cybernetic.findUnique({
+            const cybernetic = await prisma.cybernetic.findUnique({
                 where: {
                     id: Number(cyberneticId),
                 },
@@ -45,19 +36,19 @@ const cyberneticServices = {
             if (!cybernetic) {
                 throw new Error('Could not find cybernetic');
             }
-            const weaponDetails = yield getGroupKeywords(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons);
-            const armorDetails = yield getGroupKeywords(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.armor);
-            const cyberneticDetails = yield getItemKeywords(cybernetic);
+            const weaponDetails = await getGroupKeywords(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons);
+            const armorDetails = await getGroupKeywords(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.armor);
+            const cyberneticDetails = await getItemKeywords(cybernetic);
             return Object.assign(Object.assign({}, cyberneticDetails), { weapons: weaponDetails, armor: armorDetails });
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to fetch cybernetic');
         }
-    }),
-    createCybernetic: (formData) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createCybernetic: async (formData) => {
         try {
-            const cybernetic = yield prisma.cybernetic.findUnique({
+            const cybernetic = await prisma.cybernetic.findUnique({
                 where: { name: JSON.parse(formData.name) },
                 include: {
                     weapons: { select: { name: true } },
@@ -78,30 +69,30 @@ const cyberneticServices = {
             };
             const pictureInfo = getPictureInfo();
             //Delete (from the database) integrated weapon pieces that have been removed via the submitted form
-            yield Promise.all(weaponsToDelete.map((weapon) => __awaiter(void 0, void 0, void 0, function* () {
-                yield weaponServices.deleteWeaponByName(weapon.name);
-            })));
+            await Promise.all(weaponsToDelete.map(async (weapon) => {
+                await weaponServices.deleteWeaponByName(weapon.name);
+            }));
             //Delete (from the database) integrated armor pieces that have been removed via the submitted form
-            yield Promise.all(armorToDelete.map((armor) => __awaiter(void 0, void 0, void 0, function* () {
-                yield armorServices.deleteArmorByName(armor.name);
-            })));
+            await Promise.all(armorToDelete.map(async (armor) => {
+                await armorServices.deleteArmorByName(armor.name);
+            }));
             //Delete (from the database) unqiue actions that have been removed via the submitted form
-            yield Promise.all(actionsToDelete.map((action) => __awaiter(void 0, void 0, void 0, function* () {
-                yield actionServices.deleteActionByName(action.name);
-            })));
-            const weaponIds = yield Promise.all(JSON.parse(formData.weapons).map((weapon) => __awaiter(void 0, void 0, void 0, function* () {
-                const newWeapon = yield weaponServices.createIntegratedWeapon(weapon);
+            await Promise.all(actionsToDelete.map(async (action) => {
+                await actionServices.deleteActionByName(action.name);
+            }));
+            const weaponIds = await Promise.all(JSON.parse(formData.weapons).map(async (weapon) => {
+                const newWeapon = await weaponServices.createIntegratedWeapon(weapon);
                 return { id: newWeapon.id };
-            })));
-            const armorIds = yield Promise.all(JSON.parse(formData.armor).map((armor) => __awaiter(void 0, void 0, void 0, function* () {
-                const newArmor = yield armorServices.createIntegratedArmor(armor);
+            }));
+            const armorIds = await Promise.all(JSON.parse(formData.armor).map(async (armor) => {
+                const newArmor = await armorServices.createIntegratedArmor(armor);
                 return { id: newArmor.id };
-            })));
-            const actionIds = yield Promise.all(JSON.parse(formData.actions).map((action) => __awaiter(void 0, void 0, void 0, function* () {
-                const newAction = yield actionServices.createAction(action);
+            }));
+            const actionIds = await Promise.all(JSON.parse(formData.actions).map(async (action) => {
+                const newAction = await actionServices.createAction(action);
                 return { id: newAction.id };
-            })));
-            const newCybernetic = yield prisma.cybernetic.upsert({
+            }));
+            const newCybernetic = await prisma.cybernetic.upsert({
                 where: { id: Number(JSON.parse(formData.cyberneticId)) || 0 },
                 update: {
                     name: JSON.parse(formData.name),
@@ -150,10 +141,10 @@ const cyberneticServices = {
             console.error(error);
             throw new Error('Failed to create cybernetic');
         }
-    }),
-    deleteCybernetic: (cyberneticId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteCybernetic: async (cyberneticId) => {
         try {
-            yield prisma.cybernetic.delete({
+            await prisma.cybernetic.delete({
                 where: {
                     id: Number(cyberneticId),
                 },
@@ -163,6 +154,6 @@ const cyberneticServices = {
             console.error(error);
             throw new Error('Failed to delete cybernetic');
         }
-    }),
+    },
 };
 export default cyberneticServices;

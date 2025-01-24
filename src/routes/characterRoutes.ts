@@ -11,9 +11,27 @@ router.get(
 );
 
 router.get(
+  '/characters/active',
+  authentication.authenticate,
+  characterController.getActiveCharacter,
+);
+
+router.get(
   '/characters/:characterId',
   authentication.authenticate,
   characterController.getCharacterById,
+);
+
+router.patch(
+  '/characters/active',
+  authentication.authenticate,
+  characterController.setActiveCharacter,
+);
+
+router.patch(
+  '/characters/:characterId/cart',
+  authentication.authenticate,
+  characterController.addToCart,
 );
 
 router.post(
@@ -26,6 +44,12 @@ router.put(
   '/characters/:characterId',
   authentication.authenticate,
   characterController.updateCharacter,
+);
+
+router.put(
+  '/characters/:characterId/cart',
+  authentication.authenticate,
+  characterController.clearCart,
 );
 
 router.delete(

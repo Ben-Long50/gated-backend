@@ -1,24 +1,15 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import prisma from '../config/database.js';
 const characterServices = {
-    getCharacters: (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    getCharacters: async (userId) => {
         try {
-            const characters = yield prisma.character.findMany({
+            const characters = await prisma.character.findMany({
                 where: {
                     userId,
                 },
                 include: {
                     perks: true,
                 },
-                orderBy: { level: 'desc' },
+                orderBy: [{ active: 'desc' }, { level: 'desc' }],
             });
             if (characters.length === 0) {
                 throw new Error('You have not created any characters');
@@ -29,10 +20,44 @@ const characterServices = {
             console.error(error);
             throw new Error('Failed to fetch characters');
         }
-    }),
-    getCharacterById: (characterId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    getActiveCharacter: async (userId) => {
         try {
-            const character = yield prisma.character.findUnique({
+            const activeCharacter = await prisma.character.findFirst({
+                where: {
+                    userId,
+                    active: true,
+                },
+                include: {
+                    perks: true,
+                    characterCart: {
+                        include: {
+                            weapons: true,
+                            armor: true,
+                            cybernetics: true,
+                            vehicles: true,
+                        },
+                    },
+                    CharacterInventory: {
+                        include: {
+                            weapons: true,
+                            armor: true,
+                            cybernetics: true,
+                            vehicles: true,
+                        },
+                    },
+                },
+            });
+            return activeCharacter;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to find active character');
+        }
+    },
+    getCharacterById: async (characterId) => {
+        try {
+            const character = await prisma.character.findUnique({
                 where: {
                     id: Number(characterId),
                 },
@@ -46,12 +71,30 @@ const characterServices = {
             console.error(error);
             throw new Error('Failed to fetch character');
         }
-    }),
-    createCharacter: (formData, userId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    setActiveCharacter: async (userId, characterId) => {
+        try {
+            console.log(characterId);
+            await prisma.character.updateMany({
+                where: { id: { not: Number(characterId) }, userId },
+                data: { active: false },
+            });
+            const activeCharacter = await prisma.character.update({
+                where: { id: Number(characterId), userId },
+                data: { active: true },
+            });
+            return activeCharacter;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to switch active character');
+        }
+    },
+    createCharacter: async (formData, userId) => {
         try {
             const perks = JSON.parse(formData.perks);
             const stats = JSON.parse(formData.stats);
-            const newCharacter = yield prisma.character.create({
+            const newCharacter = await prisma.character.create({
                 data: {
                     userId,
                     firstName: JSON.parse(formData.firstName),
@@ -80,11 +123,96 @@ const characterServices = {
             console.error(error);
             throw new Error('Failed to create character');
         }
-    }),
-    updateCharacter: (formData, userId, characterId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    createCharacterCart: async (characterId) => {
+        try {
+            await prisma.characterCart.create({
+                data: {
+                    id: characterId,
+                    characterId,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create character cart');
+        }
+    },
+    addToCart: async (characterId, category, itemId) => {
+        try {
+            let itemCategory = '';
+            switch (category) {
+                case 'weapon':
+                    itemCategory = 'weapons';
+                    break;
+                case 'armor':
+                    itemCategory = 'armor';
+                    break;
+                case 'cybernetic':
+                    itemCategory = 'cybernetics';
+                    break;
+                case 'vehicle':
+                    itemCategory = 'vehicles';
+                    break;
+                default:
+                    throw new Error(`Invalid category: ${category}`);
+            }
+            const data = {
+                [itemCategory]: { connect: { id: Number(itemId) } },
+            };
+            await prisma.characterCart.update({
+                where: { id: Number(characterId) },
+                data,
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to add item to cart');
+        }
+    },
+    clearCart: async (characterId) => {
+        try {
+            await prisma.characterCart.update({
+                where: { id: Number(characterId) },
+                data: {
+                    weapons: {
+                        set: [],
+                    },
+                    armor: {
+                        set: [],
+                    },
+                    cybernetics: {
+                        set: [],
+                    },
+                    vehicles: {
+                        set: [],
+                    },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to clear cart');
+        }
+    },
+    createCharacterInventory: async (characterId) => {
+        try {
+            await prisma.characterInventory.create({
+                data: {
+                    id: characterId,
+                    characterId,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create character inventory');
+        }
+    },
+    updateCharacter: async (formData, userId, characterId) => {
         try {
             const newPerks = JSON.parse(formData.perks).map((id) => ({ id }));
-            const oldPerks = yield prisma.character
+            const oldPerks = await prisma.character
                 .findUnique({
                 where: {
                     userId,
@@ -99,8 +227,8 @@ const characterServices = {
                 .then((perks) => perks.map((perk) => ({ id: perk.id })));
             const data = Object.assign(Object.assign({ userId, firstName: JSON.parse(formData.firstName), lastName: JSON.parse(formData.lastName), level: Number(JSON.parse(formData.level)), profits: Number(JSON.parse(formData.profits)), stats: JSON.parse(formData.stats) }, (formData.picture && {
                 picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-            })), { height: Number(JSON.parse(formData.height)), weight: Number(JSON.parse(formData.weight)), age: Number(JSON.parse(formData.age)), sex: JSON.parse(formData.sex), background: JSON.parse(formData.background), attributes: JSON.parse(formData.attributes) });
-            const updatedCharacter = yield prisma.character.update({
+            })), { height: Number(JSON.parse(formData.height)), weight: Number(JSON.parse(formData.weight)), age: Number(JSON.parse(formData.age)), sex: JSON.parse(formData.sex), background: JSON.parse(formData.background), attributes: JSON.parse(formData.attributes), characterCartId: Number(characterId), characterInventoryId: Number(characterId) });
+            const updatedCharacter = await prisma.character.update({
                 where: {
                     userId,
                     id: Number(characterId),
@@ -116,10 +244,10 @@ const characterServices = {
             console.error(error);
             throw new Error('Failed to update character');
         }
-    }),
-    deleteCharacter: (userId, characterId) => __awaiter(void 0, void 0, void 0, function* () {
+    },
+    deleteCharacter: async (userId, characterId) => {
         try {
-            yield prisma.character.delete({
+            await prisma.character.delete({
                 where: {
                     userId: userId,
                     id: Number(characterId),
@@ -130,6 +258,6 @@ const characterServices = {
             console.error(error);
             throw new Error('Failed to delete character');
         }
-    }),
+    },
 };
 export default characterServices;
