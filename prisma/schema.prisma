@@ -99,10 +99,10 @@ model Weapon {
   price                Int?
   keywords             Json[]
   equipped             Boolean?            @default(false)
-  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id])
+  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
 }
 
@@ -115,10 +115,10 @@ model Armor {
   price                Int?
   keywords             Json[]
   equipped             Boolean?            @default(false)
-  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id])
+  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
 }
 
@@ -138,7 +138,7 @@ model Cybernetic {
   armor                Armor[]
   weapons              Weapon[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
 }
 
@@ -152,7 +152,7 @@ model Vehicle {
   weapons              Json[]
   modifications        Modification[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
 }
 
@@ -183,9 +183,9 @@ model Action {
   skill                String?
   actionType           ActionType
   actionSubtypes       String[]
-  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id])
+  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
 }
 

@@ -35,7 +35,7 @@ const armorServices = {
     createIntegratedArmor: async (formData) => {
         try {
             const newArmor = await prisma.armor.upsert({
-                where: { id: formData.id },
+                where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
                     stats: formData.stats,

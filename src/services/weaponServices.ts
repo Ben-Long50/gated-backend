@@ -95,7 +95,7 @@ const weaponServices = {
   }) => {
     try {
       const newWeapon = await prisma.weapon.upsert({
-        where: { id: formData.id },
+        where: { id: formData?.id || 0 },
         update: {
           name: formData.name,
           stats: formData.stats,
