@@ -93,6 +93,8 @@ model Keyword {
 model Weapon {
   id                   Int                 @id @default(autoincrement())
   name                 String
+  rarity               ItemRarity          @default(common)
+  grade                Int                 @default(1)
   picture              Json?
   description          String?
   stats                Json
@@ -109,6 +111,8 @@ model Weapon {
 model Armor {
   id                   Int                 @id @default(autoincrement())
   name                 String
+  rarity               ItemRarity          @default(common)
+  grade                Int                 @default(1)
   picture              Json?
   description          String?
   stats                Json
@@ -125,6 +129,8 @@ model Armor {
 model Cybernetic {
   id                   Int                 @id @default(autoincrement())
   name                 String
+  rarity               ItemRarity          @default(common)
+  grade                Int                 @default(1)
   cyberneticType       CyberneticType
   stats                Json
   picture              Json?
@@ -145,6 +151,8 @@ model Cybernetic {
 model Vehicle {
   id                   Int                 @id @default(autoincrement())
   name                 String
+  rarity               ItemRarity          @default(common)
+  grade                Int                 @default(1)
   picture              Json?
   description          String?
   stats                Json
@@ -157,8 +165,10 @@ model Vehicle {
 }
 
 model Modification {
-  id               Int       @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   name             String
+  rarity           ItemRarity @default(common)
+  grade            Int        @default(1)
   price            Int?
   modificationType String
   description      String?
@@ -249,4 +259,12 @@ enum ActionType {
   action
   extendedAction
   reaction
+}
+
+enum ItemRarity {
+  common
+  uncommon
+  rare
+  blackMarket
+  artifact
 }

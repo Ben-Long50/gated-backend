@@ -1,4 +1,4 @@
-import { ActionType } from '@prisma/client';
+import { Action, ActionType, Armor, Weapon } from '@prisma/client';
 import prisma from '../config/database.js';
 import {
   getGroupKeywords,
@@ -63,6 +63,8 @@ const cyberneticServices = {
 
   createCybernetic: async (formData: {
     name: string;
+    rarity: string;
+    grade: string;
     weapons: string;
     armor: string;
     actions: string;
@@ -88,7 +90,41 @@ const cyberneticServices = {
         },
       });
 
-      console.log(cybernetic?.weapons, formData.weapons);
+      const oldWeaponIds = cybernetic?.weapons?.map((id) => id.id);
+      const newWeaponIds = JSON.parse(formData.weapons).map(
+        (weapon: Weapon) => weapon.id,
+      );
+
+      const weaponsToDelete =
+        oldWeaponIds?.filter((id) => !newWeaponIds.includes(id)) || [];
+
+      if (weaponsToDelete.length > 0) {
+        await weaponServices.deleteWeapons(weaponsToDelete);
+      }
+
+      const oldArmorIds = cybernetic?.armor?.map((id) => id.id);
+      const newArmorIds = JSON.parse(formData.armor).map(
+        (armor: Armor) => armor.id,
+      );
+
+      const armorToDelete =
+        oldArmorIds?.filter((id) => !newArmorIds.includes(id)) || [];
+
+      if (armorToDelete.length > 0) {
+        await armorServices.deleteArmors(armorToDelete);
+      }
+
+      const oldActionIds = cybernetic?.actions?.map((id) => id.id);
+      const newActionIds = JSON.parse(formData.actions).map(
+        (action: Action) => action.id,
+      );
+
+      const actionsToDelete =
+        oldActionIds?.filter((id) => !newActionIds.includes(id)) || [];
+
+      if (actionsToDelete.length > 0) {
+        await actionServices.deleteActions(actionsToDelete);
+      }
 
       const getPictureInfo = () => {
         if (formData.publicId) {
@@ -108,8 +144,11 @@ const cyberneticServices = {
             stats: Partial<WeaponStats>;
             keywords: { keywordId: number; value?: number }[];
           }) => {
-            const newWeapon =
-              await weaponServices.createIntegratedWeapon(weapon);
+            const newWeapon = await weaponServices.createIntegratedWeapon(
+              weapon,
+              JSON.parse(formData.rarity),
+              Number(JSON.parse(formData.grade)),
+            );
             return { id: newWeapon.id };
           },
         ),
@@ -122,7 +161,11 @@ const cyberneticServices = {
             stats: string;
             keywords: { keywordId: number; value?: number }[];
           }) => {
-            const newArmor = await armorServices.createIntegratedArmor(armor);
+            const newArmor = await armorServices.createIntegratedArmor(
+              armor,
+              JSON.parse(formData.rarity),
+              Number(JSON.parse(formData.grade)),
+            );
             return { id: newArmor.id };
           },
         ),
@@ -150,6 +193,8 @@ const cyberneticServices = {
         where: { id: Number(JSON.parse(formData.cyberneticId)) || 0 },
         update: {
           name: JSON.parse(formData.name),
+          rarity: JSON.parse(formData.rarity),
+          grade: Number(JSON.parse(formData.grade)),
           cyberneticType: JSON.parse(formData.cyberneticType),
           stats: JSON.parse(formData.stats),
           picture: pictureInfo,
@@ -170,6 +215,8 @@ const cyberneticServices = {
         },
         create: {
           name: JSON.parse(formData.name),
+          rarity: JSON.parse(formData.rarity),
+          grade: Number(JSON.parse(formData.grade)),
           cyberneticType: JSON.parse(formData.cyberneticType),
           stats: JSON.parse(formData.stats),
           picture: pictureInfo,

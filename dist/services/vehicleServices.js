@@ -77,6 +77,8 @@ const vehicleServices = {
                 where: { id: Number(JSON.parse(formData.vehicleId)) || 0 },
                 update: {
                     name: JSON.parse(formData.name),
+                    rarity: JSON.parse(formData.rarity),
+                    grade: Number(JSON.parse(formData.grade)),
                     picture: pictureInfo,
                     stats: JSON.parse(formData.stats),
                     price: Number(JSON.parse(formData.price)),
@@ -86,6 +88,8 @@ const vehicleServices = {
                 },
                 create: {
                     name: JSON.parse(formData.name),
+                    rarity: JSON.parse(formData.rarity),
+                    grade: Number(JSON.parse(formData.grade)),
                     picture: pictureInfo,
                     stats: JSON.parse(formData.stats),
                     price: JSON.parse(formData.price),
@@ -125,18 +129,6 @@ const vehicleServices = {
             throw new Error('Failed to create or update vehicle modification');
         }
     },
-    // deleteVehicleByName: async (vehicleName: string) => {
-    //   try {
-    //     await prisma.vehicle.delete({
-    //       where: {
-    //         name: vehicleName,
-    //       },
-    //     });
-    //   } catch (error) {
-    //     console.error(error);
-    //     throw new Error('Failed to delete vehicle');
-    //   }
-    // },
     deleteVehicle: async (vehicleId) => {
         try {
             await prisma.vehicle.delete({

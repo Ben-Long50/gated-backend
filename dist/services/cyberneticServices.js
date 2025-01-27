@@ -48,6 +48,7 @@ const cyberneticServices = {
         }
     },
     createCybernetic: async (formData) => {
+        var _a, _b, _c;
         try {
             const cybernetic = await prisma.cybernetic.findUnique({
                 where: { id: Number(JSON.parse(formData.cyberneticId)) },
@@ -57,7 +58,24 @@ const cyberneticServices = {
                     actions: { select: { id: true } },
                 },
             });
-            console.log(cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons, formData.weapons);
+            const oldWeaponIds = (_a = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
+            const newWeaponIds = JSON.parse(formData.weapons).map((weapon) => weapon.id);
+            const weaponsToDelete = (oldWeaponIds === null || oldWeaponIds === void 0 ? void 0 : oldWeaponIds.filter((id) => !newWeaponIds.includes(id))) || [];
+            if (weaponsToDelete.length > 0) {
+                await weaponServices.deleteWeapons(weaponsToDelete);
+            }
+            const oldArmorIds = (_b = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.armor) === null || _b === void 0 ? void 0 : _b.map((id) => id.id);
+            const newArmorIds = JSON.parse(formData.armor).map((armor) => armor.id);
+            const armorToDelete = (oldArmorIds === null || oldArmorIds === void 0 ? void 0 : oldArmorIds.filter((id) => !newArmorIds.includes(id))) || [];
+            if (armorToDelete.length > 0) {
+                await armorServices.deleteArmors(armorToDelete);
+            }
+            const oldActionIds = (_c = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.actions) === null || _c === void 0 ? void 0 : _c.map((id) => id.id);
+            const newActionIds = JSON.parse(formData.actions).map((action) => action.id);
+            const actionsToDelete = (oldActionIds === null || oldActionIds === void 0 ? void 0 : oldActionIds.filter((id) => !newActionIds.includes(id))) || [];
+            if (actionsToDelete.length > 0) {
+                await actionServices.deleteActions(actionsToDelete);
+            }
             const getPictureInfo = () => {
                 if (formData.publicId) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -68,11 +86,11 @@ const cyberneticServices = {
             };
             const pictureInfo = getPictureInfo();
             const weaponIds = await Promise.all(JSON.parse(formData.weapons).map(async (weapon) => {
-                const newWeapon = await weaponServices.createIntegratedWeapon(weapon);
+                const newWeapon = await weaponServices.createIntegratedWeapon(weapon, JSON.parse(formData.rarity), Number(JSON.parse(formData.grade)));
                 return { id: newWeapon.id };
             }));
             const armorIds = await Promise.all(JSON.parse(formData.armor).map(async (armor) => {
-                const newArmor = await armorServices.createIntegratedArmor(armor);
+                const newArmor = await armorServices.createIntegratedArmor(armor, JSON.parse(formData.rarity), Number(JSON.parse(formData.grade)));
                 return { id: newArmor.id };
             }));
             const actionIds = await Promise.all(JSON.parse(formData.actions).map(async (action) => {
@@ -83,6 +101,8 @@ const cyberneticServices = {
                 where: { id: Number(JSON.parse(formData.cyberneticId)) || 0 },
                 update: {
                     name: JSON.parse(formData.name),
+                    rarity: JSON.parse(formData.rarity),
+                    grade: Number(JSON.parse(formData.grade)),
                     cyberneticType: JSON.parse(formData.cyberneticType),
                     stats: JSON.parse(formData.stats),
                     picture: pictureInfo,
@@ -103,6 +123,8 @@ const cyberneticServices = {
                 },
                 create: {
                     name: JSON.parse(formData.name),
+                    rarity: JSON.parse(formData.rarity),
+                    grade: Number(JSON.parse(formData.grade)),
                     cyberneticType: JSON.parse(formData.cyberneticType),
                     stats: JSON.parse(formData.stats),
                     picture: pictureInfo,

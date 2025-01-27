@@ -82,6 +82,7 @@ const characterController = {
   completePurchase: async (req: Request, res: Response) => {
     try {
       await characterServices.addToInventory(req.params.characterId, req.body);
+      await characterServices.clearCart(req.params.characterId);
       res.status(200).json({ message: 'Purchase completed' });
     } catch (error) {
       if (error instanceof Error) {

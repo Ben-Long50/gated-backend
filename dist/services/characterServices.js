@@ -178,6 +178,8 @@ const characterServices = {
                 return Array.from({ length: quantity }).map(() => prisma.weapon.create({
                     data: {
                         name: weaponDetails.name,
+                        rarity: weaponDetails.rarity,
+                        grade: weaponDetails.grade,
                         picture: weaponDetails.picture || undefined,
                         description: weaponDetails.description,
                         stats: weaponDetails.stats || {},
@@ -191,6 +193,7 @@ const characterServices = {
             }
             return;
         }));
+        console.log(newWeapons);
         return newWeapons
             .filter((weapon) => weapon !== undefined)
             .map((weapon) => weapon.id);
@@ -206,6 +209,8 @@ const characterServices = {
                 return Array.from({ length: quantity }).map(() => prisma.armor.create({
                     data: {
                         name: armorDetails.name,
+                        rarity: armorDetails.rarity,
+                        grade: armorDetails.grade,
                         picture: armorDetails.picture || undefined,
                         description: armorDetails.description,
                         stats: armorDetails.stats || {},
@@ -288,6 +293,8 @@ const characterServices = {
                     promises.push(prisma.cybernetic.create({
                         data: {
                             name: cyberneticDetails.name,
+                            rarity: cyberneticDetails.rarity,
+                            grade: cyberneticDetails.grade,
                             cyberneticType: cyberneticDetails.cyberneticType,
                             picture: cyberneticDetails.picture || undefined,
                             description: cyberneticDetails.description,

@@ -64,17 +64,21 @@ const weaponServices = {
             throw new Error('Failed to fetch weapon');
         }
     },
-    createIntegratedWeapon: async (formData) => {
+    createIntegratedWeapon: async (formData, rarity, grade) => {
         try {
             const newWeapon = await prisma.weapon.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
+                    rarity,
+                    grade,
                     stats: formData.stats,
                     keywords: formData.keywords,
                 },
                 create: {
                     name: formData.name,
+                    rarity,
+                    grade,
                     stats: formData.stats,
                     keywords: formData.keywords,
                 },
@@ -101,6 +105,8 @@ const weaponServices = {
                 where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
                 update: {
                     name: JSON.parse(formData.name),
+                    rarity: JSON.parse(formData.rarity),
+                    grade: Number(JSON.parse(formData.grade)),
                     picture: pictureInfo,
                     stats: JSON.parse(formData.stats),
                     price: Number(JSON.parse(formData.price)),
@@ -109,6 +115,8 @@ const weaponServices = {
                 },
                 create: {
                     name: JSON.parse(formData.name),
+                    rarity: JSON.parse(formData.rarity),
+                    grade: Number(JSON.parse(formData.grade)),
                     picture: pictureInfo,
                     stats: JSON.parse(formData.stats),
                     price: JSON.parse(formData.price),
@@ -123,18 +131,6 @@ const weaponServices = {
             throw new Error('Failed to create or update weapon');
         }
     },
-    // deleteWeaponByName: async (weaponName: string) => {
-    //   try {
-    //     await prisma.weapon.delete({
-    //       where: {
-    //         name: weaponName,
-    //       },
-    //     });
-    //   } catch (error) {
-    //     console.error(error);
-    //     throw new Error('Failed to delete weapon');
-    //   }
-    // },
     deleteWeapon: async (weaponId) => {
         try {
             await prisma.weapon.delete({
@@ -146,6 +142,19 @@ const weaponServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to delete weapon');
+        }
+    },
+    deleteWeapons: async (weaponIds) => {
+        try {
+            await prisma.weapon.deleteMany({
+                where: {
+                    id: { in: weaponIds },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete weapons');
         }
     },
 };

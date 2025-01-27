@@ -1,3 +1,4 @@
+import { $Enums } from '@prisma/client';
 import prisma from '../config/database.js';
 import { WeaponStats } from '../types/weapon.js';
 import {
@@ -87,22 +88,30 @@ const weaponServices = {
     }
   },
 
-  createIntegratedWeapon: async (formData: {
-    id?: number;
-    name: string;
-    stats: Partial<WeaponStats>;
-    keywords: { keywordId: number; value?: number }[];
-  }) => {
+  createIntegratedWeapon: async (
+    formData: {
+      id?: number;
+      name: string;
+      stats: Partial<WeaponStats>;
+      keywords: { keywordId: number; value?: number }[];
+    },
+    rarity: $Enums.ItemRarity,
+    grade: number,
+  ) => {
     try {
       const newWeapon = await prisma.weapon.upsert({
         where: { id: formData?.id || 0 },
         update: {
           name: formData.name,
+          rarity,
+          grade,
           stats: formData.stats,
           keywords: formData.keywords,
         },
         create: {
           name: formData.name,
+          rarity,
+          grade,
           stats: formData.stats,
           keywords: formData.keywords,
         },
@@ -121,6 +130,8 @@ const weaponServices = {
     picture: string;
     weaponId: string;
     name: string;
+    rarity: string;
+    grade: string;
     stats: string;
     price: string;
     description: string;
@@ -141,6 +152,8 @@ const weaponServices = {
         where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
         update: {
           name: JSON.parse(formData.name),
+          rarity: JSON.parse(formData.rarity),
+          grade: Number(JSON.parse(formData.grade)),
           picture: pictureInfo,
           stats: JSON.parse(formData.stats),
           price: Number(JSON.parse(formData.price)),
@@ -149,6 +162,8 @@ const weaponServices = {
         },
         create: {
           name: JSON.parse(formData.name),
+          rarity: JSON.parse(formData.rarity),
+          grade: Number(JSON.parse(formData.grade)),
           picture: pictureInfo,
           stats: JSON.parse(formData.stats),
           price: JSON.parse(formData.price),
@@ -164,19 +179,6 @@ const weaponServices = {
     }
   },
 
-  // deleteWeaponByName: async (weaponName: string) => {
-  //   try {
-  //     await prisma.weapon.delete({
-  //       where: {
-  //         name: weaponName,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw new Error('Failed to delete weapon');
-  //   }
-  // },
-
   deleteWeapon: async (weaponId: string) => {
     try {
       await prisma.weapon.delete({
@@ -187,6 +189,19 @@ const weaponServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to delete weapon');
+    }
+  },
+
+  deleteWeapons: async (weaponIds: number[]) => {
+    try {
+      await prisma.weapon.deleteMany({
+        where: {
+          id: { in: weaponIds },
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete weapons');
     }
   },
 };
