@@ -153,18 +153,18 @@ const vehicleServices = {
     }
   },
 
-  deleteVehicleByName: async (vehicleName: string) => {
-    try {
-      await prisma.vehicle.delete({
-        where: {
-          name: vehicleName,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to delete vehicle');
-    }
-  },
+  // deleteVehicleByName: async (vehicleName: string) => {
+  //   try {
+  //     await prisma.vehicle.delete({
+  //       where: {
+  //         name: vehicleName,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error('Failed to delete vehicle');
+  //   }
+  // },
 
   deleteVehicle: async (vehicleId: string) => {
     try {

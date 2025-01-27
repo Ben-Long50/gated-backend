@@ -6,7 +6,8 @@ router.get('/characters', authentication.authenticate, characterController.getCh
 router.get('/characters/active', authentication.authenticate, characterController.getActiveCharacter);
 router.get('/characters/:characterId', authentication.authenticate, characterController.getCharacterById);
 router.patch('/characters/active', authentication.authenticate, characterController.setActiveCharacter);
-router.patch('/characters/:characterId/cart', authentication.authenticate, characterController.addToCart);
+router.patch('/characters/:characterId/cart', authentication.authenticate, characterController.editCart);
+router.post('/characters/:characterId/inventory', authentication.authenticate, characterController.completePurchase);
 router.post('/characters', authentication.authenticate, characterController.createCharacter);
 router.put('/characters/:characterId', authentication.authenticate, characterController.updateCharacter);
 router.put('/characters/:characterId/cart', authentication.authenticate, characterController.clearCart);

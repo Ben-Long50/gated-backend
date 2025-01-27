@@ -31,7 +31,13 @@ router.patch(
 router.patch(
   '/characters/:characterId/cart',
   authentication.authenticate,
-  characterController.addToCart,
+  characterController.editCart,
+);
+
+router.post(
+  '/characters/:characterId/inventory',
+  authentication.authenticate,
+  characterController.completePurchase,
 );
 
 router.post(

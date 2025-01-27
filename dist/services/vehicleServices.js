@@ -125,19 +125,18 @@ const vehicleServices = {
             throw new Error('Failed to create or update vehicle modification');
         }
     },
-    deleteVehicleByName: async (vehicleName) => {
-        try {
-            await prisma.vehicle.delete({
-                where: {
-                    name: vehicleName,
-                },
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to delete vehicle');
-        }
-    },
+    // deleteVehicleByName: async (vehicleName: string) => {
+    //   try {
+    //     await prisma.vehicle.delete({
+    //       where: {
+    //         name: vehicleName,
+    //       },
+    //     });
+    //   } catch (error) {
+    //     console.error(error);
+    //     throw new Error('Failed to delete vehicle');
+    //   }
+    // },
     deleteVehicle: async (vehicleId) => {
         try {
             await prisma.vehicle.delete({

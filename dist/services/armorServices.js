@@ -4,6 +4,7 @@ const armorServices = {
     getArmor: async () => {
         try {
             const armor = await prisma.armor.findMany({
+                where: { characterInventoryId: null },
                 orderBy: { name: 'asc' },
             });
             return armor;
@@ -34,7 +35,7 @@ const armorServices = {
     createIntegratedArmor: async (formData) => {
         try {
             const newArmor = await prisma.armor.upsert({
-                where: { name: formData.name },
+                where: { id: formData.id },
                 update: {
                     name: formData.name,
                     stats: formData.stats,
@@ -90,19 +91,18 @@ const armorServices = {
             throw new Error('Failed to create or update armor');
         }
     },
-    deleteArmorByName: async (armorName) => {
-        try {
-            await prisma.armor.delete({
-                where: {
-                    name: armorName,
-                },
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to delete armor');
-        }
-    },
+    // deleteArmorByName: async (armorName: string) => {
+    //   try {
+    //     await prisma.armor.delete({
+    //       where: {
+    //         name: armorName,
+    //       },
+    //     });
+    //   } catch (error) {
+    //     console.error(error);
+    //     throw new Error('Failed to delete armor');
+    //   }
+    // },
     deleteArmor: async (armorId) => {
         try {
             await prisma.armor.delete({

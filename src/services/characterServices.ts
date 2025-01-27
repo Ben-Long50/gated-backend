@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
 
 const characterServices = {
@@ -41,11 +42,13 @@ const characterServices = {
               vehicles: true,
             },
           },
-          CharacterInventory: {
+          characterInventory: {
             include: {
               weapons: true,
               armor: true,
-              cybernetics: true,
+              cybernetics: {
+                include: { weapons: true, armor: true, actions: true },
+              },
               vehicles: true,
             },
           },
@@ -163,30 +166,30 @@ const characterServices = {
     }
   },
 
-  addToCart: async (characterId: string, category: string, itemId: string) => {
+  editCart: async (characterId: string, category: string, itemId: string) => {
     try {
-      let itemCategory = '';
+      const categories = ['weapons', 'armor', 'cybernetics', 'vehicles'];
 
-      switch (category) {
-        case 'weapon':
-          itemCategory = 'weapons';
-          break;
-        case 'armor':
-          itemCategory = 'armor';
-          break;
-        case 'cybernetic':
-          itemCategory = 'cybernetics';
-          break;
-        case 'vehicle':
-          itemCategory = 'vehicles';
-          break;
-        default:
-          throw new Error(`Invalid category: ${category}`);
+      if (!categories.includes(category)) {
+        throw new Error(`Invalid category: ${category}`);
       }
 
-      const data = {
-        [itemCategory]: { connect: { id: Number(itemId) } },
-      };
+      const cart = await prisma.characterCart.findUnique({
+        where: { id: Number(characterId) },
+        select: { [category]: { select: { id: true } } },
+      });
+
+      if (!cart) {
+        throw new Error('Cart not found');
+      }
+
+      const itemExists = cart[category].some(
+        (item: { id: number }) => item.id === Number(itemId),
+      );
+
+      const data = itemExists
+        ? { [category]: { disconnect: { id: Number(itemId) } } }
+        : { [category]: { connect: { id: Number(itemId) } } };
 
       await prisma.characterCart.update({
         where: { id: Number(characterId) },
@@ -195,6 +198,259 @@ const characterServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to add item to cart');
+    }
+  },
+
+  createCharacterWeaponCopy: async (
+    characterId: string,
+    weaponList: { weaponId: number; price: number | null; quantity: number }[],
+  ) => {
+    const weaponIds = weaponList?.map((weapon) => weapon.weaponId);
+
+    const weapons = await prisma.weapon.findMany({
+      where: { id: { in: weaponIds } },
+    });
+
+    const newWeapons = await Promise.all(
+      weaponList.flatMap(({ weaponId, quantity }) => {
+        const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
+
+        if (weaponDetails) {
+          return Array.from({ length: quantity }).map(() =>
+            prisma.weapon.create({
+              data: {
+                name: weaponDetails.name,
+                picture: weaponDetails.picture || undefined,
+                description: weaponDetails.description,
+                stats: weaponDetails.stats || {},
+                price: weaponDetails.price,
+                keywords: weaponDetails.keywords as Prisma.InputJsonValue[],
+                characterInventory: {
+                  connect: { id: Number(characterId) },
+                },
+              },
+            }),
+          );
+        }
+        return;
+      }),
+    );
+
+    return newWeapons
+      .filter((weapon) => weapon !== undefined)
+      .map((weapon) => weapon.id);
+  },
+
+  createCharacterArmorCopy: async (
+    characterId: string,
+    armorList: { armorId: number; price: number | null; quantity: number }[],
+  ) => {
+    const armorIds = armorList?.map((armor) => armor.armorId);
+
+    const armor = await prisma.armor.findMany({
+      where: { id: { in: armorIds } },
+    });
+
+    const newArmor = await Promise.all(
+      armorList.flatMap(({ armorId, quantity }) => {
+        const armorDetails = armor.find((armor) => armor.id === armorId);
+
+        if (armorDetails) {
+          return Array.from({ length: quantity }).map(() =>
+            prisma.armor.create({
+              data: {
+                name: armorDetails.name,
+                picture: armorDetails.picture || undefined,
+                description: armorDetails.description,
+                stats: armorDetails.stats || {},
+                price: armorDetails.price,
+                keywords: armorDetails.keywords as Prisma.InputJsonValue[],
+                characterInventory: {
+                  connect: { id: Number(characterId) },
+                },
+              },
+            }),
+          );
+        }
+        return;
+      }),
+    );
+
+    return newArmor
+      .filter((armor) => armor !== undefined)
+      .map((armor) => armor.id);
+  },
+
+  createCharacterActionCopy: async (
+    characterId: string,
+    actionList: { actionId: number; quantity: number }[],
+  ) => {
+    const actionIds = actionList?.map((action) => action.actionId);
+
+    const actions = await prisma.action.findMany({
+      where: { id: { in: actionIds } },
+    });
+
+    const newArmor = await Promise.all(
+      actionList.flatMap(({ actionId, quantity }) => {
+        const actionDetails = actions.find((action) => action.id === actionId);
+
+        if (actionDetails) {
+          return Array.from({ length: quantity }).map(() =>
+            prisma.action.create({
+              data: {
+                name: actionDetails.name,
+                description: actionDetails.description,
+                costs: actionDetails.costs || undefined,
+                attribute: actionDetails.attribute,
+                skill: actionDetails.skill,
+                actionType: actionDetails.actionType,
+                actionSubtypes: actionDetails.actionSubtypes,
+                characterInventory: {
+                  connect: { id: Number(characterId) },
+                },
+              },
+            }),
+          );
+        }
+        return;
+      }),
+    );
+
+    return newArmor
+      .filter((armor) => armor !== undefined)
+      .map((armor) => armor.id);
+  },
+
+  createCharacterCyberneticCopy: async (
+    characterId: string,
+    cyberneticList: { cyberneticId: number; price: number; quantity: number }[],
+  ) => {
+    const cyberneticIds = cyberneticList?.map(
+      (cybernetic) => cybernetic.cyberneticId,
+    );
+
+    const cybernetics = await prisma.cybernetic.findMany({
+      where: { id: { in: cyberneticIds } },
+      include: { weapons: true, armor: true, actions: true },
+    });
+
+    const promises = [];
+
+    for (const { cyberneticId, quantity } of cyberneticList) {
+      const cyberneticDetails = cybernetics.find(
+        (cybernetic) => cybernetic.id === cyberneticId,
+      );
+
+      let weaponIds = [] as number[];
+      let armorIds = [] as number[];
+      let actionIds = [] as number[];
+
+      if (cyberneticDetails?.weapons && cyberneticDetails?.weapons.length > 0) {
+        const weaponInfo = cyberneticDetails.weapons.map((weapon) => {
+          return { weaponId: weapon.id, price: weapon.price, quantity };
+        });
+        weaponIds = await characterServices.createCharacterWeaponCopy(
+          characterId,
+          weaponInfo,
+        );
+      }
+
+      if (cyberneticDetails?.armor && cyberneticDetails?.armor.length > 0) {
+        const armorInfo = cyberneticDetails.armor.map((armor) => {
+          return { armorId: armor.id, price: armor.price, quantity };
+        });
+        armorIds = await characterServices.createCharacterArmorCopy(
+          characterId,
+          armorInfo,
+        );
+      }
+
+      if (cyberneticDetails?.actions && cyberneticDetails?.actions.length > 0) {
+        const actionInfo = cyberneticDetails.actions.map((action) => {
+          return { actionId: action.id, quantity };
+        });
+        actionIds = await characterServices.createCharacterActionCopy(
+          characterId,
+          actionInfo,
+        );
+      }
+
+      console.log(actionIds);
+
+      if (cyberneticDetails) {
+        for (let i = 0; i < quantity; i++) {
+          promises.push(
+            prisma.cybernetic.create({
+              data: {
+                name: cyberneticDetails.name,
+                cyberneticType: cyberneticDetails.cyberneticType,
+                picture: cyberneticDetails.picture || undefined,
+                description: cyberneticDetails.description,
+                stats: cyberneticDetails.stats || {},
+                body: cyberneticDetails.body,
+                price: cyberneticDetails.price,
+                modifiers: cyberneticDetails.modifiers || undefined,
+                keywords: cyberneticDetails.keywords as Prisma.InputJsonValue[],
+                weapons:
+                  weaponIds.length > 0
+                    ? {
+                        connect: weaponIds.map((id) => ({ id })),
+                      }
+                    : undefined,
+                armor:
+                  armorIds.length > 0
+                    ? {
+                        connect: armorIds.map((id) => ({ id })),
+                      }
+                    : undefined,
+                actions:
+                  actionIds.length > 0
+                    ? {
+                        connect: actionIds.map((id) => ({ id })),
+                      }
+                    : undefined,
+                characterInventory: {
+                  connect: { id: Number(characterId) },
+                },
+              },
+            }),
+          );
+        }
+      }
+    }
+
+    await Promise.all(promises);
+  },
+
+  addToInventory: async (
+    characterId: string,
+    formData: {
+      weapons: { weaponId: number; price: number; quantity: number }[];
+      armor: { armorId: number; price: number; quantity: number }[];
+      cybernetics: { cyberneticId: number; price: number; quantity: number }[];
+      vehicles: { vehicleId: number; price: number; quantity: number }[];
+    },
+  ) => {
+    try {
+      if (formData.weapons.length > 0) {
+        characterServices.createCharacterWeaponCopy(
+          characterId,
+          formData.weapons,
+        );
+      }
+      if (formData.armor.length > 0) {
+        characterServices.createCharacterArmorCopy(characterId, formData.armor);
+      }
+      if (formData.cybernetics.length > 0) {
+        characterServices.createCharacterCyberneticCopy(
+          characterId,
+          formData.cybernetics,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to items to inventory');
     }
   },
 

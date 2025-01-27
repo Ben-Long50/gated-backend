@@ -13,6 +13,7 @@ const cyberneticServices = {
   getCybernetics: async () => {
     try {
       const cybernetics = await prisma.cybernetic.findMany({
+        where: { characterInventoryId: null },
         include: {
           weapons: true,
           armor: true,
@@ -79,28 +80,15 @@ const cyberneticServices = {
   }) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
-        where: { name: JSON.parse(formData.name) },
+        where: { id: Number(JSON.parse(formData.cyberneticId)) },
         include: {
-          weapons: { select: { name: true } },
-          armor: { select: { name: true } },
-          actions: { select: { name: true } },
+          weapons: { select: { id: true } },
+          armor: { select: { id: true } },
+          actions: { select: { id: true } },
         },
       });
 
-      const weaponsToDelete =
-        cybernetic?.weapons.filter(
-          (weapon) => !JSON.parse(formData.weapons).includes(weapon),
-        ) || [];
-
-      const armorToDelete =
-        cybernetic?.armor.filter(
-          (armor) => !JSON.parse(formData.armor).includes(armor),
-        ) || [];
-
-      const actionsToDelete =
-        cybernetic?.actions.filter(
-          (action) => !JSON.parse(formData.actions).includes(action),
-        ) || [];
+      console.log(cybernetic?.weapons, formData.weapons);
 
       const getPictureInfo = () => {
         if (formData.publicId) {
@@ -112,30 +100,10 @@ const cyberneticServices = {
 
       const pictureInfo = getPictureInfo();
 
-      //Delete (from the database) integrated weapon pieces that have been removed via the submitted form
-      await Promise.all(
-        weaponsToDelete.map(async (weapon) => {
-          await weaponServices.deleteWeaponByName(weapon.name);
-        }),
-      );
-
-      //Delete (from the database) integrated armor pieces that have been removed via the submitted form
-      await Promise.all(
-        armorToDelete.map(async (armor) => {
-          await armorServices.deleteArmorByName(armor.name);
-        }),
-      );
-
-      //Delete (from the database) unqiue actions that have been removed via the submitted form
-      await Promise.all(
-        actionsToDelete.map(async (action) => {
-          await actionServices.deleteActionByName(action.name);
-        }),
-      );
-
       const weaponIds = await Promise.all(
         JSON.parse(formData.weapons).map(
           async (weapon: {
+            id?: number;
             name: string;
             stats: Partial<WeaponStats>;
             keywords: { keywordId: number; value?: number }[];

@@ -64,14 +64,25 @@ const characterController = {
     }
   },
 
-  addToCart: async (req: Request, res: Response) => {
+  editCart: async (req: Request, res: Response) => {
     try {
-      await characterServices.addToCart(
+      await characterServices.editCart(
         req.params.characterId,
         req.body.category,
         req.body.itemId,
       );
       res.status(200).json({ message: 'Successfully added item to cart' });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
+  completePurchase: async (req: Request, res: Response) => {
+    try {
+      await characterServices.addToInventory(req.params.characterId, req.body);
+      res.status(200).json({ message: 'Purchase completed' });
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ error: error.message });

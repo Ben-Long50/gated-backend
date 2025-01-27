@@ -65,18 +65,18 @@ const actionServices = {
     }
   },
 
-  deleteActionByName: async (actionName: string) => {
-    try {
-      await prisma.action.delete({
-        where: {
-          name: actionName,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to delete action');
-    }
-  },
+  // deleteActionByName: async (actionName: string) => {
+  //   try {
+  //     await prisma.action.delete({
+  //       where: {
+  //         name: actionName,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error('Failed to delete action');
+  //   }
+  // },
 
   deleteAction: async (actionId: string) => {
     try {

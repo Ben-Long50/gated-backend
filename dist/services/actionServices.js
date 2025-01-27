@@ -54,19 +54,18 @@ const actionServices = {
             throw new Error('Failed to create or update action');
         }
     },
-    deleteActionByName: async (actionName) => {
-        try {
-            await prisma.action.delete({
-                where: {
-                    name: actionName,
-                },
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to delete action');
-        }
-    },
+    // deleteActionByName: async (actionName: string) => {
+    //   try {
+    //     await prisma.action.delete({
+    //       where: {
+    //         name: actionName,
+    //       },
+    //     });
+    //   } catch (error) {
+    //     console.error(error);
+    //     throw new Error('Failed to delete action');
+    //   }
+    // },
     deleteAction: async (actionId) => {
         try {
             await prisma.action.delete({

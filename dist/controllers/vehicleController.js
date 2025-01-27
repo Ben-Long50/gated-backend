@@ -72,17 +72,16 @@ const vehicleController = {
             }
         }
     },
-    deleteVehicleByName: async (req, res) => {
-        try {
-            await vehicleServices.deleteVehicleByName(req.params.vehicleName);
-            res.status(200).json({ message: 'Successfully deleted vehicle' });
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
-        }
-    },
+    // deleteVehicleByName: async (req: Request, res: Response) => {
+    //   try {
+    //     await vehicleServices.deleteVehicleByName(req.params.vehicleName);
+    //     res.status(200).json({ message: 'Successfully deleted vehicle' });
+    //   } catch (error) {
+    //     if (error instanceof Error) {
+    //       res.status(500).json({ error: error.message });
+    //     }
+    //   }
+    // },
     deleteVehicle: async (req, res) => {
         try {
             await vehicleServices.deleteVehicle(req.params.vehicleId);

@@ -9,6 +9,7 @@ const weaponServices = {
   getWeapons: async () => {
     try {
       const weapons = await prisma.weapon.findMany({
+        where: { characterInventoryId: null },
         orderBy: { name: 'asc' },
       });
 
@@ -87,13 +88,14 @@ const weaponServices = {
   },
 
   createIntegratedWeapon: async (formData: {
+    id?: number;
     name: string;
     stats: Partial<WeaponStats>;
     keywords: { keywordId: number; value?: number }[];
   }) => {
     try {
       const newWeapon = await prisma.weapon.upsert({
-        where: { name: formData.name },
+        where: { id: formData.id },
         update: {
           name: formData.name,
           stats: formData.stats,
@@ -162,18 +164,18 @@ const weaponServices = {
     }
   },
 
-  deleteWeaponByName: async (weaponName: string) => {
-    try {
-      await prisma.weapon.delete({
-        where: {
-          name: weaponName,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to delete weapon');
-    }
-  },
+  // deleteWeaponByName: async (weaponName: string) => {
+  //   try {
+  //     await prisma.weapon.delete({
+  //       where: {
+  //         name: weaponName,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     throw new Error('Failed to delete weapon');
+  //   }
+  // },
 
   deleteWeapon: async (weaponId: string) => {
     try {
