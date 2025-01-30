@@ -1,11 +1,23 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
-import { getItemWeapons } from '../utils/getAssociatedWeapons.js';
 const vehicleServices = {
     getVehicles: async () => {
         try {
             const vehicles = await prisma.vehicle.findMany({
+                where: { characterInventoryId: null },
                 orderBy: { name: 'asc' },
-                include: { modifications: true },
+                include: { weapons: true, modifications: true },
             });
             return vehicles;
         }
@@ -32,13 +44,13 @@ const vehicleServices = {
                 where: {
                     id: Number(vehicleId),
                 },
-                include: { modifications: true },
+                include: { weapons: true, modifications: true },
             });
             if (!vehicle) {
                 throw new Error('Could not find vehicle');
             }
-            const vehicleDetails = await getItemWeapons(vehicle);
-            return vehicleDetails;
+            // const vehicleDetails = await getItemWeapons(vehicle);
+            return vehicle;
         }
         catch (error) {
             console.error(error);
@@ -61,6 +73,21 @@ const vehicleServices = {
     },
     createVehicle: async (formData) => {
         try {
+            const oldVehicle = (await prisma.vehicle.findUnique({
+                where: { id: Number(JSON.parse(formData.vehicleId)) },
+                include: {
+                    weapons: { select: { id: true } },
+                    modifications: { select: { id: true } },
+                },
+            })) || null;
+            const oldWeaponIds = (oldVehicle === null || oldVehicle === void 0 ? void 0 : oldVehicle.weapons.filter(({ id }) => !JSON.parse(formData.weapons).includes(id)).map(({ id }) => id)) || [];
+            if (oldWeaponIds && oldWeaponIds.length > 0) {
+                await prisma.weapon.deleteMany({
+                    where: { id: { in: oldWeaponIds }, characterInventoryId: null },
+                });
+            }
+            const newWeaponIds = JSON.parse(formData.weapons).filter((id) => !(oldVehicle === null || oldVehicle === void 0 ? void 0 : oldVehicle.weapons.some((weapon) => weapon.id === id)));
+            console.log(newWeaponIds);
             const getPictureInfo = () => {
                 if (formData.publicId) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -70,8 +97,25 @@ const vehicleServices = {
                 }
             };
             const pictureInfo = getPictureInfo();
-            const modIds = JSON.parse(formData.modifications).map((modId) => {
-                return { id: modId };
+            const weapons = await prisma.weapon.findMany({
+                where: { id: { in: newWeaponIds } },
+            });
+            const weaponData = weapons.map((_a) => {
+                var { id, vehicleId, cyberneticId } = _a, rest = __rest(_a, ["id", "vehicleId", "cyberneticId"]);
+                return (Object.assign(Object.assign({}, rest), { picture: rest.picture
+                        ? rest.picture
+                        : undefined, stats: rest.stats
+                        ? rest.stats
+                        : Prisma.JsonNull, keywords: rest.keywords
+                        ? rest.keywords
+                        : undefined }));
+            });
+            const mods = await prisma.modification.findMany({
+                where: { id: { in: JSON.parse(formData.modifications) } },
+            });
+            const modData = mods.map((_a) => {
+                var { id, vehicleId } = _a, rest = __rest(_a, ["id", "vehicleId"]);
+                return (Object.assign({}, rest));
             });
             const newVehicle = await prisma.vehicle.upsert({
                 where: { id: Number(JSON.parse(formData.vehicleId)) || 0 },
@@ -83,8 +127,8 @@ const vehicleServices = {
                     stats: JSON.parse(formData.stats),
                     price: Number(JSON.parse(formData.price)),
                     description: JSON.parse(formData.description),
-                    weapons: JSON.parse(formData.weapons),
-                    modifications: { connect: modIds },
+                    weapons: { create: weaponData },
+                    modifications: { create: modData },
                 },
                 create: {
                     name: JSON.parse(formData.name),
@@ -94,8 +138,8 @@ const vehicleServices = {
                     stats: JSON.parse(formData.stats),
                     price: JSON.parse(formData.price),
                     description: JSON.parse(formData.description),
-                    weapons: JSON.parse(formData.weapons),
-                    modifications: { connect: modIds },
+                    weapons: { create: weaponData },
+                    modifications: { create: modData },
                 },
             });
             return newVehicle;
@@ -130,12 +174,22 @@ const vehicleServices = {
         }
     },
     deleteVehicle: async (vehicleId) => {
+        var _a;
         try {
-            await prisma.vehicle.delete({
+            const deletedVehicle = await prisma.vehicle.delete({
                 where: {
                     id: Number(vehicleId),
                 },
+                include: { weapons: { select: { id: true } } },
             });
+            console.log(deletedVehicle);
+            if (deletedVehicle.characterInventoryId === null) {
+                await prisma.weapon.deleteMany({
+                    where: {
+                        id: { in: (_a = deletedVehicle.weapons) === null || _a === void 0 ? void 0 : _a.map((weapon) => weapon.id) },
+                    },
+                });
+            }
         }
         catch (error) {
             console.error(error);

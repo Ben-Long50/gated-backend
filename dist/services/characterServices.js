@@ -32,20 +32,24 @@ const characterServices = {
                     perks: true,
                     characterCart: {
                         include: {
-                            weapons: true,
-                            armor: true,
-                            cybernetics: true,
-                            vehicles: true,
+                            weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            cybernetics: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            vehicles: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                         },
                     },
                     characterInventory: {
                         include: {
-                            weapons: true,
-                            armor: true,
+                            weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             cybernetics: {
                                 include: { weapons: true, armor: true, actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
-                            vehicles: true,
+                            vehicles: {
+                                include: { weapons: true, modifications: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                         },
                     },
                 },
@@ -188,12 +192,12 @@ const characterServices = {
                         characterInventory: {
                             connect: { id: Number(characterId) },
                         },
+                        baseWeaponId: weaponDetails.id,
                     },
                 }));
             }
             return;
         }));
-        console.log(newWeapons);
         return newWeapons
             .filter((weapon) => weapon !== undefined)
             .map((weapon) => weapon.id);
@@ -219,6 +223,7 @@ const characterServices = {
                         characterInventory: {
                             connect: { id: Number(characterId) },
                         },
+                        baseArmorId: armorDetails.id,
                     },
                 }));
             }
@@ -248,6 +253,7 @@ const characterServices = {
                         characterInventory: {
                             connect: { id: Number(characterId) },
                         },
+                        baseActionId: actionDetails.id,
                     },
                 }));
             }
@@ -287,7 +293,6 @@ const characterServices = {
                 });
                 actionIds = await characterServices.createCharacterActionCopy(characterId, actionInfo);
             }
-            console.log(actionIds);
             if (cyberneticDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(prisma.cybernetic.create({
@@ -321,6 +326,80 @@ const characterServices = {
                             characterInventory: {
                                 connect: { id: Number(characterId) },
                             },
+                            baseCyberneticId: cyberneticDetails.id,
+                        },
+                    }));
+                }
+            }
+        }
+        await Promise.all(promises);
+    },
+    createCharacterVehicleCopy: async (characterId, vehicleList) => {
+        const vehicleIds = vehicleList === null || vehicleList === void 0 ? void 0 : vehicleList.map((vehicle) => vehicle.vehicleId);
+        const vehicles = await prisma.vehicle.findMany({
+            where: { id: { in: vehicleIds } },
+            include: {
+                weapons: { select: { id: true } },
+                modifications: { select: { id: true } },
+            },
+        });
+        const promises = [];
+        for (const { vehicleId, quantity } of vehicleList) {
+            const vehicleDetails = vehicles.find((vehicle) => vehicle.id === vehicleId);
+            let weaponIds = [];
+            // let modificationIds = [] as number[];
+            if ((vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.weapons) && (vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.weapons.length) > 0) {
+                const weaponInfo = vehicleDetails.weapons.map((weapon) => ({
+                    weaponId: weapon.id,
+                    price: null,
+                    quantity,
+                }));
+                weaponIds = await characterServices.createCharacterWeaponCopy(characterId, weaponInfo);
+            }
+            console.log(weaponIds);
+            // if (
+            //   vehicleDetails?.modifications &&
+            //   vehicleDetails?.modifications.length > 0
+            // ) {
+            //   const modificationInfo = vehicleDetails.modifications.map(
+            //     (modification) => ({
+            //       modificationId: modification.id,
+            //       price: null,
+            //       quantity,
+            //     }),
+            //   );
+            //   weaponIds = await characterServices.createCharacterModificationCopy(
+            //     characterId,
+            //     modificationInfo,
+            //   );
+            // }
+            console.log(vehicleDetails);
+            if (vehicleDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(prisma.vehicle.create({
+                        data: {
+                            name: vehicleDetails.name,
+                            rarity: vehicleDetails.rarity,
+                            grade: vehicleDetails.grade,
+                            picture: vehicleDetails.picture || undefined,
+                            description: vehicleDetails.description,
+                            stats: vehicleDetails.stats || {},
+                            price: vehicleDetails.price,
+                            weapons: {
+                                connect: weaponIds.length > 0
+                                    ? weaponIds.map((id) => ({ id }))
+                                    : undefined,
+                            },
+                            // modifications:
+                            //   modificationIds.length > 0
+                            //     ? {
+                            //         connect: modificationIds.map((id) => ({ id })),
+                            //       }
+                            //     : undefined,
+                            characterInventory: {
+                                connect: { id: Number(characterId) },
+                            },
+                            baseVehicleId: vehicleDetails.id,
                         },
                     }));
                 }
@@ -329,7 +408,18 @@ const characterServices = {
         await Promise.all(promises);
     },
     addToInventory: async (characterId, formData) => {
+        var _a;
         try {
+            const profits = ((_a = (await prisma.character.findUnique({
+                where: { id: Number(characterId) },
+                select: { profits: true },
+            }))) === null || _a === void 0 ? void 0 : _a.profits) || 0;
+            const totalPrice = Object.values(formData)
+                .flatMap((category) => category.map((item) => item.price))
+                .reduce((sum, price) => sum + price, 0);
+            if (totalPrice > profits) {
+                throw new Error('You do not have enough profits to complete this purchase');
+            }
             if (formData.weapons.length > 0) {
                 characterServices.createCharacterWeaponCopy(characterId, formData.weapons);
             }
@@ -339,6 +429,13 @@ const characterServices = {
             if (formData.cybernetics.length > 0) {
                 characterServices.createCharacterCyberneticCopy(characterId, formData.cybernetics);
             }
+            if (formData.vehicles.length > 0) {
+                characterServices.createCharacterVehicleCopy(characterId, formData.vehicles);
+            }
+            await prisma.character.update({
+                where: { id: Number(characterId) },
+                data: { profits: profits - totalPrice },
+            });
         }
         catch (error) {
             console.error(error);

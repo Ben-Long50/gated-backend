@@ -103,9 +103,12 @@ model Weapon {
   equipped             Boolean?            @default(false)
   cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
+  vehicle              Vehicle?            @relation(fields: [vehicleId], references: [id])
+  vehicleId            Int?
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseWeaponId         Int?
 }
 
 model Armor {
@@ -124,6 +127,7 @@ model Armor {
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseArmorId          Int?
 }
 
 model Cybernetic {
@@ -146,6 +150,7 @@ model Cybernetic {
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseCyberneticId     Int?
 }
 
 model Vehicle {
@@ -157,11 +162,12 @@ model Vehicle {
   description          String?
   stats                Json
   price                Int?
-  weapons              Json[]
+  weapons              Weapon[]
   modifications        Modification[]
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseVehicleId        Int?
 }
 
 model Modification {
@@ -172,7 +178,8 @@ model Modification {
   price            Int?
   modificationType String
   description      String?
-  vehicles         Vehicle[]
+  vehicles         Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId        Int?
 }
 
 model Perk {
@@ -197,6 +204,7 @@ model Action {
   cyberneticId         Int?
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseActionId         Int?
 }
 
 model BookSection {
