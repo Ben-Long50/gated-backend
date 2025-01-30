@@ -1,6 +1,4 @@
-import { Keyword } from './keyword';
-
-interface ArmorStats {
+export interface ArmorStats {
   armor: number;
   ward: number;
   block: number;

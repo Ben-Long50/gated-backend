@@ -54,6 +54,7 @@ const characterServices = {
                 include: { weapons: true, modifications: true },
                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
               },
+              modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
             },
           },
         },
@@ -435,6 +436,45 @@ const characterServices = {
     await Promise.all(promises);
   },
 
+  createCharacterModificationCopy: async (
+    characterId: string,
+    modList: { modId: number; price: number | null; quantity: number }[],
+  ) => {
+    const modIds = modList?.map((mod) => mod.modId);
+
+    const mods = await prisma.modification.findMany({
+      where: { id: { in: modIds } },
+    });
+
+    const newMods = await Promise.all(
+      modList.flatMap(({ modId, quantity }) => {
+        const modDetails = mods.find((mod) => mod.id === modId);
+
+        if (modDetails) {
+          return Array.from({ length: quantity }).map(() =>
+            prisma.modification.create({
+              data: {
+                name: modDetails.name,
+                rarity: modDetails.rarity,
+                grade: modDetails.grade,
+                modificationType: modDetails.modificationType,
+                description: modDetails.description,
+                price: modDetails.price,
+                characterInventory: {
+                  connect: { id: Number(characterId) },
+                },
+                baseModificationId: modDetails.id,
+              },
+            }),
+          );
+        }
+        return;
+      }),
+    );
+
+    return newMods.filter((mod) => mod !== undefined).map((mod) => mod.id);
+  },
+
   createCharacterVehicleCopy: async (
     characterId: string,
     vehicleList: {
@@ -461,7 +501,7 @@ const characterServices = {
       );
 
       let weaponIds = [] as number[];
-      // let modificationIds = [] as number[];
+      let modificationIds = [] as number[];
 
       if (vehicleDetails?.weapons && vehicleDetails?.weapons.length > 0) {
         const weaponInfo = vehicleDetails.weapons.map((weapon) => ({
@@ -475,26 +515,23 @@ const characterServices = {
         );
       }
 
-      console.log(weaponIds);
-
-      // if (
-      //   vehicleDetails?.modifications &&
-      //   vehicleDetails?.modifications.length > 0
-      // ) {
-      //   const modificationInfo = vehicleDetails.modifications.map(
-      //     (modification) => ({
-      //       modificationId: modification.id,
-      //       price: null,
-      //       quantity,
-      //     }),
-      //   );
-      //   weaponIds = await characterServices.createCharacterModificationCopy(
-      //     characterId,
-      //     modificationInfo,
-      //   );
-      // }
-
-      console.log(vehicleDetails);
+      if (
+        vehicleDetails?.modifications &&
+        vehicleDetails?.modifications.length > 0
+      ) {
+        const modificationInfo = vehicleDetails.modifications.map(
+          (modification) => ({
+            modId: modification.id,
+            price: null,
+            quantity,
+          }),
+        );
+        modificationIds =
+          await characterServices.createCharacterModificationCopy(
+            characterId,
+            modificationInfo,
+          );
+      }
 
       if (vehicleDetails) {
         for (let i = 0; i < quantity; i++) {
@@ -514,12 +551,12 @@ const characterServices = {
                       ? weaponIds.map((id) => ({ id }))
                       : undefined,
                 },
-                // modifications:
-                //   modificationIds.length > 0
-                //     ? {
-                //         connect: modificationIds.map((id) => ({ id })),
-                //       }
-                //     : undefined,
+                modifications:
+                  modificationIds.length > 0
+                    ? {
+                        connect: modificationIds.map((id) => ({ id })),
+                      }
+                    : undefined,
                 characterInventory: {
                   connect: { id: Number(characterId) },
                 },

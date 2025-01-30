@@ -1,6 +1,4 @@
-import { Keyword } from './keyword';
-
-interface WeaponStats {
+export interface WeaponStats {
   damage: number;
   salvo: number;
   flurry: number;

@@ -51,7 +51,15 @@ const vehicleController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                const vehicle = await vehicleServices.createVehicle(req.body);
+                const parsedBody = Object.fromEntries(Object.entries(req.body).map(([key, value]) => {
+                    try {
+                        return [key, JSON.parse(value)];
+                    }
+                    catch (_a) {
+                        return [key, value];
+                    }
+                }));
+                const vehicle = await vehicleServices.createVehicle(parsedBody);
                 res.status(200).json(vehicle);
             }
             catch (error) {
@@ -72,16 +80,6 @@ const vehicleController = {
             }
         }
     },
-    // deleteVehicleByName: async (req: Request, res: Response) => {
-    //   try {
-    //     await vehicleServices.deleteVehicleByName(req.params.vehicleName);
-    //     res.status(200).json({ message: 'Successfully deleted vehicle' });
-    //   } catch (error) {
-    //     if (error instanceof Error) {
-    //       res.status(500).json({ error: error.message });
-    //     }
-    //   }
-    // },
     deleteVehicle: async (req, res) => {
         try {
             await vehicleServices.deleteVehicle(req.params.vehicleId);

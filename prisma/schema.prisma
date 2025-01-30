@@ -49,24 +49,26 @@ model Character {
 }
 
 model CharacterCart {
-  id          Int          @id
-  character   Character?
-  characterId Int?         @unique
-  weapons     Weapon[]
-  armor       Armor[]
-  cybernetics Cybernetic[]
-  vehicles    Vehicle[]
+  id            Int            @id
+  character     Character?
+  characterId   Int?           @unique
+  weapons       Weapon[]
+  armor         Armor[]
+  cybernetics   Cybernetic[]
+  vehicles      Vehicle[]
+  modifications Modification[]
 }
 
 model CharacterInventory {
-  id          Int          @id
-  character   Character?
-  characterId Int?         @unique
-  weapons     Weapon[]
-  armor       Armor[]
-  cybernetics Cybernetic[]
-  vehicles    Vehicle[]
-  actions     Action[]
+  id            Int            @id
+  character     Character?
+  characterId   Int?           @unique
+  weapons       Weapon[]
+  armor         Armor[]
+  cybernetics   Cybernetic[]
+  vehicles      Vehicle[]
+  actions       Action[]
+  modifications Modification[]
 }
 
 enum ConditionType {
@@ -171,15 +173,19 @@ model Vehicle {
 }
 
 model Modification {
-  id               Int        @id @default(autoincrement())
-  name             String
-  rarity           ItemRarity @default(common)
-  grade            Int        @default(1)
-  price            Int?
-  modificationType String
-  description      String?
-  vehicles         Vehicle?   @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  vehicleId        Int?
+  id                   Int                 @id @default(autoincrement())
+  name                 String
+  rarity               ItemRarity          @default(common)
+  grade                Int                 @default(1)
+  price                Int?
+  modificationType     String
+  description          String?
+  vehicle              Vehicle?            @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId            Int?
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventoryId Int?
+  baseModificationId   Int?
 }
 
 model Perk {
