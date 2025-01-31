@@ -64,6 +64,34 @@ const characterController = {
     }
   },
 
+  getEquippedItems: async (req: Request, res: Response) => {
+    try {
+      const equipment = await characterServices.getEquippedItems(
+        req.params.characterId,
+      );
+      res.status(200).json(equipment);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
+  toggleEquipment: async (req: Request, res: Response) => {
+    try {
+      await characterServices.toggleEquipment(
+        req.params.characterId,
+        req.params.itemId,
+        req.body.category,
+      );
+      res.status(200).json({ message: 'Successfully toggled equipment' });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
   editCart: async (req: Request, res: Response) => {
     try {
       await characterServices.editCart(

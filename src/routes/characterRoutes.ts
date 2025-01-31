@@ -22,6 +22,18 @@ router.get(
   characterController.getCharacterById,
 );
 
+router.get(
+  '/characters/:characterId/equipment',
+  authentication.authenticate,
+  characterController.getEquippedItems,
+);
+
+router.patch(
+  '/characters/:characterId/equipment/:itemId',
+  authentication.authenticate,
+  characterController.toggleEquipment,
+);
+
 router.patch(
   '/characters/active',
   authentication.authenticate,

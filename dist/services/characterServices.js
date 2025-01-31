@@ -36,6 +36,7 @@ const characterServices = {
                             armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             cybernetics: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             vehicles: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                         },
                     },
                     characterInventory: {
@@ -97,6 +98,52 @@ const characterServices = {
             throw new Error('Failed to switch active character');
         }
     },
+    getEquippedItems: async (characterId) => {
+        try {
+            const equipment = await prisma.characterInventory.findUnique({
+                where: { id: Number(characterId) },
+                select: {
+                    weapons: { where: { equipped: true } },
+                    armor: { where: { equipped: true } },
+                    cybernetics: { where: { equipped: true } },
+                },
+            });
+            return equipment;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch character equipment');
+        }
+    },
+    toggleEquipment: async (characterId, itemId, category) => {
+        try {
+            const categories = ['weapon', 'armor', 'cybernetic'];
+            if (!categories.includes(category)) {
+                throw new Error(`Invalid category: ${category}`);
+            }
+            const item = await prisma[category].findUnique({
+                where: {
+                    id: Number(itemId),
+                    characterInventoryId: Number(characterId),
+                },
+                select: { equipped: true },
+            });
+            if (!item) {
+                throw new Error('Item not found');
+            }
+            await prisma[category].update({
+                where: {
+                    id: Number(itemId),
+                    characterInventoryId: Number(characterId),
+                },
+                data: { equipped: !item.equipped },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to toggle equipment');
+        }
+    },
     createCharacter: async (formData, userId) => {
         try {
             const perks = JSON.parse(formData.perks);
@@ -147,7 +194,13 @@ const characterServices = {
     },
     editCart: async (characterId, category, itemId) => {
         try {
-            const categories = ['weapons', 'armor', 'cybernetics', 'vehicles'];
+            const categories = [
+                'weapons',
+                'armor',
+                'cybernetics',
+                'vehicles',
+                'modifications',
+            ];
             if (!categories.includes(category)) {
                 throw new Error(`Invalid category: ${category}`);
             }
@@ -451,6 +504,9 @@ const characterServices = {
             if (formData.vehicles.length > 0) {
                 characterServices.createCharacterVehicleCopy(characterId, formData.vehicles);
             }
+            if (formData.modifications.length > 0) {
+                characterServices.createCharacterModificationCopy(characterId, formData.modifications);
+            }
             await prisma.character.update({
                 where: { id: Number(characterId) },
                 data: { profits: profits - totalPrice },
@@ -476,6 +532,9 @@ const characterServices = {
                         set: [],
                     },
                     vehicles: {
+                        set: [],
+                    },
+                    modifications: {
                         set: [],
                     },
                 },
