@@ -550,8 +550,8 @@ const characterServices = {
         sex: JSON.parse(formData.sex),
         background: JSON.parse(formData.background),
         attributes: JSON.parse(formData.attributes),
-        characterCartId: Number(characterId),
-        characterInventoryId: Number(characterId),
+        // characterCartId: Number(characterId),
+        // characterInventoryId: Number(characterId),
       };
 
       const updatedCharacter = await prisma.character.update({
