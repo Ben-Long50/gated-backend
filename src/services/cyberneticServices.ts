@@ -115,6 +115,7 @@ const cyberneticServices = {
       }
 
       const oldActionIds = cybernetic?.actions?.map((id) => id.id);
+
       const newActionIds = JSON.parse(formData.actions).map(
         (action: Action) => action.id,
       );
@@ -146,6 +147,7 @@ const cyberneticServices = {
           }) => {
             const newWeapon = await weaponServices.createIntegratedWeapon(
               weapon,
+              pictureInfo,
               JSON.parse(formData.rarity),
               Number(JSON.parse(formData.grade)),
             );
@@ -163,6 +165,7 @@ const cyberneticServices = {
           }) => {
             const newArmor = await armorServices.createIntegratedArmor(
               armor,
+              pictureInfo,
               JSON.parse(formData.rarity),
               Number(JSON.parse(formData.grade)),
             );
@@ -181,7 +184,7 @@ const cyberneticServices = {
             skill: string;
             actionType: ActionType;
             actionSubtypes: string[];
-            actionId: string;
+            id?: string;
           }) => {
             const newAction = await actionServices.createAction(action);
             return { id: newAction.id };

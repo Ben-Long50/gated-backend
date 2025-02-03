@@ -34,11 +34,11 @@ const actionServices = {
     skill: string;
     actionType: ActionType;
     actionSubtypes: string[];
-    actionId: string;
+    id?: string;
   }) => {
     try {
       const newAction = await prisma.action.upsert({
-        where: { id: Number(formData.actionId) || 0 },
+        where: { id: Number(formData?.id) || 0 },
         update: {
           name: formData.name,
           description: formData.description,

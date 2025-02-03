@@ -27,7 +27,7 @@ const actionServices = {
     createAction: async (formData) => {
         try {
             const newAction = await prisma.action.upsert({
-                where: { id: Number(formData.actionId) || 0 },
+                where: { id: Number(formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
                     description: formData.description,

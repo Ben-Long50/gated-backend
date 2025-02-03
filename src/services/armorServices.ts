@@ -45,6 +45,7 @@ const armorServices = {
       stats: string;
       keywords: { keywordId: number; value?: number }[];
     },
+    picture: { publicId: string; imageUrl: string },
     rarity: $Enums.ItemRarity,
     grade: number,
   ) => {
@@ -53,6 +54,7 @@ const armorServices = {
         where: { id: formData?.id || 0 },
         update: {
           name: formData.name,
+          picture,
           rarity,
           grade,
           stats: formData.stats,
@@ -60,6 +62,7 @@ const armorServices = {
         },
         create: {
           name: formData.name,
+          picture,
           rarity,
           grade,
           stats: formData.stats,

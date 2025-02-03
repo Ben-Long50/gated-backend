@@ -68,6 +68,7 @@ const characterController = {
     try {
       const equipment = await characterServices.getEquippedItems(
         req.params.characterId,
+        req.params.inventoryId,
       );
       res.status(200).json(equipment);
     } catch (error) {
@@ -80,7 +81,7 @@ const characterController = {
   toggleEquipment: async (req: Request, res: Response) => {
     try {
       await characterServices.toggleEquipment(
-        req.params.characterId,
+        req.params.inventoryId,
         req.params.itemId,
         req.body.category,
       );
@@ -96,6 +97,7 @@ const characterController = {
     try {
       await characterServices.editCart(
         req.params.characterId,
+        req.params.cartId,
         req.body.category,
         req.body.itemId,
       );
@@ -109,7 +111,11 @@ const characterController = {
 
   completePurchase: async (req: Request, res: Response) => {
     try {
-      await characterServices.addToInventory(req.params.characterId, req.body);
+      await characterServices.addToInventory(
+        req.params.characterId,
+        req.params.inventoryId,
+        req.body,
+      );
       await characterServices.clearCart(req.params.characterId);
       res.status(200).json({ message: 'Purchase completed' });
     } catch (error) {

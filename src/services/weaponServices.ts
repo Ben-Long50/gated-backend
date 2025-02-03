@@ -99,6 +99,7 @@ const weaponServices = {
       stats: Partial<WeaponStats>;
       keywords: { keywordId: number; value?: number }[];
     },
+    picture: { publicId: string; imageUrl: string },
     rarity: $Enums.ItemRarity,
     grade: number,
   ) => {
@@ -107,6 +108,7 @@ const weaponServices = {
         where: { id: formData?.id || 0 },
         update: {
           name: formData.name,
+          picture,
           rarity,
           grade,
           stats: formData.stats,
@@ -114,6 +116,7 @@ const weaponServices = {
         },
         create: {
           name: formData.name,
+          picture,
           rarity,
           grade,
           stats: formData.stats,

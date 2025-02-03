@@ -86,11 +86,11 @@ const cyberneticServices = {
             };
             const pictureInfo = getPictureInfo();
             const weaponIds = await Promise.all(JSON.parse(formData.weapons).map(async (weapon) => {
-                const newWeapon = await weaponServices.createIntegratedWeapon(weapon, JSON.parse(formData.rarity), Number(JSON.parse(formData.grade)));
+                const newWeapon = await weaponServices.createIntegratedWeapon(weapon, pictureInfo, JSON.parse(formData.rarity), Number(JSON.parse(formData.grade)));
                 return { id: newWeapon.id };
             }));
             const armorIds = await Promise.all(JSON.parse(formData.armor).map(async (armor) => {
-                const newArmor = await armorServices.createIntegratedArmor(armor, JSON.parse(formData.rarity), Number(JSON.parse(formData.grade)));
+                const newArmor = await armorServices.createIntegratedArmor(armor, pictureInfo, JSON.parse(formData.rarity), Number(JSON.parse(formData.grade)));
                 return { id: newArmor.id };
             }));
             const actionIds = await Promise.all(JSON.parse(formData.actions).map(async (action) => {

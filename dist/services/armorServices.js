@@ -32,12 +32,13 @@ const armorServices = {
             throw new Error('Failed to fetch armor');
         }
     },
-    createIntegratedArmor: async (formData, rarity, grade) => {
+    createIntegratedArmor: async (formData, picture, rarity, grade) => {
         try {
             const newArmor = await prisma.armor.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
+                    picture,
                     rarity,
                     grade,
                     stats: formData.stats,
@@ -45,6 +46,7 @@ const armorServices = {
                 },
                 create: {
                     name: formData.name,
+                    picture,
                     rarity,
                     grade,
                     stats: formData.stats,

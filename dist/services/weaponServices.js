@@ -68,12 +68,13 @@ const weaponServices = {
             throw new Error('Failed to fetch weapon');
         }
     },
-    createIntegratedWeapon: async (formData, rarity, grade) => {
+    createIntegratedWeapon: async (formData, picture, rarity, grade) => {
         try {
             const newWeapon = await prisma.weapon.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
+                    picture,
                     rarity,
                     grade,
                     stats: formData.stats,
@@ -81,6 +82,7 @@ const weaponServices = {
                 },
                 create: {
                     name: formData.name,
+                    picture,
                     rarity,
                     grade,
                     stats: formData.stats,

@@ -1,6 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import characterController from '../controllers/characterController.js';
+import characterStatController from '../controllers/characterStatController.js';
 
 const router = express.Router();
 
@@ -23,13 +24,13 @@ router.get(
 );
 
 router.get(
-  '/characters/:characterId/equipment',
+  '/characters/:characterId/inventory/:inventoryId/equipment',
   authentication.authenticate,
   characterController.getEquippedItems,
 );
 
 router.patch(
-  '/characters/:characterId/equipment/:itemId',
+  '/characters/:characterId/inventory/:inventoryId/equipment/:itemId',
   authentication.authenticate,
   characterController.toggleEquipment,
 );
@@ -41,13 +42,25 @@ router.patch(
 );
 
 router.patch(
-  '/characters/:characterId/cart',
+  '/characters/:characterId/stats/currentHealth',
+  authentication.authenticate,
+  characterStatController.editCurrentHealth,
+);
+
+router.patch(
+  '/characters/:characterId/stats/currentSanity',
+  authentication.authenticate,
+  characterStatController.editCurrentSanity,
+);
+
+router.patch(
+  '/characters/:characterId/cart/:cartId',
   authentication.authenticate,
   characterController.editCart,
 );
 
 router.post(
-  '/characters/:characterId/inventory',
+  '/characters/:characterId/inventory/:inventoryId',
   authentication.authenticate,
   characterController.completePurchase,
 );
@@ -65,7 +78,7 @@ router.put(
 );
 
 router.put(
-  '/characters/:characterId/cart',
+  '/characters/:characterId/cart/:cartId',
   authentication.authenticate,
   characterController.clearCart,
 );

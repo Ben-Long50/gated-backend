@@ -57,7 +57,7 @@ const characterController = {
     },
     getEquippedItems: async (req, res) => {
         try {
-            const equipment = await characterServices.getEquippedItems(req.params.characterId);
+            const equipment = await characterServices.getEquippedItems(req.params.characterId, req.params.inventoryId);
             res.status(200).json(equipment);
         }
         catch (error) {
@@ -68,7 +68,7 @@ const characterController = {
     },
     toggleEquipment: async (req, res) => {
         try {
-            await characterServices.toggleEquipment(req.params.characterId, req.params.itemId, req.body.category);
+            await characterServices.toggleEquipment(req.params.inventoryId, req.params.itemId, req.body.category);
             res.status(200).json({ message: 'Successfully toggled equipment' });
         }
         catch (error) {
@@ -79,7 +79,7 @@ const characterController = {
     },
     editCart: async (req, res) => {
         try {
-            await characterServices.editCart(req.params.characterId, req.body.category, req.body.itemId);
+            await characterServices.editCart(req.params.characterId, req.params.cartId, req.body.category, req.body.itemId);
             res.status(200).json({ message: 'Successfully added item to cart' });
         }
         catch (error) {
@@ -90,7 +90,7 @@ const characterController = {
     },
     completePurchase: async (req, res) => {
         try {
-            await characterServices.addToInventory(req.params.characterId, req.body);
+            await characterServices.addToInventory(req.params.characterId, req.params.inventoryId, req.body);
             await characterServices.clearCart(req.params.characterId);
             res.status(200).json({ message: 'Purchase completed' });
         }

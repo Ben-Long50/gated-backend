@@ -24,33 +24,31 @@ model User {
 }
 
 model Character {
-  id                   Int                 @id @default(autoincrement())
-  userId               Int
-  level                Int                 @default(1)
-  profits              Int                 @default(10)
-  stats                Json                @default("{}")
-  picture              Json?
-  height               Int
-  weight               Int
-  age                  Int
-  sex                  String
-  background           String
-  attributes           Json
-  firstName            String
-  lastName             String?
-  user                 User                @relation(fields: [userId], references: [id])
-  active               Boolean             @default(false)
-  perks                Perk[]              @relation("CharacterToPerk")
-  conditions           Json?
-  characterCart        CharacterCart?      @relation(fields: [characterCartId], references: [id])
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id])
-  characterCartId      Int?                @unique
-  characterInventoryId Int?                @unique
+  id                 Int                 @id @default(autoincrement())
+  userId             Int
+  level              Int                 @default(1)
+  profits            Int                 @default(10)
+  stats              Json                @default("{}")
+  picture            Json?
+  height             Int
+  weight             Int
+  age                Int
+  sex                String
+  background         String
+  attributes         Json
+  firstName          String
+  lastName           String?
+  user               User                @relation(fields: [userId], references: [id])
+  active             Boolean             @default(false)
+  perks              Perk[]              @relation("CharacterToPerk")
+  conditions         Json?
+  characterCart      CharacterCart?
+  characterInventory CharacterInventory?
 }
 
 model CharacterCart {
-  id            Int            @id
-  character     Character?
+  id            Int            @id @default(autoincrement())
+  character     Character?     @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId   Int?           @unique
   weapons       Weapon[]
   armor         Armor[]
@@ -60,8 +58,8 @@ model CharacterCart {
 }
 
 model CharacterInventory {
-  id            Int            @id
-  character     Character?
+  id            Int            @id @default(autoincrement())
+  character     Character?     @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId   Int?           @unique
   weapons       Weapon[]
   armor         Armor[]
