@@ -238,6 +238,8 @@ const characterServices = {
                     },
                 },
             });
+            await characterServices.createCharacterCart(newCharacter.id);
+            await characterServices.createCharacterInventory(newCharacter.id);
             return newCharacter;
         }
         catch (error) {
@@ -256,6 +258,19 @@ const characterServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to create character cart');
+        }
+    },
+    createCharacterInventory: async (characterId) => {
+        try {
+            await prisma.characterInventory.create({
+                data: {
+                    character: { connect: { id: characterId } },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create character inventory');
         }
     },
     editCart: async (characterId, cartId, category, itemId) => {
@@ -643,23 +658,8 @@ const characterServices = {
             throw new Error('Failed to clear cart');
         }
     },
-    createCharacterInventory: async (characterId) => {
-        try {
-            await prisma.characterInventory.create({
-                data: {
-                    character: { connect: { id: characterId } },
-                },
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to create character inventory');
-        }
-    },
     updateCharacter: async (formData, userId, characterId) => {
         try {
-            console.log(formData.publicId);
-            console.log(formData.picture);
             const getPictureInfo = () => {
                 if (formData.publicId) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -669,7 +669,6 @@ const characterServices = {
                 }
             };
             const pictureInfo = getPictureInfo();
-            console.log(pictureInfo);
             const newPerks = JSON.parse(formData.perks).map((id) => ({ id }));
             const oldPerks = await prisma.character
                 .findUnique({
@@ -691,9 +690,6 @@ const characterServices = {
                 level: Number(JSON.parse(formData.level)),
                 profits: Number(JSON.parse(formData.profits)),
                 stats: JSON.parse(formData.stats),
-                // ...(formData.picture && {
-                //   picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-                // }),
                 height: Number(JSON.parse(formData.height)),
                 weight: Number(JSON.parse(formData.weight)),
                 age: Number(JSON.parse(formData.age)),

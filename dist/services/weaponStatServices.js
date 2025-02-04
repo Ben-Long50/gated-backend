@@ -72,7 +72,7 @@ const weaponStatServices = {
                 throw new Error('Weapon not found');
             }
             const statsObject = weapon.stats;
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.magCount });
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.magCount - 1 });
             await prisma.weapon.update({
                 where: {
                     id: Number(weaponId),

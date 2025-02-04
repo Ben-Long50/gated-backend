@@ -96,7 +96,7 @@ const weaponStatServices = {
       const newStats = {
         ...statsObject,
         currentAmmoCount: statsObject.magCapacity,
-        currentMagCount: statsObject.magCount,
+        currentMagCount: statsObject.magCount - 1,
       };
 
       await prisma.weapon.update({
