@@ -145,9 +145,6 @@ const characterController = {
           req.user.id,
         );
 
-        await characterServices.createCharacterCart(character.id);
-        await characterServices.createCharacterInventory(character.id);
-
         res.status(200).json(character);
       } catch (error) {
         if (error instanceof Error) {
