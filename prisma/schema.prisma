@@ -24,26 +24,26 @@ model User {
 }
 
 model Character {
-  id                 Int                 @id @default(autoincrement())
-  userId             Int
-  level              Int                 @default(1)
-  profits            Int                 @default(10)
-  stats              Json                @default("{}")
-  picture            Json?
-  height             Int
-  weight             Int
-  age                Int
-  sex                String
-  background         String
-  attributes         Json
-  firstName          String
-  lastName           String?
-  user               User                @relation(fields: [userId], references: [id])
-  active             Boolean             @default(false)
-  perks              Perk[]              @relation("CharacterToPerk")
-  conditions         Json?
-  characterCart      CharacterCart?
-  characterInventory CharacterInventory?
+  id                  Int                  @id @default(autoincrement())
+  userId              Int
+  level               Int                  @default(1)
+  profits             Int                  @default(10)
+  stats               Json                 @default("{}")
+  picture             Json?
+  height              Int
+  weight              Int
+  age                 Int
+  sex                 String
+  background          String
+  attributes          Json
+  firstName           String
+  lastName            String?
+  user                User                 @relation(fields: [userId], references: [id])
+  active              Boolean              @default(false)
+  perks               Perk[]               @relation("CharacterToPerk")
+  characterConditions CharacterCondition[]
+  characterCart       CharacterCart?
+  characterInventory  CharacterInventory?
 }
 
 model CharacterCart {
@@ -69,16 +69,39 @@ model CharacterInventory {
   modifications Modification[]
 }
 
-enum ConditionType {
-  character
-  item
+model CharacterCondition {
+  id          Int       @id @default(autoincrement())
+  stacks      Int?
+  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  conditionId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId Int
+}
+
+model ItemCondition {
+  id             Int           @id @default(autoincrement())
+  stacks         Int?
+  condition      Condition     @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  conditionId    Int
+  weapon         Weapon?       @relation(fields: [weaponId], references: [id], onDelete: Cascade)
+  weaponId       Int?
+  armor          Armor?        @relation(fields: [armorId], references: [id], onDelete: Cascade)
+  armorId        Int?
+  cybernetic     Cybernetic?   @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
+  cyberneticId   Int?
+  vehicle        Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId      Int?
+  modification   Modification? @relation(fields: [modificationId], references: [id], onDelete: Cascade)
+  modificationId Int?
 }
 
 model Condition {
-  id            Int           @id @default(autoincrement())
-  name          String
-  conditionType ConditionType
-  description   String
+  id                  Int                  @id @default(autoincrement())
+  name                String
+  conditionType       ConditionType
+  description         String
+  characterConditions CharacterCondition[]
+  itemConditions      ItemCondition[]
 }
 
 model Keyword {
@@ -109,6 +132,7 @@ model Weapon {
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseWeaponId         Int?
+  itemConditions       ItemCondition[]
 }
 
 model Armor {
@@ -128,6 +152,7 @@ model Armor {
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseArmorId          Int?
+  itemConditions       ItemCondition[]
 }
 
 model Cybernetic {
@@ -151,6 +176,7 @@ model Cybernetic {
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseCyberneticId     Int?
+  itemConditions       ItemCondition[]
 }
 
 model Vehicle {
@@ -168,6 +194,7 @@ model Vehicle {
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseVehicleId        Int?
+  itemConditions       ItemCondition[]
 }
 
 model Modification {
@@ -184,6 +211,7 @@ model Modification {
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseModificationId   Int?
+  itemConditions       ItemCondition[]
 }
 
 model Perk {
@@ -279,4 +307,9 @@ enum ItemRarity {
   rare
   blackMarket
   artifact
+}
+
+enum ConditionType {
+  character
+  item
 }

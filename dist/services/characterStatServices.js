@@ -11,9 +11,10 @@ const characterStatServices = {
             if (!character) {
                 throw new Error('Character not found');
             }
-            const newStats = Object.assign(Object.assign({}, character === null || character === void 0 ? void 0 : character.stats), { currentHealth: (character === null || character === void 0 ? void 0 : character.stats.currentHealth) + Number(value) });
+            const statsObject = character.stats;
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentHealth: statsObject.currentHealth + Number(value) });
             console.log(newStats);
-            const characters = await prisma.character.update({
+            await prisma.character.update({
                 where: {
                     id: Number(characterId),
                 },
@@ -21,7 +22,6 @@ const characterStatServices = {
                     stats: newStats,
                 },
             });
-            return characters;
         }
         catch (error) {
             console.error(error);
@@ -39,9 +39,9 @@ const characterStatServices = {
             if (!character) {
                 throw new Error('Character not found');
             }
-            const newStats = Object.assign(Object.assign({}, character === null || character === void 0 ? void 0 : character.stats), { currentSanity: (character === null || character === void 0 ? void 0 : character.stats.currentSanity) + Number(value) });
-            console.log(newStats);
-            const characters = await prisma.character.update({
+            const statsObject = character.stats;
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentSanity: statsObject.currentSanity + Number(value) });
+            await prisma.character.update({
                 where: {
                     id: Number(characterId),
                 },
@@ -49,7 +49,6 @@ const characterStatServices = {
                     stats: newStats,
                 },
             });
-            return characters;
         }
         catch (error) {
             console.error(error);

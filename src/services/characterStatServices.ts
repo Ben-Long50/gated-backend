@@ -14,14 +14,16 @@ const characterStatServices = {
         throw new Error('Character not found');
       }
 
+      const statsObject = character.stats as Record<string, number>;
+
       const newStats = {
-        ...character?.stats,
-        currentHealth: character?.stats.currentHealth + Number(value),
+        ...statsObject,
+        currentHealth: statsObject.currentHealth + Number(value),
       };
 
       console.log(newStats);
 
-      const characters = await prisma.character.update({
+      await prisma.character.update({
         where: {
           id: Number(characterId),
         },
@@ -29,8 +31,6 @@ const characterStatServices = {
           stats: newStats,
         },
       });
-
-      return characters;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to update current health');
@@ -49,14 +49,14 @@ const characterStatServices = {
         throw new Error('Character not found');
       }
 
+      const statsObject = character.stats as Record<string, number>;
+
       const newStats = {
-        ...character?.stats,
-        currentSanity: character?.stats.currentSanity + Number(value),
+        ...statsObject,
+        currentSanity: statsObject.currentSanity + Number(value),
       };
 
-      console.log(newStats);
-
-      const characters = await prisma.character.update({
+      await prisma.character.update({
         where: {
           id: Number(characterId),
         },
@@ -64,8 +64,6 @@ const characterStatServices = {
           stats: newStats,
         },
       });
-
-      return characters;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to update current sanity');

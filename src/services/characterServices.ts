@@ -352,6 +352,26 @@ const characterServices = {
       weaponList.flatMap(({ weaponId, quantity }) => {
         const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
 
+        let stats = weaponDetails && {
+          ...(weaponDetails.stats as {
+            damage?: number;
+            salve?: number;
+            flurry?: number;
+            range?: number;
+            weight?: number;
+            currentMagCount?: number;
+            magCount?: number;
+            currentAmmoCount?: number;
+            magCapacity?: number;
+          }),
+        };
+        if (stats?.magCount) {
+          stats = { ...stats, currentMagCount: stats.magCount - 1 };
+        }
+        if (stats?.magCount) {
+          stats = { ...stats, currentAmmoCount: stats.magCapacity };
+        }
+
         if (weaponDetails) {
           return Array.from({ length: quantity }).map(() =>
             prisma.weapon.create({
@@ -361,7 +381,7 @@ const characterServices = {
                 grade: weaponDetails.grade,
                 picture: weaponDetails.picture || undefined,
                 description: weaponDetails.description,
-                stats: weaponDetails.stats || {},
+                stats: stats || {},
                 price: weaponDetails.price,
                 keywords: weaponDetails.keywords as Prisma.InputJsonValue[],
                 characterInventory: {
@@ -663,6 +683,37 @@ const characterServices = {
         (vehicle) => vehicle.id === vehicleId,
       );
 
+      let stats = vehicleDetails && {
+        ...(vehicleDetails.stats as {
+          size?: number;
+          speed?: number;
+          agility?: number;
+          currentHull?: number;
+          hull?: number;
+          armor?: number;
+          currntCargo?: number;
+          cargo?: number;
+          currentHangar?: number;
+          hangar?: number;
+          currentPassengers?: number;
+          passengers?: number;
+          weapon?: number;
+        }),
+      };
+
+      if (stats?.hull) {
+        stats = { ...stats, currentHull: stats.hull };
+      }
+      if (stats?.cargo) {
+        stats = { ...stats, currntCargo: 0 };
+      }
+      if (stats?.hangar) {
+        stats = { ...stats, currentHangar: 0 };
+      }
+      if (stats?.passengers) {
+        stats = { ...stats, currentPassengers: 0 };
+      }
+
       let weaponIds = [] as number[];
       let modificationIds = [] as number[];
 
@@ -706,7 +757,7 @@ const characterServices = {
                 grade: vehicleDetails.grade,
                 picture: vehicleDetails.picture || undefined,
                 description: vehicleDetails.description,
-                stats: vehicleDetails.stats || {},
+                stats: stats || {},
                 price: vehicleDetails.price,
                 weapons: {
                   connect:

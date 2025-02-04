@@ -298,6 +298,13 @@ const characterServices = {
         });
         const newWeapons = await Promise.all(weaponList.flatMap(({ weaponId, quantity }) => {
             const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
+            let stats = weaponDetails && Object.assign({}, weaponDetails.stats);
+            if (stats === null || stats === void 0 ? void 0 : stats.magCount) {
+                stats = Object.assign(Object.assign({}, stats), { currentMagCount: stats.magCount - 1 });
+            }
+            if (stats === null || stats === void 0 ? void 0 : stats.magCount) {
+                stats = Object.assign(Object.assign({}, stats), { currentAmmoCount: stats.magCapacity });
+            }
             if (weaponDetails) {
                 return Array.from({ length: quantity }).map(() => prisma.weapon.create({
                     data: {
@@ -306,7 +313,7 @@ const characterServices = {
                         grade: weaponDetails.grade,
                         picture: weaponDetails.picture || undefined,
                         description: weaponDetails.description,
-                        stats: weaponDetails.stats || {},
+                        stats: stats || {},
                         price: weaponDetails.price,
                         keywords: weaponDetails.keywords,
                         characterInventory: {
@@ -505,6 +512,19 @@ const characterServices = {
         const promises = [];
         for (const { vehicleId, quantity } of vehicleList) {
             const vehicleDetails = vehicles.find((vehicle) => vehicle.id === vehicleId);
+            let stats = vehicleDetails && Object.assign({}, vehicleDetails.stats);
+            if (stats === null || stats === void 0 ? void 0 : stats.hull) {
+                stats = Object.assign(Object.assign({}, stats), { currentHull: stats.hull });
+            }
+            if (stats === null || stats === void 0 ? void 0 : stats.cargo) {
+                stats = Object.assign(Object.assign({}, stats), { currntCargo: 0 });
+            }
+            if (stats === null || stats === void 0 ? void 0 : stats.hangar) {
+                stats = Object.assign(Object.assign({}, stats), { currentHangar: 0 });
+            }
+            if (stats === null || stats === void 0 ? void 0 : stats.passengers) {
+                stats = Object.assign(Object.assign({}, stats), { currentPassengers: 0 });
+            }
             let weaponIds = [];
             let modificationIds = [];
             if ((vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.weapons) && (vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.weapons.length) > 0) {
@@ -534,7 +554,7 @@ const characterServices = {
                             grade: vehicleDetails.grade,
                             picture: vehicleDetails.picture || undefined,
                             description: vehicleDetails.description,
-                            stats: vehicleDetails.stats || {},
+                            stats: stats || {},
                             price: vehicleDetails.price,
                             weapons: {
                                 connect: weaponIds.length > 0

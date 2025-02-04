@@ -1,6 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import weaponController from '../controllers/weaponController.js';
+import weaponStatController from '../controllers/weaponStatController.js';
 
 const router = express.Router();
 
@@ -10,16 +11,34 @@ router.get(
   weaponController.getWeapons,
 );
 
-router.post(
-  '/weapons/keywords',
-  authentication.authenticate,
-  weaponController.getWeaponsByKeyword,
-);
-
 router.get(
   '/weapons/:weaponId',
   authentication.authenticate,
   weaponController.getWeaponById,
+);
+
+router.patch(
+  '/weapons/:weaponId/stats/currentAmmoCount',
+  authentication.authenticate,
+  weaponStatController.editWeaponAmmo,
+);
+
+router.patch(
+  '/weapons/:weaponId/stats/currentMagCount',
+  authentication.authenticate,
+  weaponStatController.reloadWeapon,
+);
+
+router.patch(
+  '/weapons/:weaponId/stats/refreshAmmo',
+  authentication.authenticate,
+  weaponStatController.refreshAmmo,
+);
+
+router.post(
+  '/weapons/keywords',
+  authentication.authenticate,
+  weaponController.getWeaponsByKeyword,
 );
 
 router.post(
