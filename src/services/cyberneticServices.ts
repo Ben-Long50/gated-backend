@@ -91,6 +91,7 @@ const cyberneticServices = {
       });
 
       const oldWeaponIds = cybernetic?.weapons?.map((id) => id.id);
+
       const newWeaponIds = JSON.parse(formData.weapons).map(
         (weapon: Weapon) => weapon.id,
       );
@@ -103,6 +104,7 @@ const cyberneticServices = {
       }
 
       const oldArmorIds = cybernetic?.armor?.map((id) => id.id);
+
       const newArmorIds = JSON.parse(formData.armor).map(
         (armor: Armor) => armor.id,
       );

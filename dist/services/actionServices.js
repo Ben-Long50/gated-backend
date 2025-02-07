@@ -27,7 +27,7 @@ const actionServices = {
     },
     createAction: async (formData) => {
         try {
-            await prisma.action.upsert({
+            const action = await prisma.action.upsert({
                 where: { id: Number(formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
@@ -48,6 +48,7 @@ const actionServices = {
                     actionSubtypes: formData.actionSubtypes,
                 },
             });
+            return action;
         }
         catch (error) {
             console.error(error);

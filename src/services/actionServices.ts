@@ -38,7 +38,7 @@ const actionServices = {
     id?: string;
   }) => {
     try {
-      await prisma.action.upsert({
+      const action = await prisma.action.upsert({
         where: { id: Number(formData?.id) || 0 },
         update: {
           name: formData.name,
@@ -59,6 +59,8 @@ const actionServices = {
           actionSubtypes: formData.actionSubtypes,
         },
       });
+
+      return action;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create or update action');
