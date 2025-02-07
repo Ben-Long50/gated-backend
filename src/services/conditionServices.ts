@@ -33,7 +33,7 @@ const conditionServices = {
     type: $Enums.ConditionType;
   }) => {
     try {
-      const newCondition = await prisma.condition.upsert({
+      await prisma.condition.upsert({
         where: { id: Number(formData.conditionId) || 0 },
         update: {
           name: formData.name,
@@ -46,7 +46,6 @@ const conditionServices = {
           conditionType: formData.type,
         },
       });
-      return newCondition;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create or update condition');

@@ -5,7 +5,7 @@ const actionServices = {
   getActions: async () => {
     try {
       const actions = await prisma.action.findMany({
-        where: { characterInventoryId: null },
+        where: { characterInventory: null },
         orderBy: { name: 'asc' },
       });
       return actions;
@@ -38,7 +38,7 @@ const actionServices = {
     id?: string;
   }) => {
     try {
-      const newAction = await prisma.action.upsert({
+      await prisma.action.upsert({
         where: { id: Number(formData?.id) || 0 },
         update: {
           name: formData.name,
@@ -59,7 +59,6 @@ const actionServices = {
           actionSubtypes: formData.actionSubtypes,
         },
       });
-      return newAction;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create or update action');

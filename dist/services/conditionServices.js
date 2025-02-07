@@ -26,7 +26,7 @@ const conditionServices = {
     },
     createCondition: async (formData) => {
         try {
-            const newCondition = await prisma.condition.upsert({
+            await prisma.condition.upsert({
                 where: { id: Number(formData.conditionId) || 0 },
                 update: {
                     name: formData.name,
@@ -39,7 +39,6 @@ const conditionServices = {
                     conditionType: formData.type,
                 },
             });
-            return newCondition;
         }
         catch (error) {
             console.error(error);

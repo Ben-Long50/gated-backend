@@ -24,8 +24,8 @@ const actionController = {
     },
     createAction: async (req, res) => {
         try {
-            const action = await actionServices.createAction(req.body);
-            res.status(200).json(action);
+            await actionServices.createAction(req.body);
+            res.status(200).json({ message: 'Successfully created action' });
         }
         catch (error) {
             if (error instanceof Error) {

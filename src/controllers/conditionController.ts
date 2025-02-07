@@ -28,8 +28,8 @@ const conditionController = {
 
   createCondition: async (req: Request, res: Response) => {
     try {
-      const condition = await conditionServices.createCondition(req.body);
-      res.status(200).json(condition);
+      await conditionServices.createCondition(req.body);
+      res.status(200).json({ message: 'Successfully created condition' });
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ error: error.message });

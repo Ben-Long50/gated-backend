@@ -3,7 +3,7 @@ const actionServices = {
     getActions: async () => {
         try {
             const actions = await prisma.action.findMany({
-                where: { characterInventoryId: null },
+                where: { characterInventory: null },
                 orderBy: { name: 'asc' },
             });
             return actions;
@@ -27,7 +27,7 @@ const actionServices = {
     },
     createAction: async (formData) => {
         try {
-            const newAction = await prisma.action.upsert({
+            await prisma.action.upsert({
                 where: { id: Number(formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {
                     name: formData.name,
@@ -48,7 +48,6 @@ const actionServices = {
                     actionSubtypes: formData.actionSubtypes,
                 },
             });
-            return newAction;
         }
         catch (error) {
             console.error(error);
