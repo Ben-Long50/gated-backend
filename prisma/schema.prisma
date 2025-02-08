@@ -214,6 +214,36 @@ model Modification {
   itemConditions       ItemCondition[]
 }
 
+model Item {
+  id          Int          @id @default(autoincrement())
+  name        String
+  price       Int?
+  category    ItemCategory
+  itemType    String?
+  description String
+  stats       Json?
+  modifiers   Json?
+  stacks      Int?
+  duration    Json?
+  actions     Action[]
+}
+
+enum ItemCategory {
+  reusable
+  consumable
+}
+
+enum DurationUnit {
+  second
+  minute
+  hour
+  day
+  turn
+  round
+  scene
+  session
+}
+
 model Perk {
   id           Int         @id @default(autoincrement())
   name         String      @unique
@@ -234,6 +264,8 @@ model Action {
   actionSubtypes       String[]
   cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
+  item                 Item?               @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId               Int?
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseActionId         Int?
