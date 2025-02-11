@@ -36,12 +36,6 @@ router.patch(
 );
 
 router.post(
-  '/weapons/keywords',
-  authentication.authenticate,
-  weaponController.getWeaponsByKeyword,
-);
-
-router.post(
   '/weapons',
   authentication.authenticate,
   authentication.authenticateAdmin,

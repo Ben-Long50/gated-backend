@@ -147,6 +147,9 @@ const vehicleServices = {
     },
     swapWeapons: async (newWeaponIds, previousWeaponIds) => {
         const oldIds = previousWeaponIds.filter((id) => !newWeaponIds.includes(id)) || [];
+        await prisma.weapon.deleteMany({
+            where: { id: { in: oldIds }, characterInventoryId: null },
+        });
         const newIds = newWeaponIds.filter((id) => !previousWeaponIds.some((item) => item === id));
         const weapons = await prisma.weapon.findMany({
             where: { id: { in: newIds }, characterInventoryId: null },
@@ -170,6 +173,9 @@ const vehicleServices = {
     },
     swapMods: async (newModIds, previousModIds) => {
         const oldIds = previousModIds.filter((id) => !newModIds.includes(id)) || [];
+        await prisma.modification.deleteMany({
+            where: { id: { in: oldIds }, characterInventoryId: null },
+        });
         const newIds = newModIds.filter((id) => !previousModIds.some((item) => item === id));
         const modifications = await prisma.modification.findMany({
             where: { id: { in: newIds }, characterInventoryId: null },
@@ -218,7 +224,6 @@ const vehicleServices = {
                 },
                 include: { weapons: { select: { id: true } } },
             });
-            console.log(deletedVehicle);
             if (deletedVehicle.characterInventoryId === null) {
                 await prisma.weapon.deleteMany({
                     where: {

@@ -1,5 +1,6 @@
 import prisma from '../config/database.js';
-import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
+import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
+import actionServices from './actionServices.js';
 const weaponServices = {
     getWeapons: async () => {
         try {
@@ -9,6 +10,7 @@ const weaponServices = {
                     vehicleId: null,
                     cyberneticId: null,
                 },
+                include: { actions: true },
                 orderBy: { name: 'asc' },
             });
             return weapons;
@@ -18,44 +20,13 @@ const weaponServices = {
             throw new Error('Failed to fetch weapons');
         }
     },
-    getWeaponsByKeyword: async (keywordNames) => {
-        try {
-            const keywordIds = await Promise.all(keywordNames.map((keywordName) => prisma.keyword.findUnique({
-                where: {
-                    name_keywordType: { name: keywordName, keywordType: 'weapon' },
-                },
-                select: { id: true },
-            })));
-            const combinedIds = keywordIds.filter((keywordId) => keywordId !== null);
-            if (combinedIds.length < 1) {
-                throw new Error('The queried weapon keywords do not exist');
-            }
-            const weapons = await Promise.all(combinedIds.map((keyword) => prisma.weapon.findMany({
-                where: {
-                    keywords: {
-                        has: { keywordId: keyword.id },
-                    },
-                },
-                orderBy: { name: 'asc' },
-            })));
-            const combinedWeapons = weapons.flat();
-            const weaponDetails = await getGroupKeywords(combinedWeapons);
-            return weaponDetails;
-        }
-        catch (error) {
-            console.error(error);
-            if (error) {
-                throw error;
-            }
-            throw new Error('Failed to fetch weapons');
-        }
-    },
     getWeaponById: async (weaponId) => {
         try {
             const weapon = await prisma.weapon.findUnique({
                 where: {
                     id: Number(weaponId),
                 },
+                include: { actions: true },
             });
             if (!weapon) {
                 throw new Error('Could not find weapon');
@@ -97,7 +68,20 @@ const weaponServices = {
         }
     },
     createWeapon: async (formData) => {
+        var _a;
         try {
+            const weapon = await prisma.weapon.findUnique({
+                where: { id: Number(JSON.parse(formData.weaponId)) },
+                include: {
+                    actions: { select: { id: true } },
+                },
+            });
+            const oldActionIds = (_a = weapon === null || weapon === void 0 ? void 0 : weapon.actions) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
+            const newActionIds = JSON.parse(formData.actions).map((action) => action.id);
+            const actionsToDelete = (oldActionIds === null || oldActionIds === void 0 ? void 0 : oldActionIds.filter((id) => !newActionIds.includes(id))) || [];
+            if (actionsToDelete.length > 0) {
+                await actionServices.deleteActions(actionsToDelete);
+            }
             const getPictureInfo = () => {
                 if (formData.publicId) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -107,6 +91,10 @@ const weaponServices = {
                 }
             };
             const pictureInfo = getPictureInfo();
+            const actionIds = await Promise.all(JSON.parse(formData.actions).map(async (action) => {
+                const newAction = await actionServices.createAction(action);
+                return { id: newAction.id };
+            }));
             const newWeapon = await prisma.weapon.upsert({
                 where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
                 update: {
@@ -117,6 +105,9 @@ const weaponServices = {
                     stats: JSON.parse(formData.stats),
                     price: Number(JSON.parse(formData.price)),
                     description: JSON.parse(formData.description),
+                    actions: {
+                        connect: actionIds,
+                    },
                     keywords: JSON.parse(formData.keywords),
                 },
                 create: {
@@ -127,6 +118,9 @@ const weaponServices = {
                     stats: JSON.parse(formData.stats),
                     price: JSON.parse(formData.price),
                     description: JSON.parse(formData.description),
+                    actions: {
+                        connect: actionIds,
+                    },
                     keywords: JSON.parse(formData.keywords),
                 },
             });

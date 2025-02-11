@@ -182,8 +182,8 @@ const cyberneticServices = {
             name: string;
             description: string;
             costs: string;
-            attribute: string;
-            skill: string;
+            roll: string;
+            duration: string;
             actionType: ActionType;
             actionSubtypes: string[];
             id?: string;

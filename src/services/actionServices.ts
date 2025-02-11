@@ -31,8 +31,8 @@ const actionServices = {
     name: string;
     description: string;
     costs: string;
-    attribute: string;
-    skill: string;
+    roll: string;
+    duration: string;
     actionType: ActionType;
     actionSubtypes: string[];
     id?: string;
@@ -44,8 +44,8 @@ const actionServices = {
           name: formData.name,
           description: formData.description,
           costs: formData.costs,
-          attribute: formData.attribute,
-          skill: formData.skill,
+          roll: formData.roll,
+          duration: formData.duration,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
         },
@@ -53,8 +53,8 @@ const actionServices = {
           name: formData.name,
           description: formData.description,
           costs: formData.costs,
-          attribute: formData.attribute,
-          skill: formData.skill,
+          roll: formData.roll,
+          duration: formData.duration,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
         },

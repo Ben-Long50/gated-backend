@@ -5,6 +5,7 @@ export interface StatModifier {
   stat: Stat;
   operator: ModifierOperator;
   value: number;
+  duration: { unit: string; value: number };
 }
 
 export interface RollModifier {
@@ -12,6 +13,7 @@ export interface RollModifier {
   action: number;
   operator: ModifierOperator;
   dice: number;
+  duration: { unit: string; value: number };
 }
 
 export type ModifierType = 'Stat' | 'Roll';

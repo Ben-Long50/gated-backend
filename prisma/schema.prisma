@@ -55,6 +55,7 @@ model CharacterCart {
   cybernetics   Cybernetic[]
   vehicles      Vehicle[]
   modifications Modification[]
+  items         Item[]
 }
 
 model CharacterInventory {
@@ -67,6 +68,7 @@ model CharacterInventory {
   vehicles      Vehicle[]
   actions       Action[]
   modifications Modification[]
+  items         Item[]
 }
 
 model CharacterCondition {
@@ -93,6 +95,8 @@ model ItemCondition {
   vehicleId      Int?
   modification   Modification? @relation(fields: [modificationId], references: [id], onDelete: Cascade)
   modificationId Int?
+  item           Item?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId         Int?
 }
 
 model Condition {
@@ -128,6 +132,7 @@ model Weapon {
   cyberneticId         Int?
   vehicle              Vehicle?            @relation(fields: [vehicleId], references: [id])
   vehicleId            Int?
+  actions              Action[]
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
@@ -148,6 +153,7 @@ model Armor {
   equipped             Boolean?            @default(false)
   cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
+  actions              Action[]
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
@@ -215,17 +221,25 @@ model Modification {
 }
 
 model Item {
-  id          Int          @id @default(autoincrement())
-  name        String
-  price       Int?
-  category    ItemCategory
-  itemType    String?
-  description String
-  stats       Json?
-  modifiers   Json?
-  stacks      Int?
-  duration    Json?
-  actions     Action[]
+  id                   Int                 @id @default(autoincrement())
+  name                 String
+  rarity               ItemRarity          @default(common)
+  grade                Int                 @default(1)
+  picture              Json?
+  price                Int?
+  equipped             Boolean?            @default(false)
+  category             ItemCategory
+  subcategory          ItemSubcategory
+  itemType             String?
+  description          String
+  stats                Json?
+  modifiers            Json?
+  actions              Action[]
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventoryId Int?
+  baseItemId           Int?
+  itemConditions       ItemCondition[]
 }
 
 enum ItemCategory {
@@ -233,11 +247,22 @@ enum ItemCategory {
   consumable
 }
 
+enum ItemSubcategory {
+  chemicalTherapy
+  chemicalAssistance
+  anomaly
+  gadget
+  misc
+}
+
 enum DurationUnit {
   second
   minute
   hour
   day
+  week
+  month
+  year
   turn
   round
   scene
@@ -258,10 +283,14 @@ model Action {
   name                 String
   description          String
   costs                Json?
-  attribute            String?
-  skill                String?
+  roll                 Json?
   actionType           ActionType
   actionSubtypes       String[]
+  duration             Json?
+  weapon               Weapon?             @relation(fields: [weaponId], references: [id], onDelete: Cascade)
+  weaponId             Int?
+  armor                Armor?              @relation(fields: [armorId], references: [id], onDelete: Cascade)
+  armorId              Int?
   cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
   item                 Item?               @relation(fields: [itemId], references: [id], onDelete: Cascade)

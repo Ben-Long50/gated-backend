@@ -10,8 +10,6 @@ const getCharIds = async () => {
 
 let ids = await getCharIds().then((result) => result.map((item) => item.id));
 
-console.log(ids);
-
 const cartPromises = ids.map((id) => {
   return characterServices.createCharacterCart(id);
 });

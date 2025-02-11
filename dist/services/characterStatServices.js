@@ -13,7 +13,6 @@ const characterStatServices = {
             }
             const statsObject = character.stats;
             const newStats = Object.assign(Object.assign({}, statsObject), { currentHealth: statsObject.currentHealth + Number(value) });
-            console.log(newStats);
             await prisma.character.update({
                 where: {
                     id: Number(characterId),

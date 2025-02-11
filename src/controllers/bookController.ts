@@ -28,8 +28,6 @@ const bookController = {
 
   createBookEntry: async (req: Request, res: Response) => {
     try {
-      console.log(req.body);
-
       const bookEntry = await bookServices.createBookEntry(req.body);
       res.status(200).json(bookEntry);
     } catch (error) {

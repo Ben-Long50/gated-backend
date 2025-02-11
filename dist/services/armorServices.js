@@ -1,10 +1,12 @@
 import prisma from '../config/database.js';
 import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
+import actionServices from './actionServices.js';
 const armorServices = {
     getArmor: async () => {
         try {
             const armor = await prisma.armor.findMany({
-                where: { characterInventoryId: null },
+                where: { characterInventoryId: null, cyberneticId: null },
+                include: { actions: true },
                 orderBy: { name: 'asc' },
             });
             return armor;
@@ -20,6 +22,7 @@ const armorServices = {
                 where: {
                     id: Number(armorId),
                 },
+                include: { actions: true },
             });
             if (!armor) {
                 throw new Error('Could not find armor');
@@ -61,7 +64,20 @@ const armorServices = {
         }
     },
     createArmor: async (formData) => {
+        var _a;
         try {
+            const armor = await prisma.armor.findUnique({
+                where: { id: Number(JSON.parse(formData.armorId)) },
+                include: {
+                    actions: { select: { id: true } },
+                },
+            });
+            const oldActionIds = (_a = armor === null || armor === void 0 ? void 0 : armor.actions) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
+            const newActionIds = JSON.parse(formData.actions).map((action) => action.id);
+            const actionsToDelete = (oldActionIds === null || oldActionIds === void 0 ? void 0 : oldActionIds.filter((id) => !newActionIds.includes(id))) || [];
+            if (actionsToDelete.length > 0) {
+                await actionServices.deleteActions(actionsToDelete);
+            }
             const getPictureInfo = () => {
                 if (formData.publicId) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -71,6 +87,10 @@ const armorServices = {
                 }
             };
             const pictureInfo = getPictureInfo();
+            const actionIds = await Promise.all(JSON.parse(formData.actions).map(async (action) => {
+                const newAction = await actionServices.createAction(action);
+                return { id: newAction.id };
+            }));
             const newArmor = await prisma.armor.upsert({
                 where: { id: Number(JSON.parse(formData.armorId)) || 0 },
                 update: {
@@ -81,6 +101,9 @@ const armorServices = {
                     stats: JSON.parse(formData.stats),
                     price: JSON.parse(formData.price),
                     description: JSON.parse(formData.description),
+                    actions: {
+                        connect: actionIds,
+                    },
                     keywords: JSON.parse(formData.keywords),
                 },
                 create: {
@@ -91,6 +114,9 @@ const armorServices = {
                     stats: JSON.parse(formData.stats),
                     price: JSON.parse(formData.price),
                     description: JSON.parse(formData.description),
+                    actions: {
+                        connect: actionIds,
+                    },
                     keywords: JSON.parse(formData.keywords),
                 },
             });

@@ -1,3 +1,14 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 import prisma from '../config/database.js';
 const characterServices = {
     getCharacters: async (userId) => {
@@ -10,8 +21,14 @@ const characterServices = {
                     perks: true,
                     characterInventory: {
                         include: {
-                            weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            weapons: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
+                            armor: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                             cybernetics: {
                                 include: { weapons: true, armor: true, actions: true },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
@@ -21,6 +38,10 @@ const characterServices = {
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            items: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                         },
                     },
                 },
@@ -52,12 +73,19 @@ const characterServices = {
                             cybernetics: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             vehicles: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            items: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                         },
                     },
                     characterInventory: {
                         include: {
-                            weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            weapons: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
+                            armor: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                             cybernetics: {
                                 include: { weapons: true, armor: true, actions: true },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
@@ -67,6 +95,10 @@ const characterServices = {
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            items: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                         },
                     },
                 },
@@ -88,8 +120,14 @@ const characterServices = {
                     perks: true,
                     characterInventory: {
                         include: {
-                            weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            weapons: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
+                            armor: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                             cybernetics: {
                                 include: { weapons: true, armor: true, actions: true },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
@@ -99,6 +137,10 @@ const characterServices = {
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            items: {
+                                include: { actions: true },
+                                orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                            },
                         },
                     },
                 },
@@ -112,7 +154,6 @@ const characterServices = {
     },
     setActiveCharacter: async (userId, characterId) => {
         try {
-            console.log(characterId);
             await prisma.character.updateMany({
                 where: { id: { not: Number(characterId) }, userId },
                 data: { active: false },
@@ -141,6 +182,11 @@ const characterServices = {
                         orderBy: { name: 'asc' },
                     },
                     actions: true,
+                    items: {
+                        where: { equipped: true },
+                        include: { actions: true },
+                        orderBy: { name: 'asc' },
+                    },
                 },
             });
             return equipment;
@@ -152,7 +198,7 @@ const characterServices = {
     },
     toggleEquipment: async (inventoryId, itemId, category) => {
         try {
-            const categories = ['weapon', 'armor', 'cybernetic'];
+            const categories = ['weapon', 'armor', 'cybernetic', 'item'];
             if (!categories.includes(category)) {
                 throw new Error(`Invalid category: ${category}`);
             }
@@ -281,6 +327,7 @@ const characterServices = {
                 'cybernetics',
                 'vehicles',
                 'modifications',
+                'items',
             ];
             if (!categories.includes(category)) {
                 throw new Error(`Invalid category: ${category}`);
@@ -310,8 +357,10 @@ const characterServices = {
         const weaponIds = weaponList === null || weaponList === void 0 ? void 0 : weaponList.map((weapon) => weapon.weaponId);
         const weapons = await prisma.weapon.findMany({
             where: { id: { in: weaponIds } },
+            include: { actions: true },
         });
-        const newWeapons = await Promise.all(weaponList.flatMap(({ weaponId, quantity }) => {
+        const promises = [];
+        for (const { weaponId, quantity } of weaponList) {
             const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
             let stats = weaponDetails && Object.assign({}, weaponDetails.stats);
             if (stats === null || stats === void 0 ? void 0 : stats.magCount) {
@@ -320,27 +369,41 @@ const characterServices = {
             if (stats === null || stats === void 0 ? void 0 : stats.magCount) {
                 stats = Object.assign(Object.assign({}, stats), { currentAmmoCount: stats.magCapacity });
             }
-            if (weaponDetails) {
-                return Array.from({ length: quantity }).map(() => prisma.weapon.create({
-                    data: {
-                        name: weaponDetails.name,
-                        rarity: weaponDetails.rarity,
-                        grade: weaponDetails.grade,
-                        picture: weaponDetails.picture || undefined,
-                        description: weaponDetails.description,
-                        stats: stats || {},
-                        price: weaponDetails.price,
-                        keywords: weaponDetails.keywords,
-                        characterInventory: {
-                            connect: { id: Number(inventoryId) },
-                        },
-                        baseWeaponId: weaponDetails.id,
-                    },
-                }));
+            let actionIds = [];
+            if ((weaponDetails === null || weaponDetails === void 0 ? void 0 : weaponDetails.actions) && (weaponDetails === null || weaponDetails === void 0 ? void 0 : weaponDetails.actions.length) > 0) {
+                const actionInfo = weaponDetails.actions.map((action) => {
+                    return { actionId: action.id, quantity };
+                });
+                actionIds = await characterServices.createCharacterActionCopy(inventoryId, actionInfo);
             }
-            return;
-        }));
-        return newWeapons
+            if (weaponDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(prisma.weapon.create({
+                        data: {
+                            name: weaponDetails.name,
+                            rarity: weaponDetails.rarity,
+                            grade: weaponDetails.grade,
+                            picture: weaponDetails.picture || undefined,
+                            description: weaponDetails.description,
+                            stats: stats || {},
+                            price: weaponDetails.price,
+                            keywords: weaponDetails.keywords,
+                            actions: actionIds.length > 0
+                                ? {
+                                    connect: actionIds.map((id) => ({ id })),
+                                }
+                                : undefined,
+                            characterInventory: {
+                                connect: { id: Number(inventoryId) },
+                            },
+                            baseWeaponId: weaponDetails.id,
+                        },
+                    }));
+                }
+            }
+        }
+        const newWeapon = await Promise.all(promises);
+        return newWeapon
             .filter((weapon) => weapon !== undefined)
             .map((weapon) => weapon.id);
     },
@@ -348,8 +411,10 @@ const characterServices = {
         const armorIds = armorList === null || armorList === void 0 ? void 0 : armorList.map((armor) => armor.armorId);
         const armor = await prisma.armor.findMany({
             where: { id: { in: armorIds } },
+            include: { actions: true },
         });
-        const newArmor = await Promise.all(armorList.flatMap(({ armorId, quantity }) => {
+        const promises = [];
+        for (const { armorId, quantity } of armorList) {
             const armorDetails = armor.find((armor) => armor.id === armorId);
             let stats = armorDetails && Object.assign({}, armorDetails.stats);
             if (stats === null || stats === void 0 ? void 0 : stats.block) {
@@ -358,26 +423,40 @@ const characterServices = {
             if (stats === null || stats === void 0 ? void 0 : stats.power) {
                 stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
             }
-            if (armorDetails) {
-                return Array.from({ length: quantity }).map(() => prisma.armor.create({
-                    data: {
-                        name: armorDetails.name,
-                        rarity: armorDetails.rarity,
-                        grade: armorDetails.grade,
-                        picture: armorDetails.picture || undefined,
-                        description: armorDetails.description,
-                        stats: stats || {},
-                        price: armorDetails.price,
-                        keywords: armorDetails.keywords,
-                        characterInventory: {
-                            connect: { id: Number(inventoryId) },
-                        },
-                        baseArmorId: armorDetails.id,
-                    },
-                }));
+            let actionIds = [];
+            if ((armorDetails === null || armorDetails === void 0 ? void 0 : armorDetails.actions) && (armorDetails === null || armorDetails === void 0 ? void 0 : armorDetails.actions.length) > 0) {
+                const actionInfo = armorDetails.actions.map((action) => {
+                    return { actionId: action.id, quantity };
+                });
+                actionIds = await characterServices.createCharacterActionCopy(inventoryId, actionInfo);
             }
-            return;
-        }));
+            if (armorDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(prisma.armor.create({
+                        data: {
+                            name: armorDetails.name,
+                            rarity: armorDetails.rarity,
+                            grade: armorDetails.grade,
+                            picture: armorDetails.picture || undefined,
+                            description: armorDetails.description,
+                            stats: stats || {},
+                            price: armorDetails.price,
+                            keywords: armorDetails.keywords,
+                            actions: actionIds.length > 0
+                                ? {
+                                    connect: actionIds.map((id) => ({ id })),
+                                }
+                                : undefined,
+                            characterInventory: {
+                                connect: { id: Number(inventoryId) },
+                            },
+                            baseArmorId: armorDetails.id,
+                        },
+                    }));
+                }
+            }
+        }
+        const newArmor = await Promise.all(promises);
         return newArmor
             .filter((armor) => armor !== undefined)
             .map((armor) => armor.id);
@@ -387,8 +466,7 @@ const characterServices = {
         const actions = await prisma.action.findMany({
             where: { id: { in: actionIds } },
         });
-        console.log(actions);
-        const newArmor = await Promise.all(actionList.flatMap(({ actionId, quantity }) => {
+        const newAction = await Promise.all(actionList.flatMap(({ actionId, quantity }) => {
             const actionDetails = actions.find((action) => action.id === actionId);
             if (actionDetails) {
                 return Array.from({ length: quantity }).map(() => prisma.action.create({
@@ -396,8 +474,8 @@ const characterServices = {
                         name: actionDetails.name,
                         description: actionDetails.description,
                         costs: actionDetails.costs || undefined,
-                        attribute: actionDetails.attribute,
-                        skill: actionDetails.skill,
+                        roll: actionDetails.roll || undefined,
+                        duration: actionDetails.duration || undefined,
                         actionType: actionDetails.actionType,
                         actionSubtypes: actionDetails.actionSubtypes,
                         characterInventory: {
@@ -409,9 +487,9 @@ const characterServices = {
             }
             return;
         }));
-        return newArmor
-            .filter((armor) => armor !== undefined)
-            .map((armor) => armor.id);
+        return newAction
+            .filter((action) => action !== undefined)
+            .map((action) => action.id);
     },
     createCharacterCyberneticCopy: async (inventoryId, cyberneticList) => {
         const cyberneticIds = cyberneticList === null || cyberneticList === void 0 ? void 0 : cyberneticList.map((cybernetic) => cybernetic.cyberneticId);
@@ -433,13 +511,15 @@ const characterServices = {
                 const weaponInfo = cyberneticDetails.weapons.map((weapon) => {
                     return { weaponId: weapon.id, price: weapon.price, quantity };
                 });
-                weaponIds = await characterServices.createCharacterWeaponCopy(inventoryId, weaponInfo);
+                weaponIds =
+                    (await characterServices.createCharacterWeaponCopy(inventoryId, weaponInfo)) || [];
             }
             if ((cyberneticDetails === null || cyberneticDetails === void 0 ? void 0 : cyberneticDetails.armor) && (cyberneticDetails === null || cyberneticDetails === void 0 ? void 0 : cyberneticDetails.armor.length) > 0) {
                 const armorInfo = cyberneticDetails.armor.map((armor) => {
                     return { armorId: armor.id, price: armor.price, quantity };
                 });
-                armorIds = await characterServices.createCharacterArmorCopy(inventoryId, armorInfo);
+                armorIds =
+                    (await characterServices.createCharacterArmorCopy(inventoryId, armorInfo)) || [];
             }
             if ((cyberneticDetails === null || cyberneticDetails === void 0 ? void 0 : cyberneticDetails.actions) && (cyberneticDetails === null || cyberneticDetails === void 0 ? void 0 : cyberneticDetails.actions.length) > 0) {
                 const actionInfo = cyberneticDetails.actions.map((action) => {
@@ -548,7 +628,8 @@ const characterServices = {
                     price: null,
                     quantity,
                 }));
-                weaponIds = await characterServices.createCharacterWeaponCopy(inventoryId, weaponInfo);
+                weaponIds =
+                    (await characterServices.createCharacterWeaponCopy(inventoryId, weaponInfo)) || [];
             }
             if ((vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.modifications) &&
                 (vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.modifications.length) > 0) {
@@ -562,6 +643,12 @@ const characterServices = {
             }
             if (vehicleDetails) {
                 for (let i = 0; i < quantity; i++) {
+                    const newWeaponIds = weaponIds
+                        .splice(0, vehicleDetails.weapons.length)
+                        .map((id) => ({ id }));
+                    const newModIds = modificationIds
+                        .splice(0, vehicleDetails.modifications.length)
+                        .map((id) => ({ id }));
                     promises.push(prisma.vehicle.create({
                         data: {
                             name: vehicleDetails.name,
@@ -572,20 +659,71 @@ const characterServices = {
                             stats: stats || {},
                             price: vehicleDetails.price,
                             weapons: {
-                                connect: weaponIds.length > 0
-                                    ? weaponIds.map((id) => ({ id }))
-                                    : undefined,
+                                connect: newWeaponIds.length > 0 ? newWeaponIds : undefined,
                             },
-                            modifications: modificationIds.length > 0
-                                ? {
-                                    connect: modificationIds.map((id) => ({ id })),
-                                }
-                                : undefined,
+                            modifications: {
+                                connect: modificationIds.length > 0 ? newModIds : undefined,
+                            },
                             characterInventory: {
                                 connect: { id: Number(inventoryId) },
                             },
                             baseVehicleId: vehicleDetails.id,
                         },
+                    }));
+                }
+            }
+        }
+        await Promise.all(promises);
+    },
+    createCharacterItemCopy: async (inventoryId, itemList) => {
+        const itemIds = itemList === null || itemList === void 0 ? void 0 : itemList.map((item) => item.itemId);
+        const items = await prisma.item.findMany({
+            where: { id: { in: itemIds } },
+            include: { actions: true },
+        });
+        const promises = [];
+        for (const { itemId, quantity } of itemList) {
+            const characterItemDetails = await prisma.item.findFirst({
+                where: {
+                    baseItemId: itemId,
+                    characterInventoryId: Number(inventoryId),
+                    category: 'consumable',
+                },
+                include: { actions: true },
+            });
+            const itemDetails = characterItemDetails || items.find((item) => item.id === itemId);
+            let stats = itemDetails && Object.assign({}, itemDetails.stats);
+            if (stats === null || stats === void 0 ? void 0 : stats.power) {
+                stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
+            }
+            if ((stats === null || stats === void 0 ? void 0 : stats.currentStacks) && !(stats === null || stats === void 0 ? void 0 : stats.maxStacks)) {
+                stats = Object.assign(Object.assign({}, stats), { currentStacks: (stats === null || stats === void 0 ? void 0 : stats.currentStacks) + quantity });
+            }
+            if (characterItemDetails) {
+                await prisma.item.update({
+                    where: { id: characterItemDetails.id },
+                    data: { stats },
+                });
+                continue;
+            }
+            let actionIds = [];
+            if ((itemDetails === null || itemDetails === void 0 ? void 0 : itemDetails.actions) && (itemDetails === null || itemDetails === void 0 ? void 0 : itemDetails.actions.length) > 0) {
+                const actionInfo = itemDetails.actions.map((action) => {
+                    return { actionId: action.id, quantity };
+                });
+                actionIds = await characterServices.createCharacterActionCopy(inventoryId, actionInfo);
+            }
+            if (itemDetails) {
+                const { id, characterInventoryId, picture, modifiers } = itemDetails, itemData = __rest(itemDetails, ["id", "characterInventoryId", "picture", "modifiers"]);
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(prisma.item.create({
+                        data: Object.assign(Object.assign({}, itemData), { picture: picture || undefined, stats: stats || {}, modifiers: modifiers || undefined, actions: actionIds.length > 0
+                                ? {
+                                    connect: actionIds.map((id) => ({ id })),
+                                }
+                                : undefined, characterInventory: inventoryId
+                                ? { connect: { id: Number(inventoryId) } }
+                                : undefined, baseItemId: id }),
                     }));
                 }
             }
@@ -620,6 +758,9 @@ const characterServices = {
             if (formData.modifications.length > 0) {
                 characterServices.createCharacterModificationCopy(inventoryId, formData.modifications);
             }
+            if (formData.items.length > 0) {
+                characterServices.createCharacterItemCopy(inventoryId, formData.items);
+            }
             await prisma.character.update({
                 where: { id: Number(characterId) },
                 data: { profits: profits - totalPrice },
@@ -648,6 +789,9 @@ const characterServices = {
                         set: [],
                     },
                     modifications: {
+                        set: [],
+                    },
+                    items: {
                         set: [],
                     },
                 },

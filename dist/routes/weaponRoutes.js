@@ -8,7 +8,6 @@ router.get('/weapons/:weaponId', authentication.authenticate, weaponController.g
 router.patch('/weapons/:weaponId/stats/currentAmmoCount', authentication.authenticate, weaponStatController.editWeaponAmmo);
 router.patch('/weapons/:weaponId/stats/currentMagCount', authentication.authenticate, weaponStatController.reloadWeapon);
 router.patch('/weapons/:weaponId/stats/refreshAmmo', authentication.authenticate, weaponStatController.refreshAmmo);
-router.post('/weapons/keywords', authentication.authenticate, weaponController.getWeaponsByKeyword);
 router.post('/weapons', authentication.authenticate, authentication.authenticateAdmin, weaponController.createWeapon);
 router.delete('/weapons/:weaponId', authentication.authenticate, authentication.authenticateAdmin, weaponController.deleteWeapon);
 export default router;
