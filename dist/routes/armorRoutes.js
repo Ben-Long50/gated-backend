@@ -9,6 +9,7 @@ router.patch('/armor/:armorId/stats/currentPower', authentication.authenticate, 
 router.patch('/armor/:armorId/stats/currentBlock', authentication.authenticate, armorStatController.editArmorBlock);
 router.patch('/armor/:armorId/stats/refreshPower', authentication.authenticate, armorStatController.refreshArmorPower);
 router.patch('/armor/:armorId/stats/refreshBlock', authentication.authenticate, armorStatController.refreshArmorBlock);
-router.post('/armor', authentication.authenticate, authentication.authenticateAdmin, armorController.createArmor);
+router.post('/armor', authentication.authenticate, authentication.authenticateAdmin, armorController.createOrUpdateArmor);
+router.put('/armor/:armorId', authentication.authenticate, authentication.authenticateArmorModification, armorController.modifyArmor);
 router.delete('/armor/:armorId', authentication.authenticate, authentication.authenticateAdmin, armorController.deleteArmor);
 export default router;

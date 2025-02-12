@@ -694,7 +694,6 @@ const characterServices = {
                 },
                 include: { actions: true },
             });
-            console.log(characterItemDetails);
             const itemDetails = characterItemDetails || items.find((item) => item.id === itemId);
             let stats = itemDetails && Object.assign({}, itemDetails.stats);
             if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {

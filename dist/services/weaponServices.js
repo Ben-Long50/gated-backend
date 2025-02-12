@@ -67,7 +67,7 @@ const weaponServices = {
             throw new Error('Failed to create or update integrated weapon');
         }
     },
-    createWeapon: async (formData) => {
+    createOrUpdateWeapon: async (formData) => {
         var _a;
         try {
             const weapon = await prisma.weapon.findUnique({

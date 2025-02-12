@@ -31,7 +31,7 @@ const itemServices = {
     }
   },
 
-  createItem: async (formData: Item) => {
+  createOrUpdateItem: async (formData: Item) => {
     try {
       const oldItem =
         (await prisma.item.findUnique({

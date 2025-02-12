@@ -26,13 +26,32 @@ const weaponController = {
     }
   },
 
-  createWeapon: [
+  createOrUpdateWeapon: [
     upload.single('picture'),
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
-        const weapon = await weaponServices.createWeapon(req.body);
-        res.status(200).json(weapon);
+        await weaponServices.createOrUpdateWeapon(req.body);
+        res.status(200).json({
+          message: req.body.weaponId
+            ? 'Successfully updated weapon'
+            : 'Successfully created weapon',
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
+      }
+    },
+  ],
+
+  modifyWeapon: [
+    upload.single('picture'),
+    uploadToCloudinary,
+    async (req: Request, res: Response) => {
+      try {
+        await weaponServices.createOrUpdateWeapon(req.body);
+        res.status(200).json({ message: 'Successfully modified weapon' });
       } catch (error) {
         if (error instanceof Error) {
           res.status(500).json({ error: error.message });

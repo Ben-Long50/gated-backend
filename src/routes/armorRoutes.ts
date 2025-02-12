@@ -41,7 +41,14 @@ router.post(
   '/armor',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  armorController.createArmor,
+  armorController.createOrUpdateArmor,
+);
+
+router.put(
+  '/armor/:armorId',
+  authentication.authenticate,
+  authentication.authenticateArmorModification,
+  armorController.modifyArmor,
 );
 
 router.delete(

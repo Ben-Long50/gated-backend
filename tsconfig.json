@@ -21,7 +21,12 @@
     "src/**/*.ts",
     "src/app.ts",
     "types/**/*.d.ts",
-    "src/utils/createCartAndInv.js"
+    "src/utils/createCartAndInv.js",
+    "src/utils/updaterScripts/updateDbWeapons.js",
+    "src/utils/updaterScripts/updateDbVehicles.js",
+    "src/utils/updaterScripts/updateDbItems.js",
+    "src/utils/updaterScripts/updateDbCybernetics.js",
+    "src/utils/updaterScripts/updateDbArmor.js"
   ], // Include all TypeScript files in the src folder
-  "exclude": ["node_modules", "dist"] // Exclude these folders
+  "exclude": ["node_modules", "dist", "src/utils/updaterScripts"] // Exclude these folders
 }

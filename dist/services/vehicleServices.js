@@ -71,7 +71,7 @@ const vehicleServices = {
             throw new Error('Failed to fetch vehicle');
         }
     },
-    createVehicle: async (formData) => {
+    createOrUpdateVehicle: async (formData) => {
         try {
             if (formData.stats.weapon
                 ? formData.weapons.length > formData.stats.weapon
@@ -191,7 +191,7 @@ const vehicleServices = {
             data,
         };
     },
-    createVehicleMod: async (formData) => {
+    createOrUpdateVehicleMod: async (formData) => {
         try {
             const newVehicleMod = await prisma.modification.upsert({
                 where: { id: Number(formData.modId) || 0 },

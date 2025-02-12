@@ -39,7 +39,7 @@ const itemServices = {
             throw new Error('Failed to fetch item');
         }
     },
-    createItem: async (formData) => {
+    createOrUpdateItem: async (formData) => {
         try {
             const oldItem = (await prisma.item.findUnique({
                 where: { id: formData.id },

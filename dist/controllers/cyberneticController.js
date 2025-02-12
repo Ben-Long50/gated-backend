@@ -24,13 +24,32 @@ const cyberneticController = {
             }
         }
     },
-    createCybernetic: [
+    createOrUpdateCybernetic: [
         upload.single('picture'),
         uploadToCloudinary,
         async (req, res) => {
             try {
-                const cybernetic = await cyberneticServices.createCybernetic(req.body);
-                res.status(200).json(cybernetic);
+                await cyberneticServices.createOrUpdateCybernetic(req.body);
+                res.status(200).json({
+                    message: req.body.cyberneticId
+                        ? 'Successfully updated cybernetic'
+                        : 'Successfully created cybernetic',
+                });
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
+            }
+        },
+    ],
+    modifyCybernetic: [
+        upload.single('picture'),
+        uploadToCloudinary,
+        async (req, res) => {
+            try {
+                await cyberneticServices.createOrUpdateCybernetic(req.body);
+                res.status(200).json({ message: 'Successfully modified cybernetic' });
             }
             catch (error) {
                 if (error instanceof Error) {

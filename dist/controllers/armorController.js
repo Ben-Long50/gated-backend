@@ -24,13 +24,17 @@ const armorController = {
             }
         }
     },
-    createArmor: [
+    createOrUpdateArmor: [
         upload.single('picture'),
         uploadToCloudinary,
         async (req, res) => {
             try {
-                const armor = await armorServices.createArmor(req.body);
-                res.status(200).json(armor);
+                await armorServices.createOrUpdateArmor(req.body);
+                res.status(200).json({
+                    message: req.body.armorId
+                        ? 'Successfully updated armor'
+                        : 'Successfully created armor',
+                });
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -39,16 +43,21 @@ const armorController = {
             }
         },
     ],
-    // deleteArmorByName: async (req: Request, res: Response) => {
-    //   try {
-    //     await armorServices.deleteArmorByName(req.params.armorId);
-    //     res.status(200).json({ message: 'Successfully deleted armor' });
-    //   } catch (error) {
-    //     if (error instanceof Error) {
-    //       res.status(500).json({ error: error.message });
-    //     }
-    //   }
-    // },
+    modifyArmor: [
+        upload.single('picture'),
+        uploadToCloudinary,
+        async (req, res) => {
+            try {
+                await armorServices.createOrUpdateArmor(req.body);
+                res.status(200).json({ message: 'Successfully modified armor' });
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    res.status(500).json({ error: error.message });
+                }
+            }
+        },
+    ],
     deleteArmor: async (req, res) => {
         try {
             await armorServices.deleteArmor(req.params.armorId);

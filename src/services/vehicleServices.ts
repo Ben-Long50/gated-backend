@@ -67,7 +67,7 @@ const vehicleServices = {
     }
   },
 
-  createVehicle: async (formData: {
+  createOrUpdateVehicle: async (formData: {
     publicId?: string;
     imageUrl?: string;
     picture?: { publicId: string; imageUrl: string };
@@ -243,7 +243,7 @@ const vehicleServices = {
     };
   },
 
-  createVehicleMod: async (formData: {
+  createOrUpdateVehicleMod: async (formData: {
     modId: string;
     name: string;
     price: string;

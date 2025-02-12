@@ -61,7 +61,7 @@ const cyberneticServices = {
     }
   },
 
-  createCybernetic: async (formData: {
+  createOrUpdateCybernetic: async (formData: {
     name: string;
     rarity: string;
     grade: string;

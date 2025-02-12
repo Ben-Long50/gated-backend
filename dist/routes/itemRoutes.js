@@ -9,6 +9,7 @@ router.patch('/items/:itemId/stats/currentPower', authentication.authenticate, i
 router.patch('/items/:itemId/stats/currentStacks', authentication.authenticate, itemStatController.editItemStacks);
 router.patch('/items/:itemId/stats/refreshPower', authentication.authenticate, itemStatController.refreshItemPower);
 router.patch('/items/:itemId/stats/refreshStacks', authentication.authenticate, itemStatController.refreshItemStacks);
-router.post('/items', authentication.authenticate, authentication.authenticateAdmin, itemController.createItem);
+router.post('/items', authentication.authenticate, authentication.authenticateAdmin, itemController.createOrUpdateItem);
+router.put('/items/:itemId', authentication.authenticate, authentication.authenticateItemModification, itemController.modifyItem);
 router.delete('/items/:itemId', authentication.authenticate, authentication.authenticateAdmin, itemController.deleteItem);
 export default router;

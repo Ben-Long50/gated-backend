@@ -47,7 +47,7 @@ const cyberneticServices = {
             throw new Error('Failed to fetch cybernetic');
         }
     },
-    createCybernetic: async (formData) => {
+    createOrUpdateCybernetic: async (formData) => {
         var _a, _b, _c;
         try {
             const cybernetic = await prisma.cybernetic.findUnique({

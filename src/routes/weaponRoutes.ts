@@ -39,7 +39,14 @@ router.post(
   '/weapons',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  weaponController.createWeapon,
+  weaponController.createOrUpdateWeapon,
+);
+
+router.put(
+  '/weapons/:weaponId',
+  authentication.authenticate,
+  authentication.authenticateWeaponModification,
+  weaponController.modifyWeapon,
 );
 
 router.delete(

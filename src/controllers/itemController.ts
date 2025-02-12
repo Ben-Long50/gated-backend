@@ -27,7 +27,7 @@ const itemController = {
     }
   },
 
-  createItem: [
+  createOrUpdateItem: [
     upload.single('picture'),
     uploadToCloudinary,
     async (req: Request, res: Response) => {
@@ -42,8 +42,37 @@ const itemController = {
           }),
         ) as Item;
 
-        await itemServices.createItem(parsedBody);
-        res.status(200).json({ message: 'Successfully created item' });
+        await itemServices.createOrUpdateItem(parsedBody);
+        res.status(200).json({
+          message: req.body.id
+            ? 'Successfully updated item'
+            : 'Successfully created item',
+        });
+      } catch (error) {
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
+      }
+    },
+  ],
+
+  modifyItem: [
+    upload.single('picture'),
+    uploadToCloudinary,
+    async (req: Request, res: Response) => {
+      try {
+        const parsedBody = Object.fromEntries(
+          Object.entries(req.body as FormData).map(([key, value]) => {
+            try {
+              return [key, JSON.parse(value)];
+            } catch {
+              return [key, value];
+            }
+          }),
+        ) as Item;
+
+        await itemServices.createOrUpdateItem(parsedBody);
+        res.status(200).json({ message: 'Successfully modified item' });
       } catch (error) {
         if (error instanceof Error) {
           res.status(500).json({ error: error.message });

@@ -41,7 +41,14 @@ router.post(
   '/items',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  itemController.createItem,
+  itemController.createOrUpdateItem,
+);
+
+router.put(
+  '/items/:itemId',
+  authentication.authenticate,
+  authentication.authenticateItemModification,
+  itemController.modifyItem,
 );
 
 router.delete(

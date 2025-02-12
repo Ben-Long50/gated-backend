@@ -32,14 +32,21 @@ router.post(
   '/vehicles',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  vehicleController.createVehicle,
+  vehicleController.createOrUpdateVehicle,
+);
+
+router.put(
+  '/vehicles/:vehicleId',
+  authentication.authenticate,
+  authentication.authenticateVehicleModification,
+  vehicleController.modifyVehicle,
 );
 
 router.post(
   '/vehicles/modifications',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  vehicleController.createVehicleMod,
+  vehicleController.createOrUpdateVehicleMod,
 );
 
 router.delete(

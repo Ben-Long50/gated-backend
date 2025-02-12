@@ -33,7 +33,14 @@ router.post(
   '/cybernetics',
   authentication.authenticate,
   authentication.authenticateAdmin,
-  cyberneticController.createCybernetic,
+  cyberneticController.createOrUpdateCybernetic,
+);
+
+router.put(
+  '/cybernetics/:cyberneticId',
+  authentication.authenticate,
+  authentication.authenticateCyberneticModification,
+  cyberneticController.modifyCybernetic,
 );
 
 router.delete(

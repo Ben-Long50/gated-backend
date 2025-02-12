@@ -63,7 +63,7 @@ const armorServices = {
             throw new Error('Failed to create or update integrated armor');
         }
     },
-    createArmor: async (formData) => {
+    createOrUpdateArmor: async (formData) => {
         var _a;
         try {
             const armor = await prisma.armor.findUnique({

@@ -80,7 +80,7 @@ const armorServices = {
     }
   },
 
-  createArmor: async (formData: {
+  createOrUpdateArmor: async (formData: {
     publicId: string;
     imageUrl: string;
     picture: string;

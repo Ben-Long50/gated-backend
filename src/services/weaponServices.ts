@@ -85,7 +85,7 @@ const weaponServices = {
     }
   },
 
-  createWeapon: async (formData: {
+  createOrUpdateWeapon: async (formData: {
     publicId: string;
     imageUrl: string;
     picture: string;

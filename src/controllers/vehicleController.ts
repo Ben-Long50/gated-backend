@@ -54,7 +54,7 @@ const vehicleController = {
     }
   },
 
-  createVehicle: [
+  createOrUpdateVehicle: [
     upload.single('picture'),
     uploadToCloudinary,
     async (req: Request, res: Response) => {
@@ -82,8 +82,12 @@ const vehicleController = {
           modifications: number[];
         };
 
-        const vehicle = await vehicleServices.createVehicle(parsedBody);
-        res.status(200).json(vehicle);
+        await vehicleServices.createOrUpdateVehicle(parsedBody);
+        res.status(200).json({
+          message: req.body.vehicleId
+            ? 'Successfully updated vehicle'
+            : 'Successfully created vehicle',
+        });
       } catch (error) {
         if (error instanceof Error) {
           res.status(500).json({ error: error.message });
@@ -92,9 +96,49 @@ const vehicleController = {
     },
   ],
 
-  createVehicleMod: async (req: Request, res: Response) => {
+  modifyVehicle: [
+    upload.single('picture'),
+    uploadToCloudinary,
+    async (req: Request, res: Response) => {
+      try {
+        const parsedBody = Object.fromEntries(
+          Object.entries(req.body as FormData).map(([key, value]) => {
+            try {
+              return [key, JSON.parse(value)];
+            } catch {
+              return [key, value];
+            }
+          }),
+        ) as {
+          publicId?: string;
+          imageUrl?: string;
+          picture?: { publicId: string; imageUrl: string };
+          vehicleId: string;
+          name: string;
+          rarity: $Enums.ItemRarity;
+          grade: number;
+          stats: Partial<VehicleStats>;
+          price: number;
+          description: string;
+          weapons: number[];
+          modifications: number[];
+        };
+
+        await vehicleServices.createOrUpdateVehicle(parsedBody);
+        res.status(200).json({ message: 'Successfully modified vehicle' });
+      } catch (error) {
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
+      }
+    },
+  ],
+
+  createOrUpdateVehicleMod: async (req: Request, res: Response) => {
     try {
-      const vehicleMod = await vehicleServices.createVehicleMod(req.body);
+      const vehicleMod = await vehicleServices.createOrUpdateVehicleMod(
+        req.body,
+      );
       res.status(200).json(vehicleMod);
     } catch (error) {
       if (error instanceof Error) {
