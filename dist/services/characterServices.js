@@ -694,13 +694,16 @@ const characterServices = {
                 },
                 include: { actions: true },
             });
+            console.log(characterItemDetails);
             const itemDetails = characterItemDetails || items.find((item) => item.id === itemId);
             let stats = itemDetails && Object.assign({}, itemDetails.stats);
             if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {
                 stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
             }
             if ((stats === null || stats === void 0 ? void 0 : stats.currentStacks) && !(stats === null || stats === void 0 ? void 0 : stats.maxStacks)) {
-                stats = Object.assign(Object.assign({}, stats), { currentStacks: (stats === null || stats === void 0 ? void 0 : stats.currentStacks) + quantity });
+                stats = Object.assign(Object.assign({}, stats), { currentStacks: (stats === null || stats === void 0 ? void 0 : stats.currentStacks) === 1
+                        ? quantity
+                        : (stats === null || stats === void 0 ? void 0 : stats.currentStacks) + quantity });
             }
             if (characterItemDetails) {
                 await prisma.item.update({
@@ -718,7 +721,8 @@ const characterServices = {
             }
             if (itemDetails) {
                 const { id, characterInventoryId, picture, modifiers } = itemDetails, itemData = __rest(itemDetails, ["id", "characterInventoryId", "picture", "modifiers"]);
-                for (let i = 0; i < quantity; i++) {
+                const count = (stats === null || stats === void 0 ? void 0 : stats.currentStacks) && !(stats === null || stats === void 0 ? void 0 : stats.maxStacks) ? 1 : quantity;
+                for (let i = 0; i < count; i++) {
                     promises.push(prisma.item.create({
                         data: Object.assign(Object.assign({}, itemData), { picture: picture || undefined, stats: stats || {}, modifiers: modifiers || undefined, actions: actionIds.length > 0
                                 ? {
@@ -741,7 +745,7 @@ const characterServices = {
                 select: { profits: true },
             }))) === null || _a === void 0 ? void 0 : _a.profits) || 0;
             const totalPrice = Object.values(formData)
-                .flatMap((category) => category.map((item) => item.price))
+                .flatMap((category) => category.map((item) => item.price * item.quantity))
                 .reduce((sum, price) => sum + price, 0);
             if (totalPrice > profits) {
                 throw new Error('You do not have enough profits to complete this purchase');

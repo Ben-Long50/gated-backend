@@ -937,7 +937,10 @@ const characterServices = {
       if (stats?.currentStacks && !stats?.maxStacks) {
         stats = {
           ...stats,
-          currentStacks: stats?.currentStacks + quantity,
+          currentStacks:
+            stats?.currentStacks === 1
+              ? quantity
+              : stats?.currentStacks + quantity,
         };
       }
 
@@ -964,7 +967,8 @@ const characterServices = {
       if (itemDetails) {
         const { id, characterInventoryId, picture, modifiers, ...itemData } =
           itemDetails;
-        for (let i = 0; i < quantity; i++) {
+        const count = stats?.currentStacks && !stats?.maxStacks ? 1 : quantity;
+        for (let i = 0; i < count; i++) {
           promises.push(
             prisma.item.create({
               data: {
@@ -1014,7 +1018,9 @@ const characterServices = {
         )?.profits || 0;
 
       const totalPrice = Object.values(formData)
-        .flatMap((category) => category.map((item) => item.price))
+        .flatMap((category) =>
+          category.map((item) => item.price * item.quantity),
+        )
         .reduce((sum, price) => sum + price, 0);
 
       if (totalPrice > profits) {
