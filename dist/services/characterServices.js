@@ -363,10 +363,10 @@ const characterServices = {
         for (const { weaponId, quantity } of weaponList) {
             const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
             let stats = weaponDetails && Object.assign({}, weaponDetails.stats);
-            if (stats === null || stats === void 0 ? void 0 : stats.magCount) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.magCount) && !(stats === null || stats === void 0 ? void 0 : stats.currentMagCount)) {
                 stats = Object.assign(Object.assign({}, stats), { currentMagCount: stats.magCount - 1 });
             }
-            if (stats === null || stats === void 0 ? void 0 : stats.magCount) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.magCapacity) && !(stats === null || stats === void 0 ? void 0 : stats.currentAmmoCount)) {
                 stats = Object.assign(Object.assign({}, stats), { currentAmmoCount: stats.magCapacity });
             }
             let actionIds = [];
@@ -417,10 +417,10 @@ const characterServices = {
         for (const { armorId, quantity } of armorList) {
             const armorDetails = armor.find((armor) => armor.id === armorId);
             let stats = armorDetails && Object.assign({}, armorDetails.stats);
-            if (stats === null || stats === void 0 ? void 0 : stats.block) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.block) && !(stats === null || stats === void 0 ? void 0 : stats.currentBlock)) {
                 stats = Object.assign(Object.assign({}, stats), { currentBlock: stats.block });
             }
-            if (stats === null || stats === void 0 ? void 0 : stats.power) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {
                 stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
             }
             let actionIds = [];
@@ -501,7 +501,7 @@ const characterServices = {
         for (const { cyberneticId, quantity } of cyberneticList) {
             const cyberneticDetails = cybernetics.find((cybernetic) => cybernetic.id === cyberneticId);
             let stats = cyberneticDetails && Object.assign({}, cyberneticDetails.stats);
-            if (stats === null || stats === void 0 ? void 0 : stats.power) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {
                 stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
             }
             let weaponIds = [];
@@ -608,17 +608,20 @@ const characterServices = {
         for (const { vehicleId, quantity } of vehicleList) {
             const vehicleDetails = vehicles.find((vehicle) => vehicle.id === vehicleId);
             let stats = vehicleDetails && Object.assign({}, vehicleDetails.stats);
-            if (stats === null || stats === void 0 ? void 0 : stats.hull) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.hull) && !(stats === null || stats === void 0 ? void 0 : stats.currentHull)) {
                 stats = Object.assign(Object.assign({}, stats), { currentHull: stats.hull });
             }
-            if (stats === null || stats === void 0 ? void 0 : stats.cargo) {
-                stats = Object.assign(Object.assign({}, stats), { currntCargo: 0 });
+            if ((stats === null || stats === void 0 ? void 0 : stats.cargo) && !(stats === null || stats === void 0 ? void 0 : stats.currentCargo)) {
+                stats = Object.assign(Object.assign({}, stats), { currentCargo: 0 });
             }
-            if (stats === null || stats === void 0 ? void 0 : stats.hangar) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.hangar) && !(stats === null || stats === void 0 ? void 0 : stats.currentHangar)) {
                 stats = Object.assign(Object.assign({}, stats), { currentHangar: 0 });
             }
-            if (stats === null || stats === void 0 ? void 0 : stats.passengers) {
-                stats = Object.assign(Object.assign({}, stats), { currentPassengers: 0 });
+            if ((stats === null || stats === void 0 ? void 0 : stats.pass) && !(stats === null || stats === void 0 ? void 0 : stats.currentPass)) {
+                stats = Object.assign(Object.assign({}, stats), { currentPass: 0 });
+            }
+            if ((stats === null || stats === void 0 ? void 0 : stats.weapon) && !(stats === null || stats === void 0 ? void 0 : stats.currentWeapon)) {
+                stats = Object.assign(Object.assign({}, stats), { currentWeapon: vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.weapons.length });
             }
             let weaponIds = [];
             let modificationIds = [];
@@ -693,7 +696,7 @@ const characterServices = {
             });
             const itemDetails = characterItemDetails || items.find((item) => item.id === itemId);
             let stats = itemDetails && Object.assign({}, itemDetails.stats);
-            if (stats === null || stats === void 0 ? void 0 : stats.power) {
+            if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {
                 stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
             }
             if ((stats === null || stats === void 0 ? void 0 : stats.currentStacks) && !(stats === null || stats === void 0 ? void 0 : stats.maxStacks)) {

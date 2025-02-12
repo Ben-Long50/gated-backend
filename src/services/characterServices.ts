@@ -425,10 +425,10 @@ const characterServices = {
           magCapacity?: number;
         }),
       };
-      if (stats?.magCount) {
+      if (stats?.magCount && !stats?.currentMagCount) {
         stats = { ...stats, currentMagCount: stats.magCount - 1 };
       }
-      if (stats?.magCount) {
+      if (stats?.magCapacity && !stats?.currentAmmoCount) {
         stats = { ...stats, currentAmmoCount: stats.magCapacity };
       }
 
@@ -508,10 +508,10 @@ const characterServices = {
           wieght?: number;
         }),
       };
-      if (stats?.block) {
+      if (stats?.block && !stats?.currentBlock) {
         stats = { ...stats, currentBlock: stats.block };
       }
-      if (stats?.power) {
+      if (stats?.power && !stats?.currentPower) {
         stats = { ...stats, currentPower: stats.power };
       }
 
@@ -633,7 +633,7 @@ const characterServices = {
           power?: number;
         }),
       };
-      if (stats?.power) {
+      if (stats?.power && !stats?.currentPower) {
         stats = { ...stats, currentPower: stats.power };
       }
 
@@ -793,27 +793,31 @@ const characterServices = {
           currentHull?: number;
           hull?: number;
           armor?: number;
-          currntCargo?: number;
+          currentCargo?: number;
           cargo?: number;
           currentHangar?: number;
           hangar?: number;
-          currentPassengers?: number;
-          passengers?: number;
+          currentPass?: number;
+          pass?: number;
           weapon?: number;
+          currentWeapon?: number;
         }),
       };
 
-      if (stats?.hull) {
+      if (stats?.hull && !stats?.currentHull) {
         stats = { ...stats, currentHull: stats.hull };
       }
-      if (stats?.cargo) {
-        stats = { ...stats, currntCargo: 0 };
+      if (stats?.cargo && !stats?.currentCargo) {
+        stats = { ...stats, currentCargo: 0 };
       }
-      if (stats?.hangar) {
+      if (stats?.hangar && !stats?.currentHangar) {
         stats = { ...stats, currentHangar: 0 };
       }
-      if (stats?.passengers) {
-        stats = { ...stats, currentPassengers: 0 };
+      if (stats?.pass && !stats?.currentPass) {
+        stats = { ...stats, currentPass: 0 };
+      }
+      if (stats?.weapon && !stats?.currentWeapon) {
+        stats = { ...stats, currentWeapon: vehicleDetails?.weapons.length };
       }
 
       let weaponIds = [] as number[];
@@ -926,7 +930,7 @@ const characterServices = {
         }),
       };
 
-      if (stats?.power) {
+      if (stats?.power && !stats?.currentPower) {
         stats = { ...stats, currentPower: stats.power };
       }
 
