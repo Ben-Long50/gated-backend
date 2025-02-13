@@ -143,7 +143,7 @@ const cyberneticServices = {
                         createMany: {
                             data: JSON.parse(formData.modifiers).map((_a) => {
                                 var { action } = _a, modifier = __rest(_a, ["action"]);
-                                return (Object.assign(Object.assign({}, modifier), { actionId: Number(action) }));
+                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
                             }),
                         },
                     },

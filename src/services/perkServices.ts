@@ -66,7 +66,7 @@ const perkServices = {
             createMany: {
               data: formData.modifiers.map(({ action, ...modifier }) => ({
                 ...modifier,
-                actionId: Number(action),
+                actionId: action ? Number(action) : null,
               })),
             },
           },
@@ -79,7 +79,7 @@ const perkServices = {
             createMany: {
               data: formData.modifiers.map(({ action, ...modifier }) => ({
                 ...modifier,
-                actionId: Number(action),
+                actionId: action ? Number(action) : null,
               })),
             },
           },

@@ -233,7 +233,7 @@ const cyberneticServices = {
               data: JSON.parse(formData.modifiers).map(
                 ({ action, ...modifier }: { action: Action }) => ({
                   ...modifier,
-                  actionId: Number(action),
+                  actionId: action ? Number(action) : null,
                 }),
               ),
             },
