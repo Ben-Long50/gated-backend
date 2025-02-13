@@ -16,7 +16,7 @@ const itemServices = {
         try {
             const items = await prisma.item.findMany({
                 where: { characterInventory: null },
-                include: { actions: true },
+                include: { actions: true, modifiers: { include: { action: true } } },
                 orderBy: { name: 'asc' },
             });
             return items;
@@ -30,7 +30,7 @@ const itemServices = {
         try {
             const item = await prisma.item.findUnique({
                 where: { id: Number(itemId) },
-                include: { actions: true },
+                include: { actions: true, modifiers: { include: { action: true } } },
             });
             return item;
         }
@@ -45,8 +45,16 @@ const itemServices = {
                 where: { id: formData.id },
                 select: {
                     actions: { select: { id: true } },
+                    modifiers: { include: { action: true } },
                 },
             })) || undefined;
+            console.log(oldItem);
+            if (oldItem) {
+                const oldModifierIds = oldItem.modifiers.map((modifier) => modifier.id);
+                await prisma.modifier.deleteMany({
+                    where: { id: { in: oldModifierIds } },
+                });
+            }
             const oldItemIds = oldItem === null || oldItem === void 0 ? void 0 : oldItem.actions.map((action) => action.id);
             const newItemIds = formData.actions.map((action) => action.id);
             const actionsToDelete = (oldItemIds === null || oldItemIds === void 0 ? void 0 : oldItemIds.filter((id) => !newItemIds.includes(id))) || [];
@@ -71,9 +79,23 @@ const itemServices = {
                 where: { id: formData.id },
                 update: Object.assign(Object.assign({}, itemData), { picture: pictureInfo, actions: {
                         connect: actionIds,
+                    }, modifiers: {
+                        createMany: {
+                            data: formData.modifiers.map((_a) => {
+                                var { action } = _a, modifier = __rest(_a, ["action"]);
+                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
+                            }),
+                        },
                     } }),
                 create: Object.assign(Object.assign({}, itemData), { picture: pictureInfo, actions: {
                         connect: actionIds,
+                    }, modifiers: {
+                        createMany: {
+                            data: formData.modifiers.map((_a) => {
+                                var { action } = _a, modifier = __rest(_a, ["action"]);
+                                return (Object.assign(Object.assign({}, modifier), { actionId: Number(action) }));
+                            }),
+                        },
                     } }),
             });
             return item;

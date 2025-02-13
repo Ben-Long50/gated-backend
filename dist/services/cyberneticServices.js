@@ -1,3 +1,14 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 import prisma from '../config/database.js';
 import { getGroupKeywords, getItemKeywords, } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
@@ -12,6 +23,7 @@ const cyberneticServices = {
                     weapons: true,
                     armor: true,
                     actions: true,
+                    modifiers: { include: { action: true } },
                 },
                 orderBy: { name: 'asc' },
             });
@@ -32,6 +44,7 @@ const cyberneticServices = {
                     weapons: true,
                     armor: true,
                     actions: true,
+                    modifiers: { include: { action: true } },
                 },
             });
             if (!cybernetic) {
@@ -56,8 +69,15 @@ const cyberneticServices = {
                     weapons: { select: { id: true } },
                     armor: { select: { id: true } },
                     actions: { select: { id: true } },
+                    modifiers: { select: { id: true } },
                 },
             });
+            if (cybernetic) {
+                const oldModifierIds = cybernetic.modifiers.map((modifier) => modifier.id);
+                await prisma.modifier.deleteMany({
+                    where: { id: { in: oldModifierIds } },
+                });
+            }
             const oldWeaponIds = (_a = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
             const newWeaponIds = JSON.parse(formData.weapons).map((weapon) => weapon.id);
             const weaponsToDelete = (oldWeaponIds === null || oldWeaponIds === void 0 ? void 0 : oldWeaponIds.filter((id) => !newWeaponIds.includes(id))) || [];
@@ -119,7 +139,14 @@ const cyberneticServices = {
                         connect: actionIds,
                     },
                     keywords: JSON.parse(formData.keywords),
-                    modifiers: JSON.parse(formData.modifiers),
+                    modifiers: {
+                        createMany: {
+                            data: JSON.parse(formData.modifiers).map((_a) => {
+                                var { action } = _a, modifier = __rest(_a, ["action"]);
+                                return (Object.assign(Object.assign({}, modifier), { actionId: Number(action) }));
+                            }),
+                        },
+                    },
                 },
                 create: {
                     name: JSON.parse(formData.name),
@@ -141,7 +168,14 @@ const cyberneticServices = {
                         connect: actionIds,
                     },
                     keywords: JSON.parse(formData.keywords),
-                    modifiers: JSON.parse(formData.modifiers),
+                    modifiers: {
+                        createMany: {
+                            data: JSON.parse(formData.modifiers).map((_a) => {
+                                var { action } = _a, modifier = __rest(_a, ["action"]);
+                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
+                            }),
+                        },
+                    },
                 },
             });
             return newCybernetic;

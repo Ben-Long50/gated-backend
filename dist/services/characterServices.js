@@ -9,6 +9,7 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+import { Prisma, } from '@prisma/client';
 import prisma from '../config/database.js';
 const characterServices = {
     getCharacters: async (userId) => {
@@ -18,7 +19,7 @@ const characterServices = {
                     userId,
                 },
                 include: {
-                    perks: true,
+                    perks: { include: { modifiers: { include: { action: true } } } },
                     characterInventory: {
                         include: {
                             weapons: {
@@ -30,7 +31,12 @@ const characterServices = {
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             cybernetics: {
-                                include: { weapons: true, armor: true, actions: true },
+                                include: {
+                                    weapons: true,
+                                    armor: true,
+                                    actions: true,
+                                    modifiers: { include: { action: true } },
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             vehicles: {
@@ -39,7 +45,10 @@ const characterServices = {
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             items: {
-                                include: { actions: true },
+                                include: {
+                                    actions: true,
+                                    modifiers: { include: { action: true } },
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                         },
@@ -65,7 +74,7 @@ const characterServices = {
                     active: true,
                 },
                 include: {
-                    perks: true,
+                    perks: { include: { modifiers: { include: { action: true } } } },
                     characterCart: {
                         include: {
                             weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
@@ -87,7 +96,12 @@ const characterServices = {
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             cybernetics: {
-                                include: { weapons: true, armor: true, actions: true },
+                                include: {
+                                    weapons: true,
+                                    armor: true,
+                                    actions: true,
+                                    modifiers: { include: { action: true } },
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             vehicles: {
@@ -96,7 +110,10 @@ const characterServices = {
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             items: {
-                                include: { actions: true },
+                                include: {
+                                    actions: true,
+                                    modifiers: { include: { action: true } },
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                         },
@@ -117,7 +134,7 @@ const characterServices = {
                     id: Number(characterId),
                 },
                 include: {
-                    perks: true,
+                    perks: { include: { modifiers: { include: { action: true } } } },
                     characterInventory: {
                         include: {
                             weapons: {
@@ -129,7 +146,12 @@ const characterServices = {
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             cybernetics: {
-                                include: { weapons: true, armor: true, actions: true },
+                                include: {
+                                    weapons: true,
+                                    armor: true,
+                                    actions: true,
+                                    modifiers: { include: { action: true } },
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             vehicles: {
@@ -138,7 +160,10 @@ const characterServices = {
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             items: {
-                                include: { actions: true },
+                                include: {
+                                    actions: true,
+                                    modifiers: { include: { action: true } },
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                         },
@@ -495,7 +520,12 @@ const characterServices = {
         const cyberneticIds = cyberneticList === null || cyberneticList === void 0 ? void 0 : cyberneticList.map((cybernetic) => cybernetic.cyberneticId);
         const cybernetics = await prisma.cybernetic.findMany({
             where: { id: { in: cyberneticIds } },
-            include: { weapons: true, armor: true, actions: true },
+            include: {
+                weapons: true,
+                armor: true,
+                actions: true,
+                modifiers: { include: { action: true } },
+            },
         });
         const promises = [];
         for (const { cyberneticId, quantity } of cyberneticList) {
@@ -540,7 +570,14 @@ const characterServices = {
                             stats: stats || {},
                             body: cyberneticDetails.body,
                             price: cyberneticDetails.price,
-                            modifiers: cyberneticDetails.modifiers || undefined,
+                            modifiers: {
+                                createMany: {
+                                    data: cyberneticDetails.modifiers.map((_a) => {
+                                        var { id, cyberneticId, itemId, action, perkId, duration } = _a, modifier = __rest(_a, ["id", "cyberneticId", "itemId", "action", "perkId", "duration"]);
+                                        return (Object.assign(Object.assign({}, modifier), { duration: duration === null ? Prisma.JsonNull : duration }));
+                                    }),
+                                },
+                            },
                             keywords: cyberneticDetails.keywords,
                             weapons: weaponIds.length > 0
                                 ? {
@@ -682,7 +719,7 @@ const characterServices = {
         const itemIds = itemList === null || itemList === void 0 ? void 0 : itemList.map((item) => item.itemId);
         const items = await prisma.item.findMany({
             where: { id: { in: itemIds } },
-            include: { actions: true },
+            include: { actions: true, modifiers: { include: { action: true } } },
         });
         const promises = [];
         for (const { itemId, quantity } of itemList) {
@@ -692,7 +729,7 @@ const characterServices = {
                     characterInventoryId: Number(inventoryId),
                     category: 'consumable',
                 },
-                include: { actions: true },
+                include: { actions: true, modifiers: { include: { action: true } } },
             });
             const itemDetails = characterItemDetails || items.find((item) => item.id === itemId);
             let stats = itemDetails && Object.assign({}, itemDetails.stats);
@@ -723,11 +760,18 @@ const characterServices = {
                 const count = (stats === null || stats === void 0 ? void 0 : stats.currentStacks) && !(stats === null || stats === void 0 ? void 0 : stats.maxStacks) ? 1 : quantity;
                 for (let i = 0; i < count; i++) {
                     promises.push(prisma.item.create({
-                        data: Object.assign(Object.assign({}, itemData), { picture: picture || undefined, stats: stats || {}, modifiers: modifiers || undefined, actions: actionIds.length > 0
+                        data: Object.assign(Object.assign({}, itemData), { picture: picture || undefined, stats: stats || {}, actions: actionIds.length > 0
                                 ? {
                                     connect: actionIds.map((id) => ({ id })),
                                 }
-                                : undefined, characterInventory: inventoryId
+                                : undefined, modifiers: {
+                                createMany: {
+                                    data: itemDetails.modifiers.map((_a) => {
+                                        var { id, cyberneticId, itemId, action, perkId, duration } = _a, modifier = __rest(_a, ["id", "cyberneticId", "itemId", "action", "perkId", "duration"]);
+                                        return (Object.assign(Object.assign({}, modifier), { duration: duration === null ? Prisma.JsonNull : duration }));
+                                    }),
+                                },
+                            }, characterInventory: inventoryId
                                 ? { connect: { id: Number(inventoryId) } }
                                 : undefined, baseItemId: id }),
                     }));

@@ -8,7 +8,7 @@ const itemServices = {
     try {
       const items = await prisma.item.findMany({
         where: { characterInventory: null },
-        include: { actions: true },
+        include: { actions: true, modifiers: { include: { action: true } } },
         orderBy: { name: 'asc' },
       });
       return items;
@@ -22,7 +22,7 @@ const itemServices = {
     try {
       const item = await prisma.item.findUnique({
         where: { id: Number(itemId) },
-        include: { actions: true },
+        include: { actions: true, modifiers: { include: { action: true } } },
       });
       return item;
     } catch (error) {
@@ -38,8 +38,17 @@ const itemServices = {
           where: { id: formData.id },
           select: {
             actions: { select: { id: true } },
+            modifiers: { include: { action: true } },
           },
         })) || undefined;
+      console.log(oldItem);
+
+      if (oldItem) {
+        const oldModifierIds = oldItem.modifiers.map((modifier) => modifier.id);
+        await prisma.modifier.deleteMany({
+          where: { id: { in: oldModifierIds } },
+        });
+      }
 
       const oldItemIds = oldItem?.actions.map(
         (action: { id: number }) => action.id,
@@ -92,12 +101,28 @@ const itemServices = {
           actions: {
             connect: actionIds,
           },
+          modifiers: {
+            createMany: {
+              data: formData.modifiers.map(({ action, ...modifier }) => ({
+                ...modifier,
+                actionId: action ? Number(action) : null,
+              })),
+            },
+          },
         },
         create: {
           ...itemData,
           picture: pictureInfo,
           actions: {
             connect: actionIds,
+          },
+          modifiers: {
+            createMany: {
+              data: formData.modifiers.map(({ action, ...modifier }) => ({
+                ...modifier,
+                actionId: Number(action),
+              })),
+            },
           },
         },
       });

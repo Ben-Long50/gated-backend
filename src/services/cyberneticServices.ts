@@ -18,6 +18,7 @@ const cyberneticServices = {
           weapons: true,
           armor: true,
           actions: true,
+          modifiers: { include: { action: true } },
         },
         orderBy: { name: 'asc' },
       });
@@ -39,6 +40,7 @@ const cyberneticServices = {
           weapons: true,
           armor: true,
           actions: true,
+          modifiers: { include: { action: true } },
         },
       });
 
@@ -87,8 +89,18 @@ const cyberneticServices = {
           weapons: { select: { id: true } },
           armor: { select: { id: true } },
           actions: { select: { id: true } },
+          modifiers: { select: { id: true } },
         },
       });
+
+      if (cybernetic) {
+        const oldModifierIds = cybernetic.modifiers.map(
+          (modifier) => modifier.id,
+        );
+        await prisma.modifier.deleteMany({
+          where: { id: { in: oldModifierIds } },
+        });
+      }
 
       const oldWeaponIds = cybernetic?.weapons?.map((id) => id.id);
 
@@ -216,7 +228,16 @@ const cyberneticServices = {
             connect: actionIds,
           },
           keywords: JSON.parse(formData.keywords),
-          modifiers: JSON.parse(formData.modifiers),
+          modifiers: {
+            createMany: {
+              data: JSON.parse(formData.modifiers).map(
+                ({ action, ...modifier }: { action: Action }) => ({
+                  ...modifier,
+                  actionId: Number(action),
+                }),
+              ),
+            },
+          },
         },
         create: {
           name: JSON.parse(formData.name),
@@ -238,7 +259,16 @@ const cyberneticServices = {
             connect: actionIds,
           },
           keywords: JSON.parse(formData.keywords),
-          modifiers: JSON.parse(formData.modifiers),
+          modifiers: {
+            createMany: {
+              data: JSON.parse(formData.modifiers).map(
+                ({ action, ...modifier }: { action: Action }) => ({
+                  ...modifier,
+                  actionId: action ? Number(action) : null,
+                }),
+              ),
+            },
+          },
         },
       });
 
