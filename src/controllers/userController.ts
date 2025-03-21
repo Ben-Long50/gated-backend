@@ -14,10 +14,19 @@ const userController = {
     });
   },
 
-  getUsers: async (_req: Request, res: Response) => {
+  getUsers: async (req: Request, res: Response) => {
     try {
-      const users = await userServices.getAllUsers();
-      res.json(users);
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ error: 'You must be signed in to search users' });
+        return;
+      }
+      const query = req.query.nameQuery as string;
+      const userId = req.user.id;
+
+      const users = await userServices.getAllUsers(query, userId);
+      res.status(200).json(users);
     } catch (error) {
       if (error instanceof Error) {
         res.status(500).json({ error: error.message });

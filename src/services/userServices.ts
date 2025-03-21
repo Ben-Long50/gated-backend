@@ -1,9 +1,28 @@
 import prisma from '../config/database.js';
 
 const userServices = {
-  getAllUsers: async () => {
+  getAllUsers: async (query: string, userId: number) => {
     try {
-      const users = await prisma.user.findMany();
+      if (!query) return [];
+      const users = await prisma.user.findMany({
+        where: {
+          id: { not: userId },
+          OR: [
+            {
+              firstName: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+            {
+              lastName: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        },
+      });
       const userArray = users.map((user) => {
         return {
           id: user?.id,

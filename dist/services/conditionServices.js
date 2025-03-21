@@ -45,6 +45,67 @@ const conditionServices = {
             throw new Error('Failed to create or update condition');
         }
     },
+    createCharacterCondition: async (characterId, formData) => {
+        try {
+            await prisma.characterCondition.upsert({
+                where: {
+                    conditionId_characterId: {
+                        conditionId: Number(formData.conditionId),
+                        characterId: Number(characterId),
+                    },
+                },
+                update: {
+                    stacks: Number(formData.stacks),
+                },
+                create: {
+                    characterId: Number(characterId),
+                    conditionId: Number(formData.conditionId),
+                    stacks: Number(formData.stacks),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update character condition');
+        }
+    },
+    createItemCondition: async (characterId, formData) => {
+        try {
+            await prisma.itemCondition.upsert({
+                where: {
+                    conditionId_characterId: {
+                        conditionId: Number(formData.conditionId),
+                        characterId: Number(characterId),
+                    },
+                },
+                update: {
+                    stacks: Number(formData.stacks),
+                },
+                create: {
+                    characterId: Number(characterId),
+                    conditionId: Number(formData.conditionId),
+                    stacks: Number(formData.stacks),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update character condition');
+        }
+    },
+    deleteCharacterCondition: async (characterConditionId) => {
+        try {
+            await prisma.condition.delete({
+                where: {
+                    id: Number(characterConditionId),
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete character condition');
+        }
+    },
     deleteCondition: async (conditionId) => {
         try {
             await prisma.condition.delete({

@@ -12,10 +12,18 @@ const userController = {
             profilePicture: (_e = req.user) === null || _e === void 0 ? void 0 : _e.profilePicture,
         });
     },
-    getUsers: async (_req, res) => {
+    getUsers: async (req, res) => {
         try {
-            const users = await userServices.getAllUsers();
-            res.json(users);
+            if (!req.user) {
+                res
+                    .status(401)
+                    .json({ error: 'You must be signed in to search users' });
+                return;
+            }
+            const query = req.query.nameQuery;
+            const userId = req.user.id;
+            const users = await userServices.getAllUsers(query, userId);
+            res.status(200).json(users);
         }
         catch (error) {
             if (error instanceof Error) {

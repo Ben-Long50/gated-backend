@@ -46,7 +46,7 @@ const perkServices = {
   }) => {
     try {
       const oldPerk = await prisma.perk.findUnique({
-        where: { id: Number(formData.perkId) },
+        where: { id: Number(formData.perkId) || 0 },
         select: { modifiers: { select: { id: true } } },
       });
 
