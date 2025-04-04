@@ -9,41 +9,87 @@ datasource db {
 }
 
 model User {
-  id              Int         @id @default(autoincrement())
-  firstName       String
-  lastName        String
-  profilePicture  String?
-  googleId        String?     @unique
-  facebookId      String?     @unique
-  email           String      @unique
-  password        String?
-  role            UserRole    @default(USER)
-  createdAt       DateTime    @default(now())
-  characters      Character[]
-  errorReports    Error[]
-  ownedCampaigns  Campaign[]  @relation("owner")
-  playerCampaigns Campaign[]  @relation("player")
+  id                    Int            @id @default(autoincrement())
+  firstName             String
+  lastName              String
+  profilePicture        String?
+  googleId              String?        @unique
+  facebookId            String?        @unique
+  email                 String         @unique
+  password              String?
+  role                  UserRole       @default(USER)
+  createdAt             DateTime       @default(now())
+  characters            Character[]
+  errorReports          Error[]
+  ownerCampaigns        Campaign[]     @relation("owner")
+  pendingCampaigns      Campaign[]     @relation("pending")
+  playerCampaigns       Campaign[]     @relation("player")
+  receivedNotifications Notification[] @relation("received")
+  sentNotifications     Notification[] @relation("sent")
 }
 
 model Campaign {
-  id           Int         @id @default(autoincrement())
-  owner        User        @relation("owner", fields: [ownerId], references: [id])
-  ownerId      Int
-  players      User[]      @relation("player")
-  name         String?
-  location     String
-  gangs        Gang[]
-  sessions     Session[]
-  playerGangId Int
-  characters   Character[]
+  id             Int         @id @default(autoincrement())
+  createdAt      DateTime    @default(now())
+  owner          User        @relation("owner", fields: [ownerId], references: [id])
+  ownerId        Int
+  pendingPlayers User[]      @relation("pending")
+  players        User[]      @relation("player")
+  factions       Faction[]
+  name           String
+  location       String
+  picture        Json?
+  gangs          Gang[]
+  sessions       Session[]
+  characters     Character[]
+}
+
+enum Faction {
+  theChurch
+  corporateHoldouts
+  federalReservists
+  noblebloods
 }
 
 model Session {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
-  campaignId Int
-  notes      Note[]
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  sessionNumber Int         @unique
+  name          String      @unique
+  campaign      Campaign    @relation(fields: [campaignId], references: [id])
+  campaignId    Int
+  briefing      Json?
+  notes         Note[]
+  characters    Character[]
+  scenes        Scene[]
+}
+
+model Scene {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  sceneNumber Int         @unique
+  name        String
+  session     Session     @relation(fields: [sessionId], references: [id])
+  sessionId   Int
+  briefing    Json?
+  characters  Character[]
+}
+
+model Notification {
+  id          Int              @id @default(autoincrement())
+  createdAt   DateTime         @default(now())
+  type        NotificationType
+  recipient   User             @relation("received", fields: [recipientId], references: [id])
+  recipientId Int
+  sender      User             @relation("sent", fields: [senderId], references: [id])
+  senderId    Int
+  read        Boolean          @default(false)
+  readAt      DateTime?
+}
+
+enum NotificationType {
+  campaignInvite
+  sessionInvite
 }
 
 model Note {
@@ -81,11 +127,14 @@ model Character {
   attributes          Json
   firstName           String
   lastName            String?
+  playerCharacter     Boolean              @default(false)
   user                User                 @relation(fields: [userId], references: [id])
   active              Boolean              @default(false)
   perks               Perk[]               @relation("CharacterToPerk")
   campaign            Campaign?            @relation(fields: [campaignId], references: [id])
   campaignId          Int?
+  sessions            Session[]
+  scenes              Scene[]
   gang                Gang?                @relation(fields: [gangId], references: [id])
   gangId              Int?
   characterConditions CharacterCondition[]

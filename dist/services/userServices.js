@@ -22,6 +22,7 @@ const userServices = {
                         },
                     ],
                 },
+                take: 10,
             });
             const userArray = users.map((user) => {
                 return {
