@@ -33,6 +33,12 @@ const facebookStrategy = (passport) => {
                 if (user.facebookId !== profile.id) {
                     return done(null, false);
                 }
+                if (profilePicture && user.profilePicture !== profilePicture) {
+                    await prisma.user.update({
+                        where: { email },
+                        data: { profilePicture },
+                    });
+                }
             }
             else {
                 const userData = {

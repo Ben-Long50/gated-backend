@@ -18,6 +18,7 @@ const sessionServices = {
             const session = await prisma.session.findUnique({
                 where: { id: Number(sessionId) },
             });
+            console.log(session);
             return session;
         }
         catch (error) {

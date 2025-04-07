@@ -68,7 +68,6 @@ const campaignController = {
                     factions: JSON.parse(req.body.factions),
                     players: JSON.parse(req.body.players),
                 };
-                console.log(campaignInfo);
                 const campaign = await campaignServices.createOrUpdateCampaign(campaignInfo);
                 const sessionInfo = {
                     name: 'Introduction',

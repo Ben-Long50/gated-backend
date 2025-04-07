@@ -54,14 +54,17 @@ enum Faction {
 model Session {
   id            Int         @id @default(autoincrement())
   createdAt     DateTime    @default(now())
-  sessionNumber Int         @unique
-  name          String      @unique
+  sessionNumber Int
+  name          String
   campaign      Campaign    @relation(fields: [campaignId], references: [id])
   campaignId    Int
   briefing      Json?
   notes         Note[]
   characters    Character[]
   scenes        Scene[]
+
+  @@unique([sessionNumber, campaignId])
+  @@unique([name, campaignId])
 }
 
 model Scene {

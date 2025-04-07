@@ -78,8 +78,6 @@ const campaignController = {
           players: JSON.parse(req.body.players) as Partial<User>[],
         };
 
-        console.log(campaignInfo);
-
         const campaign =
           await campaignServices.createOrUpdateCampaign(campaignInfo);
 

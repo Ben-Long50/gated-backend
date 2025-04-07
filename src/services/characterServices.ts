@@ -1168,6 +1168,8 @@ const characterServices = {
 
   updateCharacter: async (
     formData: {
+      playerCharacter: string;
+      campaign: string;
       perks: string;
       stats: string;
       firstName: string;
@@ -1218,6 +1220,7 @@ const characterServices = {
         .then((perks) => perks.map((perk) => ({ id: perk.id })));
 
       const data = {
+        playerCharacter: JSON.parse(formData.playerCharacter),
         firstName: JSON.parse(formData.firstName),
         lastName: JSON.parse(formData.lastName),
         picture: pictureInfo,
@@ -1243,6 +1246,7 @@ const characterServices = {
             disconnect: oldPerks,
             connect: newPerks,
           },
+          campaign: { connect: { id: Number(JSON.parse(formData.campaign)) } },
         },
       });
 

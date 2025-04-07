@@ -40,6 +40,7 @@ const campaignServices = {
                     sessions: true,
                     players: { orderBy: { firstName: 'desc' } },
                     pendingPlayers: { orderBy: { firstName: 'desc' } },
+                    characters: true,
                     owner: true,
                 },
             });

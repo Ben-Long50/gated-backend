@@ -878,6 +878,7 @@ const characterServices = {
                 [])
                 .then((perks) => perks.map((perk) => ({ id: perk.id })));
             const data = {
+                playerCharacter: JSON.parse(formData.playerCharacter),
                 firstName: JSON.parse(formData.firstName),
                 lastName: JSON.parse(formData.lastName),
                 picture: pictureInfo,
@@ -899,7 +900,7 @@ const characterServices = {
                 data: Object.assign(Object.assign({}, data), { perks: {
                         disconnect: oldPerks,
                         connect: newPerks,
-                    } }),
+                    }, campaign: { connect: { id: Number(JSON.parse(formData.campaign)) } } }),
             });
             return updatedCharacter;
         }

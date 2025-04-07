@@ -49,6 +49,13 @@ const facebookStrategy = (passport: PassportStatic) => {
             if (user.facebookId !== profile.id) {
               return done(null, false);
             }
+
+            if (profilePicture && user.profilePicture !== profilePicture) {
+              await prisma.user.update({
+                where: { email },
+                data: { profilePicture },
+              });
+            }
           } else {
             const userData = {
               facebookId: profile.id,
@@ -59,6 +66,7 @@ const facebookStrategy = (passport: PassportStatic) => {
             };
             user = await userServices.createUser(userData);
           }
+
           return done(null, user as any);
         } catch (err) {
           return done(err);
