@@ -11,6 +11,7 @@ const userController = {
       lastName: req.user?.lastName,
       role: req.user?.role,
       profilePicture: req.user?.profilePicture,
+      notifications: req.user?.receivedNotifications?.length || 0,
     });
   },
 

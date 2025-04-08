@@ -65,6 +65,7 @@ const campaignController = {
                     publicId: req.body.publicId,
                     imageUrl: req.body.imageUrl,
                     ownerId: req.user.id,
+                    affiliation: Number(JSON.parse(req.body.affiliation)),
                     factions: JSON.parse(req.body.factions),
                     players: JSON.parse(req.body.players),
                 };

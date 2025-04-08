@@ -74,7 +74,11 @@ const campaignController = {
           publicId: req.body.publicId,
           imageUrl: req.body.imageUrl,
           ownerId: req.user.id,
-          factions: JSON.parse(req.body.factions) as $Enums.Faction[],
+          affiliation: Number(JSON.parse(req.body.affiliation)),
+          factions: JSON.parse(req.body.factions) as {
+            factionType: $Enums.FactionType;
+            name: string;
+          }[],
           players: JSON.parse(req.body.players) as Partial<User>[],
         };
 

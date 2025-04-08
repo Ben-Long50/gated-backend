@@ -40,7 +40,50 @@ const campaignServices = {
                     sessions: true,
                     players: { orderBy: { firstName: 'desc' } },
                     pendingPlayers: { orderBy: { firstName: 'desc' } },
-                    characters: true,
+                    factions: { include: { primaryAffiliations: true } },
+                    characters: {
+                        include: {
+                            perks: {
+                                include: { modifiers: { include: { action: true } } },
+                            },
+                            characterInventory: {
+                                include: {
+                                    weapons: {
+                                        where: { equipped: true },
+                                        include: { actions: true },
+                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                                    },
+                                    armor: {
+                                        where: { equipped: true },
+                                        include: { actions: true },
+                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                                    },
+                                    cybernetics: {
+                                        where: { equipped: true },
+                                        include: {
+                                            weapons: true,
+                                            armor: true,
+                                            actions: true,
+                                            modifiers: { include: { action: true } },
+                                        },
+                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                                    },
+                                    vehicles: {
+                                        include: { weapons: true, modifications: true },
+                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                                    },
+                                    items: {
+                                        where: { equipped: true },
+                                        include: {
+                                            actions: true,
+                                            modifiers: { include: { action: true } },
+                                        },
+                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+                                    },
+                                },
+                            },
+                        },
+                    },
                     owner: true,
                 },
             });
@@ -60,7 +103,6 @@ const campaignServices = {
                     location: formData.location,
                     picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
                     ownerId: formData.ownerId,
-                    factions: formData.factions,
                     pendingPlayers: {
                         connect: formData.players.map((user) => ({ id: user.id })),
                     },
@@ -70,12 +112,31 @@ const campaignServices = {
                     location: formData.location,
                     picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
                     ownerId: formData.ownerId,
-                    factions: formData.factions,
                     pendingPlayers: {
                         connect: formData.players.map((user) => ({ id: user.id })),
                     },
                 },
             });
+            const createdFactions = await Promise.all(formData.factions.map((faction) => prisma.faction.create({
+                data: Object.assign(Object.assign({}, faction), { campaignId: campaign.id }),
+            })));
+            if (createdFactions.length >= 2) {
+                const [faction1, faction2] = createdFactions;
+                await prisma.affiliation.createMany({
+                    data: [
+                        {
+                            primaryFactionId: faction1.id,
+                            secondaryFactionId: faction2.id,
+                            value: formData.affiliation,
+                        },
+                        {
+                            primaryFactionId: faction2.id,
+                            secondaryFactionId: faction1.id,
+                            value: formData.affiliation,
+                        },
+                    ],
+                });
+            }
             return campaign;
         }
         catch (error) {

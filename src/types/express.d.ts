@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Notification, User } from '@prisma/client';
 
 declare global {
   namespace Express {
@@ -10,6 +10,7 @@ declare global {
       profilePicture?: string;
       facebookId?: string;
       googleId?: string;
+      receivedNotifications?: Notification[];
     }
   }
 }

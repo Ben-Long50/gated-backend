@@ -44,8 +44,33 @@ model Campaign {
   characters     Character[]
 }
 
-enum Faction {
-  theChurch
+model Faction {
+  id                    Int           @id @default(autoincrement())
+  factionType           FactionType
+  name                  String
+  picture               Json?
+  background            Json?
+  campaign              Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId            Int
+  primaryAffiliations   Affiliation[] @relation("primaryFaction")
+  secondaryAffiliations Affiliation[] @relation("secondaryFaction")
+}
+
+model Affiliation {
+  id                   Int        @id @default(autoincrement())
+  value                Int        @default(0)
+  primaryFaction       Faction?   @relation("primaryFaction", fields: [primaryFactionId], references: [id], onDelete: Cascade)
+  primaryFactionId     Int?
+  primaryCharacter     Character? @relation("primaryCharacter", fields: [primaryCharacterId], references: [id], onDelete: Cascade)
+  primaryCharacterId   Int?
+  secondaryFaction     Faction?   @relation("secondaryFaction", fields: [secondaryFactionId], references: [id], onDelete: Cascade)
+  secondaryFactionId   Int?
+  secondaryCharacter   Character? @relation("secondaryCharacter", fields: [secondaryCharacterId], references: [id], onDelete: Cascade)
+  secondaryCharacterId Int?
+}
+
+enum FactionType {
+  churchOfElShaddai
   corporateHoldouts
   federalReservists
   noblebloods
@@ -56,7 +81,7 @@ model Session {
   createdAt     DateTime    @default(now())
   sessionNumber Int
   name          String
-  campaign      Campaign    @relation(fields: [campaignId], references: [id])
+  campaign      Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId    Int
   briefing      Json?
   notes         Note[]
@@ -72,7 +97,7 @@ model Scene {
   createdAt   DateTime    @default(now())
   sceneNumber Int         @unique
   name        String
-  session     Session     @relation(fields: [sessionId], references: [id])
+  session     Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId   Int
   briefing    Json?
   characters  Character[]
@@ -82,7 +107,7 @@ model Notification {
   id          Int              @id @default(autoincrement())
   createdAt   DateTime         @default(now())
   type        NotificationType
-  recipient   User             @relation("received", fields: [recipientId], references: [id])
+  recipient   User             @relation("received", fields: [recipientId], references: [id], onDelete: Cascade)
   recipientId Int
   sender      User             @relation("sent", fields: [senderId], references: [id])
   senderId    Int
@@ -97,11 +122,11 @@ enum NotificationType {
 
 model Note {
   id          Int       @id @default(autoincrement())
-  character   Character @relation(fields: [characterId], references: [id])
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
   title       String
   content     Json
-  session     Session   @relation(fields: [sessionId], references: [id])
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId   Int
 }
 
@@ -111,39 +136,41 @@ model Gang {
   level      Int         @default(1)
   characters Character[]
   profits    Int         @default(10)
-  campaign   Campaign    @relation(fields: [campaignId], references: [id])
+  campaign   Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId Int
 }
 
 model Character {
-  id                  Int                  @id @default(autoincrement())
-  userId              Int
-  level               Int                  @default(1)
-  profits             Int                  @default(10)
-  stats               Json                 @default("{}")
-  picture             Json?
-  height              Int
-  weight              Int
-  age                 Int
-  sex                 String
-  background          String
-  attributes          Json
-  firstName           String
-  lastName            String?
-  playerCharacter     Boolean              @default(false)
-  user                User                 @relation(fields: [userId], references: [id])
-  active              Boolean              @default(false)
-  perks               Perk[]               @relation("CharacterToPerk")
-  campaign            Campaign?            @relation(fields: [campaignId], references: [id])
-  campaignId          Int?
-  sessions            Session[]
-  scenes              Scene[]
-  gang                Gang?                @relation(fields: [gangId], references: [id])
-  gangId              Int?
-  characterConditions CharacterCondition[]
-  characterCart       CharacterCart?
-  characterInventory  CharacterInventory?
-  Note                Note[]
+  id                    Int                  @id @default(autoincrement())
+  userId                Int
+  level                 Int                  @default(1)
+  profits               Int                  @default(10)
+  stats                 Json                 @default("{}")
+  picture               Json?
+  height                Int
+  weight                Int
+  age                   Int
+  sex                   String
+  background            String
+  attributes            Json
+  firstName             String
+  lastName              String?
+  playerCharacter       Boolean              @default(false)
+  user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active                Boolean              @default(false)
+  perks                 Perk[]               @relation("CharacterToPerk")
+  campaign              Campaign?            @relation(fields: [campaignId], references: [id])
+  campaignId            Int?
+  sessions              Session[]
+  scenes                Scene[]
+  gang                  Gang?                @relation(fields: [gangId], references: [id])
+  gangId                Int?
+  characterConditions   CharacterCondition[]
+  characterCart         CharacterCart?
+  characterInventory    CharacterInventory?
+  Note                  Note[]
+  primaryAffiliations   Affiliation[]        @relation("primaryCharacter")
+  secondaryAffiliations Affiliation[]        @relation("secondaryCharacter")
 }
 
 model CharacterCart {

@@ -3,13 +3,14 @@ import bcrypt from 'bcryptjs';
 import userServices from '../services/userServices.js';
 const userController = {
     getAuthenticatedUser: async (req, res) => {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f, _g;
         res.status(200).json({
             id: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
             firstName: (_b = req.user) === null || _b === void 0 ? void 0 : _b.firstName,
             lastName: (_c = req.user) === null || _c === void 0 ? void 0 : _c.lastName,
             role: (_d = req.user) === null || _d === void 0 ? void 0 : _d.role,
             profilePicture: (_e = req.user) === null || _e === void 0 ? void 0 : _e.profilePicture,
+            notifications: ((_g = (_f = req.user) === null || _f === void 0 ? void 0 : _f.receivedNotifications) === null || _g === void 0 ? void 0 : _g.length) || 0,
         });
     },
     getUsers: async (req, res) => {

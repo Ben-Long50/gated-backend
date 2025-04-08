@@ -1,9 +1,12 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import campaignController from '../controllers/campaignController.js';
+import factionController from '../controllers/factionController.js';
 const router = express.Router();
 router.get('/campaigns', authentication.authenticate, campaignController.getOwnerCampaigns);
 router.get('/campaigns/:campaignId', authentication.authenticate, campaignController.getCampaignById);
+router.get('/factions/:factionId', authentication.authenticate, factionController.getFactionById);
 router.post('/campaigns', authentication.authenticate, campaignController.createCampaign);
+router.put('/campaigns/:campaignId/factions/:factionId', authentication.authenticate, factionController.updateFaction);
 router.delete('/campaigns/:campaignId', authentication.authenticate, campaignController.deleteCampaign);
 export default router;
