@@ -44,14 +44,23 @@ const userServices = {
         try {
             const user = await prisma.user.findUnique({
                 where: { id: Number(id) },
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    role: true,
+                    profilePicture: true,
+                    _count: {
+                        select: {
+                            receivedNotifications: { where: { read: false } },
+                            ownerCampaigns: true,
+                            playerCampaigns: true,
+                            pendingCampaigns: true,
+                        },
+                    },
+                },
             });
-            return {
-                id: user === null || user === void 0 ? void 0 : user.id,
-                firstName: user === null || user === void 0 ? void 0 : user.firstName,
-                lastName: user === null || user === void 0 ? void 0 : user.lastName,
-                role: user === null || user === void 0 ? void 0 : user.role,
-                profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
-            };
+            return user;
         }
         catch (error) {
             console.error(error);
@@ -62,6 +71,18 @@ const userServices = {
         try {
             const user = await prisma.user.findUnique({
                 where: { email },
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    role: true,
+                    profilePicture: true,
+                    _count: {
+                        select: {
+                            receivedNotifications: { where: { read: false } },
+                        },
+                    },
+                },
             });
             if (user) {
                 return {
@@ -70,6 +91,7 @@ const userServices = {
                     lastName: user === null || user === void 0 ? void 0 : user.lastName,
                     role: user === null || user === void 0 ? void 0 : user.role,
                     profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
+                    receivedNotifications: user === null || user === void 0 ? void 0 : user._count,
                 };
             }
             else {

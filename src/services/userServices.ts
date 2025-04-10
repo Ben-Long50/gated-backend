@@ -1,3 +1,4 @@
+import { read } from 'fs';
 import prisma from '../config/database.js';
 
 const userServices = {
@@ -44,14 +45,23 @@ const userServices = {
     try {
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          profilePicture: true,
+          _count: {
+            select: {
+              receivedNotifications: { where: { read: false } },
+              ownerCampaigns: true,
+              playerCampaigns: true,
+              pendingCampaigns: true,
+            },
+          },
+        },
       });
-      return {
-        id: user?.id,
-        firstName: user?.firstName,
-        lastName: user?.lastName,
-        role: user?.role,
-        profilePicture: user?.profilePicture,
-      };
+      return user;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch user');
@@ -62,6 +72,18 @@ const userServices = {
     try {
       const user = await prisma.user.findUnique({
         where: { email },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          profilePicture: true,
+          _count: {
+            select: {
+              receivedNotifications: { where: { read: false } },
+            },
+          },
+        },
       });
       if (user) {
         return {
@@ -70,6 +92,7 @@ const userServices = {
           lastName: user?.lastName,
           role: user?.role,
           profilePicture: user?.profilePicture,
+          receivedNotifications: user?._count,
         };
       } else {
         return null;

@@ -23,6 +23,11 @@ const campaignServices = {
         try {
             const campaigns = await prisma.campaign.findMany({
                 where: { players: { some: { id: userId } } },
+                include: {
+                    players: { orderBy: { firstName: 'desc' } },
+                    pendingPlayers: { orderBy: { firstName: 'desc' } },
+                    owner: true,
+                },
                 orderBy: { name: 'asc' },
             });
             return campaigns;
@@ -30,6 +35,24 @@ const campaignServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to fetch player campaigns');
+        }
+    },
+    getPendingCampaigns: async (userId) => {
+        try {
+            const campaigns = await prisma.campaign.findMany({
+                where: { pendingPlayers: { some: { id: userId } } },
+                include: {
+                    players: { orderBy: { firstName: 'desc' } },
+                    pendingPlayers: { orderBy: { firstName: 'desc' } },
+                    owner: true,
+                },
+                orderBy: { name: 'asc' },
+            });
+            return campaigns;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch pending campaigns');
         }
     },
     getCampaignById: async (campaignId) => {
@@ -142,6 +165,35 @@ const campaignServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to create or update campaign');
+        }
+    },
+    joinCampaign: async (campaignId, userId) => {
+        try {
+            const campaign = await prisma.campaign.findUnique({
+                where: { id: Number(campaignId) },
+                select: {
+                    pendingPlayers: { select: { id: true } },
+                },
+            });
+            const inPending = campaign
+                ? campaign.pendingPlayers.some((player) => player.id !== userId)
+                : [];
+            if (!inPending) {
+                throw new Error('You cannot join a campaign if you are not a pending player');
+            }
+            await prisma.campaign.update({
+                where: {
+                    id: Number(campaignId),
+                },
+                data: {
+                    pendingPlayers: { disconnect: { id: userId } },
+                    players: { connect: { id: userId } },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to join campaign');
         }
     },
     deleteCampaign: async (campaignId) => {

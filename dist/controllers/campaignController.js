@@ -2,6 +2,7 @@ import campaignServices from '../services/campaignServices.js';
 import sessionServices from '../services/sessionServices.js';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
+import notificationServices from '../services/notificationServices.js';
 const campaignController = {
     getOwnerCampaigns: async (req, res) => {
         try {
@@ -29,6 +30,23 @@ const campaignController = {
                 return;
             }
             const campaigns = await campaignServices.getPlayerCampaigns(req.user.id);
+            res.status(200).json(campaigns);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    },
+    getPendingCampaigns: async (req, res) => {
+        try {
+            if (!req.user) {
+                res
+                    .status(401)
+                    .json({ error: 'You must be signed in to use this function' });
+                return;
+            }
+            const campaigns = await campaignServices.getPendingCampaigns(req.user.id);
             res.status(200).json(campaigns);
         }
         catch (error) {
@@ -77,6 +95,7 @@ const campaignController = {
                     campaignId: campaign.id,
                 };
                 await sessionServices.createOrUpdateSession(sessionInfo);
+                await notificationServices.createNotification('campaignInvite', campaignInfo.players.map((player) => player.id), req.user.id);
                 res
                     .status(200)
                     .json({ message: 'Successfully created campaign and session 0' });
@@ -88,6 +107,23 @@ const campaignController = {
             }
         },
     ],
+    joinCampaign: async (req, res) => {
+        try {
+            if (!req.user) {
+                res
+                    .status(401)
+                    .json({ error: 'You must be signed in to use this function' });
+                return;
+            }
+            await campaignServices.joinCampaign(req.params.campaignId, req.user.id);
+            res.status(200).json({ message: 'Successfully joined the campaign' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    },
     deleteCampaign: async (req, res) => {
         try {
             await campaignServices.deleteCampaign(req.params.campaignId);

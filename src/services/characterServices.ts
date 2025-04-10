@@ -1190,6 +1190,8 @@ const characterServices = {
     characterId: string,
   ) => {
     try {
+      console.log(formData);
+
       const getPictureInfo = () => {
         if (formData.publicId) {
           return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -1235,6 +1237,12 @@ const characterServices = {
         attributes: JSON.parse(formData.attributes),
       };
 
+      if (JSON.parse(formData.campaign)) {
+        data.campaign = {
+          connect: { id: Number(JSON.parse(formData.campaign)) },
+        };
+      }
+
       const updatedCharacter = await prisma.character.update({
         where: {
           userId,
@@ -1246,7 +1254,6 @@ const characterServices = {
             disconnect: oldPerks,
             connect: newPerks,
           },
-          campaign: { connect: { id: Number(JSON.parse(formData.campaign)) } },
         },
       });
 

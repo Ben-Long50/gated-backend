@@ -5,14 +5,8 @@ import userServices from '../services/userServices.js';
 
 const userController = {
   getAuthenticatedUser: async (req: Request, res: Response) => {
-    res.status(200).json({
-      id: req.user?.id,
-      firstName: req.user?.firstName,
-      lastName: req.user?.lastName,
-      role: req.user?.role,
-      profilePicture: req.user?.profilePicture,
-      notifications: req.user?.receivedNotifications?.length || 0,
-    });
+    const user = await userServices.getUserById(req.user?.id);
+    res.status(200).json(user);
   },
 
   getUsers: async (req: Request, res: Response) => {

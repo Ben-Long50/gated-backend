@@ -4,6 +4,7 @@ import sessionServices from '../services/sessionServices.js';
 import { $Enums, User } from '@prisma/client';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
+import notificationServices from '../services/notificationServices.js';
 
 const campaignController = {
   getOwnerCampaigns: async (req: Request, res: Response) => {
@@ -34,6 +35,24 @@ const campaignController = {
       }
 
       const campaigns = await campaignServices.getPlayerCampaigns(req.user.id);
+      res.status(200).json(campaigns);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
+
+  getPendingCampaigns: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ error: 'You must be signed in to use this function' });
+        return;
+      }
+
+      const campaigns = await campaignServices.getPendingCampaigns(req.user.id);
       res.status(200).json(campaigns);
     } catch (error) {
       if (error instanceof Error) {
@@ -79,7 +98,7 @@ const campaignController = {
             factionType: $Enums.FactionType;
             name: string;
           }[],
-          players: JSON.parse(req.body.players) as Partial<User>[],
+          players: JSON.parse(req.body.players) as User[],
         };
 
         const campaign =
@@ -96,6 +115,11 @@ const campaignController = {
         };
 
         await sessionServices.createOrUpdateSession(sessionInfo);
+        await notificationServices.createNotification(
+          'campaignInvite',
+          campaignInfo.players.map((player) => player.id),
+          req.user.id,
+        );
 
         res
           .status(200)
@@ -107,6 +131,24 @@ const campaignController = {
       }
     },
   ],
+
+  joinCampaign: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ error: 'You must be signed in to use this function' });
+        return;
+      }
+
+      await campaignServices.joinCampaign(req.params.campaignId, req.user.id);
+      res.status(200).json({ message: 'Successfully joined the campaign' });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  },
 
   deleteCampaign: async (req: Request, res: Response) => {
     try {

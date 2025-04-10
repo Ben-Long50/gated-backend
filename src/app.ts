@@ -9,6 +9,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { fileURLToPath } from 'url';
 import userRouter from './routes/userRoutes.js';
+import notificationRouter from './routes/notificationRoutes.js';
 import campaignRouter from './routes/campaignRoutes.js';
 import sessionRouter from './routes/sessionRoutes.js';
 import authRouter from './routes/authRoutes.js';
@@ -64,6 +65,7 @@ app.use(helmet());
 app.use(limiter);
 
 app.use('/', userRouter);
+app.use('/', notificationRouter);
 app.use('/', campaignRouter);
 app.use('/', sessionRouter);
 app.use('/', authRouter);

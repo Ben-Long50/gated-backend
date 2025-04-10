@@ -5,10 +5,28 @@ import factionController from '../controllers/factionController.js';
 
 const router = express.Router();
 
+router.patch(
+  '/campaigns/:campaignId/players',
+  authentication.authenticate,
+  campaignController.joinCampaign,
+);
+
 router.get(
-  '/campaigns',
+  '/campaigns/owner',
   authentication.authenticate,
   campaignController.getOwnerCampaigns,
+);
+
+router.get(
+  '/campaigns/player',
+  authentication.authenticate,
+  campaignController.getPlayerCampaigns,
+);
+
+router.get(
+  '/campaigns/pending',
+  authentication.authenticate,
+  campaignController.getPendingCampaigns,
 );
 
 router.get(

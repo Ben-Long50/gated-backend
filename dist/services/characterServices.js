@@ -854,6 +854,7 @@ const characterServices = {
     },
     updateCharacter: async (formData, userId, characterId) => {
         try {
+            console.log(formData);
             const getPictureInfo = () => {
                 if (formData.publicId) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
@@ -892,6 +893,11 @@ const characterServices = {
                 background: JSON.parse(formData.background),
                 attributes: JSON.parse(formData.attributes),
             };
+            if (JSON.parse(formData.campaign)) {
+                data.campaign = {
+                    connect: { id: Number(JSON.parse(formData.campaign)) },
+                };
+            }
             const updatedCharacter = await prisma.character.update({
                 where: {
                     userId,
@@ -900,7 +906,7 @@ const characterServices = {
                 data: Object.assign(Object.assign({}, data), { perks: {
                         disconnect: oldPerks,
                         connect: newPerks,
-                    }, campaign: { connect: { id: Number(JSON.parse(formData.campaign)) } } }),
+                    } }),
             });
             return updatedCharacter;
         }
