@@ -151,7 +151,9 @@ model Character {
   weight                Int
   age                   Int
   sex                   String
-  background            String
+  backstory             Json?
+  firstTaste            Json?
+  badMedicine           Json?
   attributes            Json
   firstName             String
   lastName              String?

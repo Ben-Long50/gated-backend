@@ -134,6 +134,10 @@ const characterServices = {
           id: Number(characterId),
         },
         include: {
+          user: {
+            select: { profilePicture: true, firstName: true, lastName: true },
+          },
+          campaign: { select: { name: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterInventory: {
             include: {
@@ -1168,78 +1172,82 @@ const characterServices = {
 
   updateCharacter: async (
     formData: {
-      playerCharacter: string;
-      campaign: string;
-      perks: string;
-      stats: string;
+      playerCharacter: boolean;
+      campaign: number;
+      perks: number[];
+      stats: CharacterStats;
       firstName: string;
       lastName: string;
       imageUrl: string;
       publicId: string;
-      height: string;
-      weight: string;
-      age: string;
-      sex: string;
-      level: string;
-      picture: string;
-      profits: string;
-      background: string;
+      height: number;
+      weight: number;
+      age: number;
+      sex: 'male' | 'female';
+      level: number;
+      picture: { imageUrl: string; publicId: string };
+      profits: number;
+      backstory: { html: string; nodes: object };
+      firstTaste: { html: string; nodes: object };
+      badMedicine: { html: string; nodes: object };
       attributes: string;
     },
     userId: number,
-    characterId: string,
+    characterId: number,
   ) => {
     try {
-      console.log(formData);
-
       const getPictureInfo = () => {
         if (formData.publicId) {
           return { publicId: formData.publicId, imageUrl: formData.imageUrl };
         } else {
-          return JSON.parse(formData.picture);
+          return formData.picture;
         }
       };
 
       const pictureInfo = getPictureInfo();
 
-      const newPerks = JSON.parse(formData.perks).map((id: number) => ({ id }));
+      const newPerks = formData.perks
+        ? formData.perks.map((id: number) => ({ id }))
+        : null;
 
-      const oldPerks = await prisma.character
-        .findUnique({
-          where: {
-            userId,
-            id: Number(characterId),
-          },
-          select: {
-            perks: { select: { id: true } },
-          },
-        })
-        .then(
-          (character) =>
-            character?.perks.filter((perk) => !newPerks.includes(perk.id)) ||
-            [],
-        )
-        .then((perks) => perks.map((perk) => ({ id: perk.id })));
+      const oldPerks = newPerks
+        ? await prisma.character
+            .findUnique({
+              where: {
+                userId,
+                id: Number(characterId),
+              },
+              select: {
+                perks: { select: { id: true } },
+              },
+            })
+            .then(
+              (character) =>
+                character?.perks.filter(
+                  (perk) => !newPerks.includes({ id: perk.id }),
+                ) || [],
+            )
+            .then((perks) => perks.map((perk) => ({ id: perk.id })))
+        : null;
 
       const data = {
-        playerCharacter: JSON.parse(formData.playerCharacter),
-        firstName: JSON.parse(formData.firstName),
-        lastName: JSON.parse(formData.lastName),
-        picture: pictureInfo,
-        level: Number(JSON.parse(formData.level)),
-        profits: Number(JSON.parse(formData.profits)),
-        stats: JSON.parse(formData.stats),
-        height: Number(JSON.parse(formData.height)),
-        weight: Number(JSON.parse(formData.weight)),
-        age: Number(JSON.parse(formData.age)),
-        sex: JSON.parse(formData.sex),
-        background: JSON.parse(formData.background),
-        attributes: JSON.parse(formData.attributes),
+        ...formData,
       };
 
-      if (JSON.parse(formData.campaign)) {
+      if (formData.picture) {
+        data.picture = pictureInfo;
+      }
+
+      if (formData.campaign) {
         data.campaign = {
-          connect: { id: Number(JSON.parse(formData.campaign)) },
+          connect: { id: formData.campaign },
+        };
+      }
+
+      if (formData.perks) {
+        data.perks = {
+          disconnect: oldPerks,
+          connect: newPerks,
         };
       }
 
@@ -1248,13 +1256,7 @@ const characterServices = {
           userId,
           id: Number(characterId),
         },
-        data: {
-          ...data,
-          perks: {
-            disconnect: oldPerks,
-            connect: newPerks,
-          },
-        },
+        data,
       });
 
       return updatedCharacter;

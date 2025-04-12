@@ -133,7 +133,12 @@ const characterController = {
                 if (!req.user) {
                     throw new Error('Could not find authenticated user');
                 }
-                const character = await characterServices.updateCharacter(req.body, req.user.id, req.params.characterId);
+                const parsedBody = Object.fromEntries(Object.entries(req.body).map(([key, value]) => [
+                    key,
+                    JSON.parse(value),
+                ]));
+                console.log(parsedBody);
+                const character = await characterServices.updateCharacter(parsedBody, req.user.id, Number(req.params.characterId));
                 res.status(200).json(character);
             }
             catch (error) {

@@ -134,6 +134,10 @@ const characterServices = {
                     id: Number(characterId),
                 },
                 include: {
+                    user: {
+                        select: { profilePicture: true, firstName: true, lastName: true },
+                    },
+                    campaign: { select: { name: true } },
                     perks: { include: { modifiers: { include: { action: true } } } },
                     characterInventory: {
                         include: {
@@ -860,42 +864,40 @@ const characterServices = {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
                 }
                 else {
-                    return JSON.parse(formData.picture);
+                    return formData.picture;
                 }
             };
             const pictureInfo = getPictureInfo();
-            const newPerks = JSON.parse(formData.perks).map((id) => ({ id }));
-            const oldPerks = await prisma.character
-                .findUnique({
-                where: {
-                    userId,
-                    id: Number(characterId),
-                },
-                select: {
-                    perks: { select: { id: true } },
-                },
-            })
-                .then((character) => (character === null || character === void 0 ? void 0 : character.perks.filter((perk) => !newPerks.includes(perk.id))) ||
-                [])
-                .then((perks) => perks.map((perk) => ({ id: perk.id })));
-            const data = {
-                playerCharacter: JSON.parse(formData.playerCharacter),
-                firstName: JSON.parse(formData.firstName),
-                lastName: JSON.parse(formData.lastName),
-                picture: pictureInfo,
-                level: Number(JSON.parse(formData.level)),
-                profits: Number(JSON.parse(formData.profits)),
-                stats: JSON.parse(formData.stats),
-                height: Number(JSON.parse(formData.height)),
-                weight: Number(JSON.parse(formData.weight)),
-                age: Number(JSON.parse(formData.age)),
-                sex: JSON.parse(formData.sex),
-                background: JSON.parse(formData.background),
-                attributes: JSON.parse(formData.attributes),
-            };
-            if (JSON.parse(formData.campaign)) {
+            const newPerks = formData.perks
+                ? formData.perks.map((id) => ({ id }))
+                : null;
+            const oldPerks = newPerks
+                ? await prisma.character
+                    .findUnique({
+                    where: {
+                        userId,
+                        id: Number(characterId),
+                    },
+                    select: {
+                        perks: { select: { id: true } },
+                    },
+                })
+                    .then((character) => (character === null || character === void 0 ? void 0 : character.perks.filter((perk) => !newPerks.includes({ id: perk.id }))) || [])
+                    .then((perks) => perks.map((perk) => ({ id: perk.id })))
+                : null;
+            const data = Object.assign({}, formData);
+            if (formData.picture) {
+                data.picture = pictureInfo;
+            }
+            if (formData.campaign) {
                 data.campaign = {
-                    connect: { id: Number(JSON.parse(formData.campaign)) },
+                    connect: { id: formData.campaign },
+                };
+            }
+            if (formData.perks) {
+                data.perks = {
+                    disconnect: oldPerks,
+                    connect: newPerks,
                 };
             }
             const updatedCharacter = await prisma.character.update({
@@ -903,10 +905,7 @@ const characterServices = {
                     userId,
                     id: Number(characterId),
                 },
-                data: Object.assign(Object.assign({}, data), { perks: {
-                        disconnect: oldPerks,
-                        connect: newPerks,
-                    } }),
+                data,
             });
             return updatedCharacter;
         }
