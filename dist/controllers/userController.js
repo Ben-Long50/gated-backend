@@ -4,6 +4,10 @@ import userServices from '../services/userServices.js';
 const userController = {
     getAuthenticatedUser: async (req, res) => {
         var _a;
+        if (!req.user) {
+            res.status(401).json({ error: 'User could not be authenticated' });
+            return;
+        }
         const user = await userServices.getUserById((_a = req.user) === null || _a === void 0 ? void 0 : _a.id);
         res.status(200).json(user);
     },
@@ -28,9 +32,10 @@ const userController = {
     },
     getUser: async (req, res) => {
         try {
-            const user = await userServices.getUserById(req.params.id);
+            const user = await userServices.getUserById(Number(req.params.id));
             if (!user) {
                 res.status(404).json({ error: 'User not found' });
+                return;
             }
             res.status(200).json({
                 id: user.id,

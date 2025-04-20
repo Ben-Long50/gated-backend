@@ -5,6 +5,11 @@ import userServices from '../services/userServices.js';
 
 const userController = {
   getAuthenticatedUser: async (req: Request, res: Response) => {
+    if (!req.user) {
+      res.status(401).json({ error: 'User could not be authenticated' });
+      return;
+    }
+
     const user = await userServices.getUserById(req.user?.id);
     res.status(200).json(user);
   },
@@ -31,9 +36,10 @@ const userController = {
 
   getUser: async (req: Request, res: Response) => {
     try {
-      const user = await userServices.getUserById(req.params.id);
+      const user = await userServices.getUserById(Number(req.params.id));
       if (!user) {
         res.status(404).json({ error: 'User not found' });
+        return;
       }
 
       res.status(200).json({

@@ -71,6 +71,12 @@ router.post(
   characterController.createCharacter,
 );
 
+router.post(
+  '/characters/:characterId/affiliations/create',
+  authentication.authenticate,
+  characterController.createCharacterAffiliation,
+);
+
 router.put(
   '/characters/:characterId',
   authentication.authenticate,

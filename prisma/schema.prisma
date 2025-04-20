@@ -45,28 +45,21 @@ model Campaign {
 }
 
 model Faction {
-  id                    Int           @id @default(autoincrement())
-  factionType           FactionType
-  name                  String
-  picture               Json?
-  background            Json?
-  campaign              Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId            Int
-  primaryAffiliations   Affiliation[] @relation("primaryFaction")
-  secondaryAffiliations Affiliation[] @relation("secondaryFaction")
+  id           Int           @id @default(autoincrement())
+  factionType  FactionType
+  name         String
+  picture      Json?
+  background   Json?
+  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId   Int
+  affiliations Affiliation[]
 }
 
 model Affiliation {
-  id                   Int        @id @default(autoincrement())
-  value                Int        @default(0)
-  primaryFaction       Faction?   @relation("primaryFaction", fields: [primaryFactionId], references: [id], onDelete: Cascade)
-  primaryFactionId     Int?
-  primaryCharacter     Character? @relation("primaryCharacter", fields: [primaryCharacterId], references: [id], onDelete: Cascade)
-  primaryCharacterId   Int?
-  secondaryFaction     Faction?   @relation("secondaryFaction", fields: [secondaryFactionId], references: [id], onDelete: Cascade)
-  secondaryFactionId   Int?
-  secondaryCharacter   Character? @relation("secondaryCharacter", fields: [secondaryCharacterId], references: [id], onDelete: Cascade)
-  secondaryCharacterId Int?
+  id         Int         @id @default(autoincrement())
+  value      Int         @default(0)
+  factions   Faction[]
+  characters Character[]
 }
 
 enum FactionType {
@@ -141,38 +134,37 @@ model Gang {
 }
 
 model Character {
-  id                    Int                  @id @default(autoincrement())
-  userId                Int
-  level                 Int                  @default(1)
-  profits               Int                  @default(10)
-  stats                 Json                 @default("{}")
-  picture               Json?
-  height                Int
-  weight                Int
-  age                   Int
-  sex                   String
-  backstory             Json?
-  firstTaste            Json?
-  badMedicine           Json?
-  attributes            Json
-  firstName             String
-  lastName              String?
-  playerCharacter       Boolean              @default(false)
-  user                  User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  active                Boolean              @default(false)
-  perks                 Perk[]               @relation("CharacterToPerk")
-  campaign              Campaign?            @relation(fields: [campaignId], references: [id])
-  campaignId            Int?
-  sessions              Session[]
-  scenes                Scene[]
-  gang                  Gang?                @relation(fields: [gangId], references: [id])
-  gangId                Int?
-  characterConditions   CharacterCondition[]
-  characterCart         CharacterCart?
-  characterInventory    CharacterInventory?
-  Note                  Note[]
-  primaryAffiliations   Affiliation[]        @relation("primaryCharacter")
-  secondaryAffiliations Affiliation[]        @relation("secondaryCharacter")
+  id                  Int                  @id @default(autoincrement())
+  userId              Int
+  level               Int                  @default(1)
+  profits             Int                  @default(10)
+  stats               Json                 @default("{}")
+  picture             Json?
+  height              Int
+  weight              Int
+  age                 Int
+  sex                 String
+  backstory           Json?
+  firstTaste          Json?
+  badMedicine         Json?
+  attributes          Json
+  firstName           String
+  lastName            String?
+  playerCharacter     Boolean              @default(false)
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active              Boolean              @default(false)
+  perks               Perk[]               @relation("CharacterToPerk")
+  campaign            Campaign?            @relation(fields: [campaignId], references: [id])
+  campaignId          Int?
+  sessions            Session[]
+  scenes              Scene[]
+  gang                Gang?                @relation(fields: [gangId], references: [id])
+  gangId              Int?
+  characterConditions CharacterCondition[]
+  characterCart       CharacterCart?
+  characterInventory  CharacterInventory?
+  Note                Note[]
+  affiliations        Affiliation[]
 }
 
 model CharacterCart {

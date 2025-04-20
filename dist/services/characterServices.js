@@ -74,6 +74,8 @@ const characterServices = {
                     active: true,
                 },
                 include: {
+                    campaign: { select: { characters: true, factions: true } },
+                    affiliations: { include: { factions: true, characters: true } },
                     perks: { include: { modifiers: { include: { action: true } } } },
                     characterCart: {
                         include: {
@@ -306,7 +308,6 @@ const characterServices = {
                     weight: Number(JSON.parse(formData.weight)),
                     age: Number(JSON.parse(formData.age)),
                     sex: JSON.parse(formData.sex),
-                    background: JSON.parse(formData.background),
                     attributes: JSON.parse(formData.attributes),
                     perks: {
                         connect: perks.map((id) => ({ id })),
@@ -320,6 +321,27 @@ const characterServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to create character');
+        }
+    },
+    createAffiliation: async (characterId, formData) => {
+        try {
+            const factions = formData.faction
+                ? { connect: [{ id: formData.faction.id }] }
+                : undefined;
+            const characters = formData.character
+                ? { connect: [{ id: formData.character.id }, { id: characterId }] }
+                : { connect: [{ id: characterId }] };
+            await prisma.affiliation.create({
+                data: {
+                    factions,
+                    characters,
+                    value: formData.value,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create character affiliation');
         }
     },
     createCharacterCart: async (characterId) => {
@@ -858,9 +880,8 @@ const characterServices = {
     },
     updateCharacter: async (formData, userId, characterId) => {
         try {
-            console.log(formData);
             const getPictureInfo = () => {
-                if (formData.publicId) {
+                if (formData.publicId && formData.imageUrl) {
                     return { publicId: formData.publicId, imageUrl: formData.imageUrl };
                 }
                 else {

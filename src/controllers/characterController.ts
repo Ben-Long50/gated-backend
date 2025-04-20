@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import characterServices from '../services/characterServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import { Affiliation, Character, Faction } from '@prisma/client';
 
 const characterController = {
   getCharacters: async (req: Request, res: Response) => {
@@ -163,8 +164,8 @@ const characterController = {
           throw new Error('Could not find authenticated user');
         }
 
-        const parsedBody = Object.fromEntries(
-          Object.entries(req.body).map(([key, value]) => [
+        const parsedBody: Partial<Character> = Object.fromEntries(
+          Object.entries(req.body).map(([key, value]: [string, any]) => [
             key,
             JSON.parse(value),
           ]),
@@ -177,6 +178,55 @@ const characterController = {
         );
         res.status(200).json(character);
       } catch (error) {
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
+      }
+    },
+  ],
+
+  createCharacterAffiliation: [
+    upload.none(),
+    async (req: Request, res: Response) => {
+      try {
+        const parsedBody: {
+          faction?: Faction;
+          character?: Character;
+          value: number;
+        } = Object.fromEntries(
+          Object.entries(req.body).map(([key, value]: [string, any]) => [
+            key,
+            JSON.parse(value),
+          ]),
+        );
+        console.log(parsedBody);
+
+        //Make sure there are only a total of 2 factions, gangs or characters added to the new affiliation
+        if (!!parsedBody.character === true && !!parsedBody.faction === true) {
+          throw new Error(
+            'There are too many entities involved in this affiliation. Only two entities are allowed',
+          );
+        }
+
+        if (
+          !!parsedBody.character === false &&
+          !!parsedBody.faction === false
+        ) {
+          throw new Error(
+            'There are not enought entities involved in this affiliation. Only two entities are allowed',
+          );
+        }
+
+        await characterServices.createAffiliation(
+          Number(req.params.characterId),
+          parsedBody,
+        );
+        res
+          .status(200)
+          .json({ message: 'Successfully created character affiliation' });
+      } catch (error: any) {
+        console.error(error.message);
+
         if (error instanceof Error) {
           res.status(500).json({ error: error.message });
         }

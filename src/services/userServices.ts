@@ -1,4 +1,3 @@
-import { read } from 'fs';
 import prisma from '../config/database.js';
 
 const userServices = {
@@ -41,7 +40,7 @@ const userServices = {
     }
   },
 
-  getUserById: async (id: string) => {
+  getUserById: async (id: number) => {
     try {
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },

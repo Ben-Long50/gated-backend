@@ -1,12 +1,15 @@
 import {
   Armor,
+  Character,
   Cybernetic,
+  Faction,
   Item,
   Prisma,
   Vehicle,
   Weapon,
 } from '@prisma/client';
 import prisma from '../config/database.js';
+import { connect } from 'http2';
 
 const characterServices = {
   getCharacters: async (userId: number) => {
@@ -73,6 +76,8 @@ const characterServices = {
           active: true,
         },
         include: {
+          campaign: { select: { characters: true, factions: true } },
+          affiliations: { include: { factions: true, characters: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterCart: {
             include: {
@@ -333,7 +338,6 @@ const characterServices = {
           weight: Number(JSON.parse(formData.weight)),
           age: Number(JSON.parse(formData.age)),
           sex: JSON.parse(formData.sex),
-          background: JSON.parse(formData.background),
           attributes: JSON.parse(formData.attributes),
           perks: {
             connect: perks.map((id: number) => ({ id })),
@@ -351,6 +355,30 @@ const characterServices = {
     }
   },
 
+  createAffiliation: async (
+    characterId: number,
+    formData: { faction?: Faction; character?: Character; value: number },
+  ) => {
+    try {
+      const factions = formData.faction
+        ? { connect: [{ id: formData.faction.id }] }
+        : undefined;
+      const characters = formData.character
+        ? { connect: [{ id: formData.character.id }, { id: characterId }] }
+        : { connect: [{ id: characterId }] };
+
+      await prisma.affiliation.create({
+        data: {
+          factions,
+          characters,
+          value: formData.value,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to create character affiliation');
+    }
+  },
   createCharacterCart: async (characterId: number) => {
     try {
       await prisma.characterCart.create({
@@ -1171,33 +1199,13 @@ const characterServices = {
   },
 
   updateCharacter: async (
-    formData: {
-      playerCharacter: boolean;
-      campaign: number;
-      perks: number[];
-      stats: CharacterStats;
-      firstName: string;
-      lastName: string;
-      imageUrl: string;
-      publicId: string;
-      height: number;
-      weight: number;
-      age: number;
-      sex: 'male' | 'female';
-      level: number;
-      picture: { imageUrl: string; publicId: string };
-      profits: number;
-      backstory: { html: string; nodes: object };
-      firstTaste: { html: string; nodes: object };
-      badMedicine: { html: string; nodes: object };
-      attributes: string;
-    },
+    formData: Partial<Character>,
     userId: number,
     characterId: number,
   ) => {
     try {
       const getPictureInfo = () => {
-        if (formData.publicId) {
+        if (formData.publicId && formData.imageUrl) {
           return { publicId: formData.publicId, imageUrl: formData.imageUrl };
         } else {
           return formData.picture;
