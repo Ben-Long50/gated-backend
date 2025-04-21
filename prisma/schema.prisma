@@ -29,12 +29,12 @@ model User {
 }
 
 model Campaign {
-  id             Int         @id @default(autoincrement())
-  createdAt      DateTime    @default(now())
-  owner          User        @relation("owner", fields: [ownerId], references: [id])
+  id             Int           @id @default(autoincrement())
+  createdAt      DateTime      @default(now())
+  owner          User          @relation("owner", fields: [ownerId], references: [id])
   ownerId        Int
-  pendingPlayers User[]      @relation("pending")
-  players        User[]      @relation("player")
+  pendingPlayers User[]        @relation("pending")
+  players        User[]        @relation("player")
   factions       Faction[]
   name           String
   location       String
@@ -42,6 +42,7 @@ model Campaign {
   gangs          Gang[]
   sessions       Session[]
   characters     Character[]
+  affiliations   Affiliation[]
 }
 
 model Faction {
@@ -57,8 +58,11 @@ model Faction {
 
 model Affiliation {
   id         Int         @id @default(autoincrement())
+  campaign   Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId Int
   value      Int         @default(0)
   factions   Faction[]
+  gangs      Gang[]
   characters Character[]
 }
 
@@ -124,13 +128,14 @@ model Note {
 }
 
 model Gang {
-  id         Int         @id @default(autoincrement())
-  name       String
-  level      Int         @default(1)
-  characters Character[]
-  profits    Int         @default(10)
-  campaign   Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  campaignId Int
+  id           Int           @id @default(autoincrement())
+  name         String
+  level        Int           @default(1)
+  characters   Character[]
+  profits      Int           @default(10)
+  campaign     Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId   Int
+  affiliations Affiliation[]
 }
 
 model Character {

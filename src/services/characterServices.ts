@@ -2,14 +2,12 @@ import {
   Armor,
   Character,
   Cybernetic,
-  Faction,
   Item,
   Prisma,
   Vehicle,
   Weapon,
 } from '@prisma/client';
 import prisma from '../config/database.js';
-import { connect } from 'http2';
 
 const characterServices = {
   getCharacters: async (userId: number) => {
@@ -355,30 +353,6 @@ const characterServices = {
     }
   },
 
-  createAffiliation: async (
-    characterId: number,
-    formData: { faction?: Faction; character?: Character; value: number },
-  ) => {
-    try {
-      const factions = formData.faction
-        ? { connect: [{ id: formData.faction.id }] }
-        : undefined;
-      const characters = formData.character
-        ? { connect: [{ id: formData.character.id }, { id: characterId }] }
-        : { connect: [{ id: characterId }] };
-
-      await prisma.affiliation.create({
-        data: {
-          factions,
-          characters,
-          value: formData.value,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to create character affiliation');
-    }
-  },
   createCharacterCart: async (characterId: number) => {
     try {
       await prisma.characterCart.create({

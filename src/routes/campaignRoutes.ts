@@ -2,6 +2,7 @@ import express from 'express';
 import authentication from '../middleware/authentication.js';
 import campaignController from '../controllers/campaignController.js';
 import factionController from '../controllers/factionController.js';
+import affiliationController from '../controllers/affiliationController.js';
 
 const router = express.Router();
 
@@ -39,6 +40,12 @@ router.get(
   '/factions/:factionId',
   authentication.authenticate,
   factionController.getFactionById,
+);
+
+router.post(
+  '/factions/:factionId/affiliations/create',
+  authentication.authenticate,
+  affiliationController.createFactionAffiliation,
 );
 
 router.post(

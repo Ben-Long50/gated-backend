@@ -1,3 +1,4 @@
 /node_modules
+/backups
 .env
 /src/utils/updaterScripts

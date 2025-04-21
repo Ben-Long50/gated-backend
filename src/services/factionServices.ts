@@ -21,14 +21,7 @@ const factionServices = {
       const faction = await prisma.faction.findUnique({
         where: { id: Number(factionId) },
         include: {
-          primaryAffiliations: {
-            include: {
-              primaryFaction: true,
-              secondaryFaction: true,
-              primaryCharacter: true,
-              secondaryCharacter: true,
-            },
-          },
+          affiliations: { include: { factions: true, characters: true } },
         },
       });
       return faction;

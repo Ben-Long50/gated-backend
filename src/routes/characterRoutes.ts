@@ -2,6 +2,7 @@ import express from 'express';
 import authentication from '../middleware/authentication.js';
 import characterController from '../controllers/characterController.js';
 import characterStatController from '../controllers/characterStatController.js';
+import affiliationController from '../controllers/affiliationController.js';
 
 const router = express.Router();
 
@@ -74,7 +75,7 @@ router.post(
 router.post(
   '/characters/:characterId/affiliations/create',
   authentication.authenticate,
-  characterController.createCharacterAffiliation,
+  affiliationController.createCharacterAffiliation,
 );
 
 router.put(

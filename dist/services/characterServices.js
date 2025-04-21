@@ -323,27 +323,6 @@ const characterServices = {
             throw new Error('Failed to create character');
         }
     },
-    createAffiliation: async (characterId, formData) => {
-        try {
-            const factions = formData.faction
-                ? { connect: [{ id: formData.faction.id }] }
-                : undefined;
-            const characters = formData.character
-                ? { connect: [{ id: formData.character.id }, { id: characterId }] }
-                : { connect: [{ id: characterId }] };
-            await prisma.affiliation.create({
-                data: {
-                    factions,
-                    characters,
-                    value: formData.value,
-                },
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to create character affiliation');
-        }
-    },
     createCharacterCart: async (characterId) => {
         try {
             await prisma.characterCart.create({

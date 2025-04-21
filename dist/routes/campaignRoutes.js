@@ -2,6 +2,7 @@ import express from 'express';
 import authentication from '../middleware/authentication.js';
 import campaignController from '../controllers/campaignController.js';
 import factionController from '../controllers/factionController.js';
+import affiliationController from '../controllers/affiliationController.js';
 const router = express.Router();
 router.patch('/campaigns/:campaignId/players', authentication.authenticate, campaignController.joinCampaign);
 router.get('/campaigns/owner', authentication.authenticate, campaignController.getOwnerCampaigns);
@@ -9,6 +10,7 @@ router.get('/campaigns/player', authentication.authenticate, campaignController.
 router.get('/campaigns/pending', authentication.authenticate, campaignController.getPendingCampaigns);
 router.get('/campaigns/:campaignId', authentication.authenticate, campaignController.getCampaignById);
 router.get('/factions/:factionId', authentication.authenticate, factionController.getFactionById);
+router.post('/factions/:factionId/affiliations/create', authentication.authenticate, affiliationController.createFactionAffiliation);
 router.post('/campaigns', authentication.authenticate, campaignController.createCampaign);
 router.put('/campaigns/:campaignId/factions/:factionId', authentication.authenticate, factionController.updateFaction);
 router.delete('/campaigns/:campaignId', authentication.authenticate, campaignController.deleteCampaign);

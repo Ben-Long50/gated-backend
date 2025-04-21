@@ -2,6 +2,7 @@ import express from 'express';
 import authentication from '../middleware/authentication.js';
 import characterController from '../controllers/characterController.js';
 import characterStatController from '../controllers/characterStatController.js';
+import affiliationController from '../controllers/affiliationController.js';
 const router = express.Router();
 router.get('/characters', authentication.authenticate, characterController.getCharacters);
 router.get('/characters/active', authentication.authenticate, characterController.getActiveCharacter);
@@ -14,7 +15,7 @@ router.patch('/characters/:characterId/stats/currentSanity', authentication.auth
 router.patch('/characters/:characterId/cart/:cartId', authentication.authenticate, characterController.editCart);
 router.post('/characters/:characterId/inventory/:inventoryId', authentication.authenticate, characterController.completePurchase);
 router.post('/characters', authentication.authenticate, characterController.createCharacter);
-router.post('/characters/:characterId/affiliations/create', authentication.authenticate, characterController.createCharacterAffiliation);
+router.post('/characters/:characterId/affiliations/create', authentication.authenticate, affiliationController.createCharacterAffiliation);
 router.put('/characters/:characterId', authentication.authenticate, characterController.updateCharacter);
 router.put('/characters/:characterId/cart/:cartId', authentication.authenticate, characterController.clearCart);
 router.delete('/characters/:characterId', authentication.authenticate, characterController.deleteCharacter);
