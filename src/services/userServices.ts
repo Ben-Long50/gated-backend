@@ -40,12 +40,14 @@ const userServices = {
     }
   },
 
-  getUserById: async (id: number) => {
+  getUserByUsername: async (username: string) => {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: Number(id) },
+        where: { username },
         select: {
           id: true,
+          username: true,
+          email: true,
           firstName: true,
           lastName: true,
           role: true,
@@ -53,9 +55,32 @@ const userServices = {
           _count: {
             select: {
               receivedNotifications: { where: { read: false } },
-              ownerCampaigns: true,
-              playerCampaigns: true,
-              pendingCampaigns: true,
+            },
+          },
+        },
+      });
+      return user;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch user');
+    }
+  },
+
+  getUserById: async (id: number) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: Number(id) },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          profilePicture: true,
+          _count: {
+            select: {
+              receivedNotifications: { where: { read: false } },
             },
           },
         },
@@ -72,6 +97,7 @@ const userServices = {
       const user = await prisma.user.findUnique({
         where: { email },
         select: {
+          username: true,
           id: true,
           firstName: true,
           lastName: true,
@@ -84,18 +110,7 @@ const userServices = {
           },
         },
       });
-      if (user) {
-        return {
-          id: user?.id,
-          firstName: user?.firstName,
-          lastName: user?.lastName,
-          role: user?.role,
-          profilePicture: user?.profilePicture,
-          receivedNotifications: user?._count,
-        };
-      } else {
-        return null;
-      }
+      return user;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch user');
@@ -103,6 +118,7 @@ const userServices = {
   },
 
   createUser: async (userData: {
+    username: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -113,6 +129,7 @@ const userServices = {
       });
       return {
         id: newUser?.id,
+        username: newUser?.username,
         firstName: newUser?.firstName,
         lastName: newUser?.lastName,
         role: newUser?.role,

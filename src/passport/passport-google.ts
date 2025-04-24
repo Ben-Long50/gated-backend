@@ -45,7 +45,15 @@ const googleStrategy = (passport: PassportStatic) => {
               return done(null, false);
             }
           } else {
+            const randomNumberArray = [] as number[];
+            for (let i = 0; i < 8; i++) {
+              randomNumberArray.push(Math.floor(Math.random() * 10));
+            }
+            const numberString = randomNumberArray.join('').toString();
+            const username = firstName + numberString;
+
             const userData = {
+              username,
               googleId: profile.id,
               firstName,
               lastName,

@@ -14,6 +14,8 @@ router.get('/users', authentication.authenticate, userController.getUsers);
 
 router.post('/users', authentication.authenticate, userController.createUser);
 
+router.put('/users', authentication.authenticate, userController.updateUser);
+
 router.get('/users/:userId', userController.getUser);
 
 export default router;

@@ -57,7 +57,15 @@ const facebookStrategy = (passport: PassportStatic) => {
               });
             }
           } else {
+            const randomNumberArray = [] as number[];
+            for (let i = 0; i < 8; i++) {
+              randomNumberArray.push(Math.floor(Math.random() * 10));
+            }
+            const numberString = randomNumberArray.join('').toString();
+            const username = profile.name.givenName + numberString;
+
             const userData = {
+              username,
               facebookId: profile.id,
               firstName: profile.name.givenName,
               lastName: profile.name.familyName,

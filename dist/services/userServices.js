@@ -40,12 +40,14 @@ const userServices = {
             throw new Error('Failed to fetch users');
         }
     },
-    getUserById: async (id) => {
+    getUserByUsername: async (username) => {
         try {
             const user = await prisma.user.findUnique({
-                where: { id: Number(id) },
+                where: { username },
                 select: {
                     id: true,
+                    username: true,
+                    email: true,
                     firstName: true,
                     lastName: true,
                     role: true,
@@ -53,9 +55,32 @@ const userServices = {
                     _count: {
                         select: {
                             receivedNotifications: { where: { read: false } },
-                            ownerCampaigns: true,
-                            playerCampaigns: true,
-                            pendingCampaigns: true,
+                        },
+                    },
+                },
+            });
+            return user;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch user');
+        }
+    },
+    getUserById: async (id) => {
+        try {
+            const user = await prisma.user.findUnique({
+                where: { id: Number(id) },
+                select: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    firstName: true,
+                    lastName: true,
+                    role: true,
+                    profilePicture: true,
+                    _count: {
+                        select: {
+                            receivedNotifications: { where: { read: false } },
                         },
                     },
                 },
@@ -72,6 +97,7 @@ const userServices = {
             const user = await prisma.user.findUnique({
                 where: { email },
                 select: {
+                    username: true,
                     id: true,
                     firstName: true,
                     lastName: true,
@@ -84,19 +110,7 @@ const userServices = {
                     },
                 },
             });
-            if (user) {
-                return {
-                    id: user === null || user === void 0 ? void 0 : user.id,
-                    firstName: user === null || user === void 0 ? void 0 : user.firstName,
-                    lastName: user === null || user === void 0 ? void 0 : user.lastName,
-                    role: user === null || user === void 0 ? void 0 : user.role,
-                    profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
-                    receivedNotifications: user === null || user === void 0 ? void 0 : user._count,
-                };
-            }
-            else {
-                return null;
-            }
+            return user;
         }
         catch (error) {
             console.error(error);
@@ -110,6 +124,7 @@ const userServices = {
             });
             return {
                 id: newUser === null || newUser === void 0 ? void 0 : newUser.id,
+                username: newUser === null || newUser === void 0 ? void 0 : newUser.username,
                 firstName: newUser === null || newUser === void 0 ? void 0 : newUser.firstName,
                 lastName: newUser === null || newUser === void 0 ? void 0 : newUser.lastName,
                 role: newUser === null || newUser === void 0 ? void 0 : newUser.role,
