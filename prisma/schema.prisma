@@ -78,9 +78,11 @@ model Session {
   createdAt     DateTime    @default(now())
   sessionNumber Int
   name          String
+  location      String?
   campaign      Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
   campaignId    Int
-  briefing      Json?
+  briefing      Json
+  picture       Json?
   notes         Note[]
   characters    Character[]
   scenes        Scene[]

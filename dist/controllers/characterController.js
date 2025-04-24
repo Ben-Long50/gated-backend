@@ -1,6 +1,7 @@
 import characterServices from '../services/characterServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 const characterController = {
     getCharacters: async (req, res) => {
         try {
@@ -115,7 +116,8 @@ const characterController = {
                 if (!req.user) {
                     throw new Error('Could not find authenticated user');
                 }
-                const character = await characterServices.createCharacter(req.body, req.user.id);
+                const parsedBody = parseRequestBody(req.body);
+                const character = await characterServices.createCharacter(parsedBody, req.user.id);
                 res.status(200).json(character);
             }
             catch (error) {
@@ -133,21 +135,13 @@ const characterController = {
                 if (!req.user) {
                     throw new Error('Could not find authenticated user');
                 }
-                const parsedBody = Object.fromEntries(Object.entries(req.body)
-                    .map(([key, value]) => {
-                    if (typeof JSON.parse(value) !== 'boolean' &&
-                        typeof Number(JSON.parse(value)) === 'number') {
-                        return [key, Number(JSON.parse(value))];
-                    }
-                    else
-                        return [key, JSON.parse(value)];
-                })
-                    .filter(([_, value]) => !!value === true));
+                const parsedBody = parseRequestBody(req.body);
                 console.log(parsedBody);
                 const character = await characterServices.updateCharacter(parsedBody, req.user.id, Number(req.params.characterId));
                 res.status(200).json(character);
             }
             catch (error) {
+                console.error(error);
                 if (error instanceof Error) {
                     res.status(500).json({ error: error.message });
                 }

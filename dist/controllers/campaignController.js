@@ -3,6 +3,7 @@ import sessionServices from '../services/sessionServices.js';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import notificationServices from '../services/notificationServices.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 const campaignController = {
     getOwnerCampaigns: async (req, res) => {
         try {
@@ -77,25 +78,18 @@ const campaignController = {
                     });
                     return;
                 }
-                const campaignInfo = {
-                    name: JSON.parse(req.body.name),
-                    location: JSON.parse(req.body.location),
-                    publicId: req.body.publicId,
-                    imageUrl: req.body.imageUrl,
-                    ownerId: req.user.id,
-                    affiliation: Number(JSON.parse(req.body.affiliation)),
-                    factions: JSON.parse(req.body.factions),
-                    players: JSON.parse(req.body.players),
-                };
-                const campaign = await campaignServices.createOrUpdateCampaign(campaignInfo);
+                const parsedBody = parseRequestBody(req.body);
+                const campaign = await campaignServices.createOrUpdateCampaign(parsedBody, req.user.id);
                 const sessionInfo = {
                     name: 'Introduction',
                     sessionNumber: 0,
-                    briefing: JSON.parse(req.body.briefing),
-                    campaignId: campaign.id,
+                    briefing: parsedBody.briefing,
                 };
-                await sessionServices.createOrUpdateSession(sessionInfo);
-                await notificationServices.createNotification('campaignInvite', campaignInfo.players.map((player) => player.id), req.user.id);
+                console.log(parsedBody);
+                if (!parsedBody.id) {
+                    await sessionServices.createOrUpdateSession(sessionInfo, campaign.id);
+                }
+                await notificationServices.createNotification('campaignInvite', parsedBody.players.map((player) => player.id), req.user.id);
                 res
                     .status(200)
                     .json({ message: 'Successfully created campaign and session 0' });
@@ -126,7 +120,13 @@ const campaignController = {
     },
     deleteCampaign: async (req, res) => {
         try {
-            await campaignServices.deleteCampaign(req.params.campaignId);
+            if (!req.user) {
+                res
+                    .status(401)
+                    .json({ error: 'You must be signed in to use this function' });
+                return;
+            }
+            await campaignServices.deleteCampaign(Number(req.params.campaignId), req.user.id);
             res.status(200).json({ message: 'Successfully deleted campaign' });
         }
         catch (error) {

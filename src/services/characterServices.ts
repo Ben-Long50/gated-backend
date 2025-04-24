@@ -1,6 +1,5 @@
 import {
   Armor,
-  Character,
   Cybernetic,
   Item,
   Prisma,
@@ -8,6 +7,7 @@ import {
   Weapon,
 } from '@prisma/client';
 import prisma from '../config/database.js';
+import { Character } from '../types/character.js';
 
 const characterServices = {
   getCharacters: async (userId: number) => {
@@ -74,7 +74,9 @@ const characterServices = {
           active: true,
         },
         include: {
-          campaign: { select: { characters: true, factions: true } },
+          campaign: {
+            select: { characters: true, gangs: true, factions: true },
+          },
           affiliations: { include: { factions: true, characters: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterCart: {
@@ -140,7 +142,7 @@ const characterServices = {
           user: {
             select: { profilePicture: true, firstName: true, lastName: true },
           },
-          campaign: { select: { name: true } },
+          campaign: { select: { name: true, id: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterInventory: {
             include: {
@@ -299,48 +301,24 @@ const characterServices = {
     }
   },
 
-  createCharacter: async (
-    formData: {
-      perks: string;
-      stats: string;
-      firstName: string;
-      lastName: string;
-      imageUrl: string;
-      publicId: string;
-      height: string;
-      weight: string;
-      age: string;
-      sex: string;
-      background: string;
-      attributes: string;
-    },
-    userId: number,
-  ) => {
+  createCharacter: async (formData: Partial<Character>, userId: number) => {
     try {
-      const perks = JSON.parse(formData.perks);
-      const stats = JSON.parse(formData.stats);
+      const data = {
+        ...formData,
+        userId,
+        stats: {
+          currentHealth: formData.stats?.currentHealth,
+          currentSanity: formData.stats?.currentSanity,
+          injuries: 0,
+          insanities: 0,
+        },
+        perks: {
+          connect: formData.perks?.map((id: number) => ({ id })) || [],
+        },
+      };
 
       const newCharacter = await prisma.character.create({
-        data: {
-          userId,
-          firstName: JSON.parse(formData.firstName),
-          lastName: JSON.parse(formData.lastName),
-          stats: {
-            currentHealth: stats.currentHealth,
-            currentSanity: stats.currentSanity,
-            injuries: 0,
-            insanities: 0,
-          },
-          picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
-          height: Number(JSON.parse(formData.height)),
-          weight: Number(JSON.parse(formData.weight)),
-          age: Number(JSON.parse(formData.age)),
-          sex: JSON.parse(formData.sex),
-          attributes: JSON.parse(formData.attributes),
-          perks: {
-            connect: perks.map((id: number) => ({ id })),
-          },
-        },
+        data,
       });
 
       await characterServices.createCharacterCart(newCharacter.id);
@@ -1178,67 +1156,19 @@ const characterServices = {
     characterId: number,
   ) => {
     try {
-      const getPictureInfo = () => {
-        if (formData.publicId && formData.imageUrl) {
-          return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-        } else {
-          return formData.picture;
-        }
-      };
-
-      const pictureInfo = getPictureInfo();
-
-      const newPerks = formData.perks
-        ? formData.perks.map((id: number) => ({ id }))
-        : null;
-
-      const oldPerks = newPerks
-        ? await prisma.character
-            .findUnique({
-              where: {
-                userId,
-                id: Number(characterId),
-              },
-              select: {
-                perks: { select: { id: true } },
-              },
-            })
-            .then(
-              (character) =>
-                character?.perks.filter(
-                  (perk) => !newPerks.includes({ id: perk.id }),
-                ) || [],
-            )
-            .then((perks) => perks.map((perk) => ({ id: perk.id })))
-        : null;
-
-      const data = {
+      const { perks, ...data } = {
         ...formData,
       };
-
-      if (formData.picture) {
-        data.picture = pictureInfo;
-      }
-
-      if (formData.campaign) {
-        data.campaign = {
-          connect: { id: formData.campaign },
-        };
-      }
-
-      if (formData.perks) {
-        data.perks = {
-          disconnect: oldPerks,
-          connect: newPerks,
-        };
-      }
 
       const updatedCharacter = await prisma.character.update({
         where: {
           userId,
           id: Number(characterId),
         },
-        data,
+        data: {
+          ...data,
+          perks: { set: perks?.map((id: number) => ({ id })) || [] },
+        },
       });
 
       return updatedCharacter;

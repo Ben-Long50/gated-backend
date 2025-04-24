@@ -19,7 +19,7 @@ router.get(
 router.post(
   '/campaigns/:campaignId/sessions',
   authentication.authenticate,
-  sessionController.createSession,
+  sessionController.createOrUpdateSession,
 );
 
 router.delete(

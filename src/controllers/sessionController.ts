@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import sessionServices from '../services/sessionServices.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
+import upload from '../utils/multer.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 const sessionController = {
   getCampaignSessions: async (req: Request, res: Response) => {
@@ -25,7 +28,8 @@ const sessionController = {
   getSessionById: async (req: Request, res: Response) => {
     try {
       const session = await sessionServices.getSessionById(
-        req.params.sessionId,
+        Number(req.params.campaignId),
+        Number(req.params.sessionId),
       );
       res.status(200).json(session);
     } catch (error) {
@@ -35,16 +39,25 @@ const sessionController = {
     }
   },
 
-  createSession: async (req: Request, res: Response) => {
-    try {
-      await sessionServices.createOrUpdateSession(req.body);
-      res.status(200).json({ message: 'Successfully created session' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
+  createOrUpdateSession: [
+    upload.single('picture'),
+    uploadToCloudinary,
+    async (req: Request, res: Response) => {
+      try {
+        const parsedBody = parseRequestBody(req.body);
+
+        await sessionServices.createOrUpdateSession(
+          parsedBody,
+          Number(req.params.campaignId),
+        );
+        res.status(200).json({ message: 'Successfully created session' });
+      } catch (error) {
+        if (error instanceof Error) {
+          res.status(500).json({ error: error.message });
+        }
       }
-    }
-  },
+    },
+  ],
 
   deleteSession: async (req: Request, res: Response) => {
     try {

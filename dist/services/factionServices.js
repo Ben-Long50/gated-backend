@@ -35,17 +35,9 @@ const factionServices = {
                 data: {
                     name: formData.name,
                     background: formData.background,
-                    picture: { publicId: formData.publicId, imageUrl: formData.imageUrl },
+                    picture: formData.picture,
                 },
             });
-            const affiliationUpdates = formData.affiliations.map((affiliation) => ({
-                id: affiliation.id,
-                value: affiliation.value,
-            }));
-            await Promise.all(affiliationUpdates.map(({ id, value }) => prisma.affiliation.update({
-                where: { id },
-                data: { value },
-            })));
             return faction;
         }
         catch (error) {
@@ -55,6 +47,22 @@ const factionServices = {
     },
     deleteFaction: async (factionId) => {
         try {
+            const faction = await prisma.faction.findUnique({
+                where: {
+                    id: Number(factionId),
+                },
+                select: {
+                    affiliations: { select: { id: true } },
+                },
+            });
+            if (!faction) {
+                throw new Error('Failed to find faction');
+            }
+            await prisma.affiliation.deleteMany({
+                where: {
+                    id: { in: faction.affiliations.map((affiliation) => affiliation.id) },
+                },
+            });
             await prisma.faction.delete({
                 where: {
                     id: Number(factionId),

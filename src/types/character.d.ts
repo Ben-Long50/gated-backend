@@ -1,4 +1,4 @@
-interface Character {
+export interface Character {
   playerCharacter: boolean;
   campaign: number;
   perks: number[];

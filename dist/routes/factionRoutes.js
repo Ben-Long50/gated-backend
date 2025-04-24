@@ -11,4 +11,5 @@ router.post('/characters/:characterId/affiliations/create', authentication.authe
 router.put('/affiliations/:affiliationId', authentication.authenticate, affiliationController.updateAffiliationValue);
 router.delete('/affiliations/:affiliationId', authentication.authenticate, affiliationController.deleteAffiliation);
 router.put('/campaigns/:campaignId/factions/:factionId', authentication.authenticate, factionController.updateFaction);
+router.delete('/campaigns/:campaignId/factions/:factionId', authentication.authenticate, factionController.deleteFaction);
 export default router;

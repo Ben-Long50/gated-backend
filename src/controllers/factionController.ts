@@ -3,6 +3,7 @@ import factionServices from '../services/factionServices.js';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import campaignServices from '../services/campaignServices.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 
 const factionController = {
   getCampaignFactions: async (req: Request, res: Response) => {
@@ -63,19 +64,11 @@ const factionController = {
           return;
         }
 
-        const factionInfo = {
-          id: Number(JSON.parse(req.params.factionId)),
-          name: JSON.parse(req.body.name) as string,
-          background: JSON.parse(req.body.background) as {
-            html: string;
-            nodes: string;
-          },
-          publicId: req.body.publicId,
-          imageUrl: req.body.imageUrl,
-          affiliations: JSON.parse(req.body.affiliations),
-        };
+        req.body.id = req.params.factionId;
 
-        await factionServices.updateFaction(factionInfo);
+        const parsedBody = parseRequestBody(req.body);
+
+        await factionServices.updateFaction(parsedBody);
 
         res.status(200).json({ message: 'Successfully created faction' });
       } catch (error) {
@@ -88,6 +81,25 @@ const factionController = {
 
   deleteFaction: async (req: Request, res: Response) => {
     try {
+      if (!req.user) {
+        res.status(401).json({
+          error: 'You do not have the required permissions to update a faction',
+        });
+        return;
+      }
+
+      const campaign = await campaignServices.getCampaignById(
+        req.params.campaignId,
+      );
+
+      if (req.user.id !== campaign?.ownerId) {
+        res.status(401).json({
+          error:
+            'You can only delete this faction if you are the game master of this campaign',
+        });
+        return;
+      }
+
       await factionServices.deleteFaction(req.params.factionId);
       res.status(200).json({ message: 'Successfully deleted faction' });
     } catch (error) {

@@ -53,4 +53,10 @@ router.put(
   factionController.updateFaction,
 );
 
+router.delete(
+  '/campaigns/:campaignId/factions/:factionId',
+  authentication.authenticate,
+  factionController.deleteFaction,
+);
+
 export default router;

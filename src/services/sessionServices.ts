@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import { Session } from '../types/campaign.js';
 
 const sessionServices = {
   getCampaignSessions: async (campaignId: string) => {
@@ -14,12 +15,12 @@ const sessionServices = {
     }
   },
 
-  getSessionById: async (sessionId: string) => {
+  getSessionById: async (campaignId: number, sessionId: number) => {
     try {
       const session = await prisma.session.findUnique({
-        where: { id: Number(sessionId) },
+        where: { id: sessionId, campaignId: campaignId },
+        include: { characters: true },
       });
-      console.log(session);
 
       return session;
     } catch (error) {
@@ -28,26 +29,51 @@ const sessionServices = {
     }
   },
 
-  createOrUpdateSession: async (formData: {
-    id?: string;
-    name: string;
-    sessionNumber: number;
-    briefing: { html: string; nodes: string };
-    campaignId: number;
-  }) => {
+  createOrUpdateSession: async (
+    formData: {
+      id?: number;
+      name: string;
+      location?: string;
+      briefing: { html: string; nodes: object };
+      picture?: { imageUrl: string; nodes: object };
+      characters?: number[];
+    },
+    campaignId: number,
+  ) => {
     try {
+      const previousSession = await prisma.session.findFirst({
+        where: { campaignId },
+        orderBy: {
+          sessionNumber: 'desc',
+        },
+        select: { sessionNumber: true },
+      });
+
+      const sessionNumber = previousSession
+        ? previousSession?.sessionNumber + 1
+        : 0;
+
+      const characterIds = formData.characters
+        ? formData.characters.map((id) => ({ id }))
+        : [];
+
+      console.log(formData);
+
       const session = await prisma.session.upsert({
-        where: { id: Number(formData?.id) || 0 },
+        where: { id: formData?.id || 0 },
         update: {
           name: formData.name,
           briefing: formData.briefing,
-          sessionNumber: formData.sessionNumber,
+          characters: { set: characterIds },
+          picture: formData.picture,
         },
         create: {
           name: formData.name,
-          sessionNumber: formData.sessionNumber,
+          sessionNumber,
           briefing: formData.briefing,
-          campaignId: formData.campaignId,
+          campaignId,
+          characters: { connect: characterIds },
+          picture: formData.picture,
         },
       });
 
