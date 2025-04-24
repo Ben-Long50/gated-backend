@@ -118,5 +118,17 @@ const userServices = {
             throw new Error('Failed to create user');
         }
     },
+    updateUser: async (userData, userId) => {
+        try {
+            await prisma.user.update({
+                where: { id: userId },
+                data: userData,
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to update account information');
+        }
+    },
 };
 export default userServices;
