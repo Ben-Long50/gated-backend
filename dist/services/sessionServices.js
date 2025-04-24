@@ -26,6 +26,39 @@ const sessionServices = {
             throw new Error('Failed to fetch session');
         }
     },
+    createOrUpdateSessionNotes: async (sessionId, characterId, content) => {
+        try {
+            const notes = await prisma.note.upsert({
+                where: { sessionId_characterId: { sessionId, characterId } },
+                update: {
+                    content,
+                },
+                create: {
+                    sessionId,
+                    characterId,
+                    content,
+                },
+            });
+            return notes;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update notes');
+        }
+    },
+    getSessionNotes: async (sessionId, characterId) => {
+        try {
+            const notes = await prisma.note.findUnique({
+                where: { sessionId_characterId: { sessionId, characterId } },
+                include: { character: { select: { userId: true } } },
+            });
+            return notes;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch notes');
+        }
+    },
     createOrUpdateSession: async (formData, campaignId) => {
         try {
             const previousSession = await prisma.session.findFirst({
@@ -41,7 +74,6 @@ const sessionServices = {
             const characterIds = formData.characters
                 ? formData.characters.map((id) => ({ id }))
                 : [];
-            console.log(formData);
             const session = await prisma.session.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
                 update: {

@@ -123,10 +123,11 @@ model Note {
   id          Int       @id @default(autoincrement())
   character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
   characterId Int
-  title       String
   content     Json
   session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   sessionId   Int
+
+  @@unique([sessionId, characterId])
 }
 
 model Gang {

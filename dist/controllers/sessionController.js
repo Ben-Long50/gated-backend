@@ -31,6 +31,30 @@ const sessionController = {
             }
         }
     },
+    getSessionNotes: async (req, res) => {
+        try {
+            const notes = await sessionServices.getSessionNotes(Number(req.params.sessionId), Number(req.params.characterId));
+            res.status(200).json(notes);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    },
+    createOrUpdateSessionNotes: async (req, res) => {
+        try {
+            await sessionServices.createOrUpdateSessionNotes(Number(req.params.sessionId), Number(req.params.characterId), req.body.content);
+            res
+                .status(200)
+                .json({ message: 'Successfully created or updated session notes' });
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+            }
+        }
+    },
     createOrUpdateSession: [
         upload.single('picture'),
         uploadToCloudinary,
