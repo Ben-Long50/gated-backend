@@ -7,33 +7,16 @@ const userServices = {
       const users = await prisma.user.findMany({
         where: {
           id: { not: userId },
-          OR: [
-            {
-              firstName: {
-                contains: query,
-                mode: 'insensitive',
-              },
-            },
-            {
-              lastName: {
-                contains: query,
-                mode: 'insensitive',
-              },
-            },
-          ],
+          username: {
+            contains: query,
+            mode: 'insensitive',
+          },
         },
+        select: { id: true, username: true, profilePicture: true },
         take: 10,
       });
-      const userArray = users.map((user) => {
-        return {
-          id: user?.id,
-          firstName: user?.firstName,
-          lastName: user?.lastName,
-          role: user?.role,
-          profilePicture: user?.profilePicture,
-        };
-      });
-      return userArray;
+
+      return users;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch users');

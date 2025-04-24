@@ -73,7 +73,9 @@ const notificationController = {
 
   deleteNotification: async (req: Request, res: Response) => {
     try {
-      await notificationServices.deleteNotification(req.body.notificationId);
+      await notificationServices.deleteNotification(
+        Number(req.params.notificationId),
+      );
       res.status(200).json({ message: 'Successfully deleted notification' });
     } catch (error) {
       if (error instanceof Error) {

@@ -7,33 +7,15 @@ const userServices = {
             const users = await prisma.user.findMany({
                 where: {
                     id: { not: userId },
-                    OR: [
-                        {
-                            firstName: {
-                                contains: query,
-                                mode: 'insensitive',
-                            },
-                        },
-                        {
-                            lastName: {
-                                contains: query,
-                                mode: 'insensitive',
-                            },
-                        },
-                    ],
+                    username: {
+                        contains: query,
+                        mode: 'insensitive',
+                    },
                 },
+                select: { id: true, username: true, profilePicture: true },
                 take: 10,
             });
-            const userArray = users.map((user) => {
-                return {
-                    id: user === null || user === void 0 ? void 0 : user.id,
-                    firstName: user === null || user === void 0 ? void 0 : user.firstName,
-                    lastName: user === null || user === void 0 ? void 0 : user.lastName,
-                    role: user === null || user === void 0 ? void 0 : user.role,
-                    profilePicture: user === null || user === void 0 ? void 0 : user.profilePicture,
-                };
-            });
-            return userArray;
+            return users;
         }
         catch (error) {
             console.error(error);

@@ -40,11 +40,11 @@ const notificationServices = {
     }
   },
 
-  deleteNotification: async (notificationId: string) => {
+  deleteNotification: async (notificationId: number) => {
     try {
       await prisma.notification.delete({
         where: {
-          id: Number(notificationId),
+          id: notificationId,
         },
       });
     } catch (error) {
