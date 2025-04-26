@@ -158,8 +158,6 @@ const affiliationController = {
 
   updateAffiliationValue: async (req: Request, res: Response) => {
     try {
-      console.log(req.body);
-
       await affiliationServices.updateAffiliationValue(
         Number(req.params.affiliationId),
         req.body.value,

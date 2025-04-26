@@ -849,13 +849,13 @@ const characterServices = {
     },
     updateCharacter: async (formData, userId, characterId) => {
         try {
-            const _a = Object.assign({}, formData), { perks } = _a, data = __rest(_a, ["perks"]);
+            const _a = Object.assign({}, formData), { perks, stats } = _a, data = __rest(_a, ["perks", "stats"]);
             const updatedCharacter = await prisma.character.update({
                 where: {
                     userId,
                     id: Number(characterId),
                 },
-                data: Object.assign(Object.assign({}, data), { perks: { set: (perks === null || perks === void 0 ? void 0 : perks.map((id) => ({ id }))) || [] } }),
+                data: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), perks: { set: (perks === null || perks === void 0 ? void 0 : perks.map((id) => ({ id }))) || [] } }),
             });
             return updatedCharacter;
         }

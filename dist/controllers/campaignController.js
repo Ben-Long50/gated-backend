@@ -85,7 +85,6 @@ const campaignController = {
                     sessionNumber: 0,
                     briefing: parsedBody.briefing,
                 };
-                console.log(parsedBody);
                 if (!parsedBody.id) {
                     await sessionServices.createOrUpdateSession(sessionInfo, campaign.id);
                 }

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import campaignServices from '../services/campaignServices.js';
 import sessionServices from '../services/sessionServices.js';
-import { $Enums, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import notificationServices from '../services/notificationServices.js';
@@ -100,8 +100,6 @@ const campaignController = {
           sessionNumber: 0,
           briefing: parsedBody.briefing,
         };
-
-        console.log(parsedBody);
 
         if (!parsedBody.id) {
           await sessionServices.createOrUpdateSession(sessionInfo, campaign.id);

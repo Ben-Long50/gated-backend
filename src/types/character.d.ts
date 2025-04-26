@@ -1,6 +1,6 @@
 export interface Character {
   playerCharacter: boolean;
-  campaign: number;
+  campaignId: number;
   perks: number[];
   stats: CharacterStats;
   firstName: string;

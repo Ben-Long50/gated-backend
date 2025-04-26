@@ -152,23 +152,22 @@ const userController = {
       .trim()
       .isLength({ min: 2 })
       .escape(),
-    body('email')
+    body('email', 'The email input must be in a valid email format')
       .trim()
       .escape()
       .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
-      .withMessage('The email input must be in a valid email format')
       .custom(async (value, { req }) => {
+        if (value !== req.user.email && req.user.facebookId) {
+          throw new Error(
+            'You cannot change your email when using an account linked to Facebook',
+          );
+        }
+        if (value !== req.user.email && req.user.googleId) {
+          throw new Error(
+            'You cannot change your email when using an account linked to Google',
+          );
+        }
         const user = await userServices.getUserByEmail(value);
-        if (user && req.user.facebookId) {
-          throw new Error(
-            'You cannot update your email when using an account linked to Facebook',
-          );
-        }
-        if (user && req.user.googleId) {
-          throw new Error(
-            'You cannot update your email when using an account linked to Google',
-          );
-        }
         if (user && user.id !== req.user.id) {
           throw new Error(
             'This email is already associated with another account',
@@ -176,23 +175,16 @@ const userController = {
         }
         return true;
       }),
-    body('password', 'Password must be a minimum of 8 characters')
-      .trim()
-      .isLength({ min: 8 })
-      .escape()
-      .custom(async (value, { req }) => {
-        const result = await bcrypt.compare(value, req.user.password);
-        console.log(result);
 
-        if (!result) {
-          throw new Error('Incorrect password');
-        }
-      }),
     async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         res.status(400).json(errors);
       } else {
+        if (!req.user) {
+          throw new Error('You must be signed in to complete this action');
+        }
+
         try {
           const userData = {
             username: req.body.username,
@@ -200,10 +192,6 @@ const userController = {
             lastName: req.body.lastName,
             email: req.body.email,
           };
-
-          if (!req.user) {
-            throw new Error('You must be signed in to complete this action');
-          }
 
           await userServices.updateUser(userData, req.user.id);
 

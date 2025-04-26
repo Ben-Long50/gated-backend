@@ -41,7 +41,6 @@ const itemServices = {
             modifiers: { include: { action: true } },
           },
         })) || undefined;
-      console.log(oldItem);
 
       if (oldItem) {
         const oldModifierIds = oldItem.modifiers.map((modifier) => modifier.id);

@@ -32,8 +32,6 @@ const authentication = {
   authenticate: passport.authenticate('jwt', { session: false }),
 
   authenticateSuperadmin: (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.user);
-
     const allowedRoles = ['SUPERADMIN'];
     if (!req.user) {
       res.status(401).json({ error: 'No user found' });

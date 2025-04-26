@@ -301,7 +301,7 @@ const characterServices = {
     }
   },
 
-  createCharacter: async (formData: Partial<Character>, userId: number) => {
+  createCharacter: async (formData: Character, userId: number) => {
     try {
       const data = {
         ...formData,
@@ -1151,12 +1151,12 @@ const characterServices = {
   },
 
   updateCharacter: async (
-    formData: Partial<Character>,
+    formData: Character,
     userId: number,
     characterId: number,
   ) => {
     try {
-      const { perks, ...data } = {
+      const { perks, stats, ...data } = {
         ...formData,
       };
 
@@ -1167,6 +1167,9 @@ const characterServices = {
         },
         data: {
           ...data,
+          stats: {
+            ...stats,
+          },
           perks: { set: perks?.map((id: number) => ({ id })) || [] },
         },
       });

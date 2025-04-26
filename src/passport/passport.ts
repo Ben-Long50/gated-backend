@@ -10,7 +10,7 @@ passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(async (id: string, done) => {
+passport.deserializeUser(async (id: number, done) => {
   try {
     const user = await userServices.getUserById(id);
 

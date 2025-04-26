@@ -99,7 +99,6 @@ const affiliationController = {
     ],
     updateAffiliationValue: async (req, res) => {
         try {
-            console.log(req.body);
             await affiliationServices.updateAffiliationValue(Number(req.params.affiliationId), req.body.value);
             res
                 .status(200)

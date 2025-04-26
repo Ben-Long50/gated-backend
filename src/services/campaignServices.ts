@@ -14,8 +14,6 @@ const campaignServices = {
         orderBy: { name: 'asc' },
       });
 
-      console.log(campaigns);
-
       return campaigns;
     } catch (error) {
       console.error(error);
@@ -171,8 +169,6 @@ const campaignServices = {
           },
         },
       });
-
-      console.log(formData);
 
       if (!formData.id) {
         const createdFactions = await Promise.all(

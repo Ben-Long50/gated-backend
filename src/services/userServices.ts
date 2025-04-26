@@ -105,7 +105,6 @@ const userServices = {
     firstName: string;
     lastName: string;
     email: string;
-    password: string;
   }) => {
     try {
       const newUser = await prisma.user.create({

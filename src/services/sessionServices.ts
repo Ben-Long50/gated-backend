@@ -1,5 +1,4 @@
 import prisma from '../config/database.js';
-import { Session } from '../types/campaign.js';
 
 const sessionServices = {
   getCampaignSessions: async (campaignId: string) => {

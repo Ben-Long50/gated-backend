@@ -11,7 +11,6 @@ const campaignServices = {
                 },
                 orderBy: { name: 'asc' },
             });
-            console.log(campaigns);
             return campaigns;
         }
         catch (error) {
@@ -149,7 +148,6 @@ const campaignServices = {
                     },
                 },
             });
-            console.log(formData);
             if (!formData.id) {
                 const createdFactions = await Promise.all(formData.factions.map((faction) => prisma.faction.create({
                     data: Object.assign(Object.assign({}, faction), { campaignId: campaign.id }),

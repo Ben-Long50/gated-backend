@@ -169,8 +169,6 @@ const characterController = {
 
         const parsedBody = parseRequestBody(req.body);
 
-        console.log(parsedBody);
-
         const character = await characterServices.updateCharacter(
           parsedBody,
           req.user.id,

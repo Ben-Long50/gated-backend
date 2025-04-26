@@ -143,37 +143,37 @@ model Gang {
 }
 
 model Character {
-  id                  Int                  @id @default(autoincrement())
-  userId              Int
-  level               Int                  @default(1)
-  profits             Int                  @default(10)
-  stats               Json                 @default("{}")
-  picture             Json?
-  height              Int
-  weight              Int
-  age                 Int
-  sex                 String
-  backstory           Json?
-  firstTaste          Json?
-  badMedicine         Json?
-  attributes          Json
-  firstName           String
-  lastName            String?
-  playerCharacter     Boolean              @default(false)
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  active              Boolean              @default(false)
-  perks               Perk[]               @relation("CharacterToPerk")
-  campaign            Campaign?            @relation(fields: [campaignId], references: [id])
-  campaignId          Int?
-  sessions            Session[]
-  scenes              Scene[]
-  gang                Gang?                @relation(fields: [gangId], references: [id])
-  gangId              Int?
-  characterConditions CharacterCondition[]
-  characterCart       CharacterCart?
-  characterInventory  CharacterInventory?
-  Note                Note[]
-  affiliations        Affiliation[]
+  id                 Int                  @id @default(autoincrement())
+  userId             Int
+  level              Int                  @default(1)
+  profits            Int                  @default(10)
+  stats              Json                 @default("{}")
+  picture            Json?
+  height             Int
+  weight             Int
+  age                Int
+  sex                String
+  backstory          Json?
+  firstTaste         Json?
+  badMedicine        Json?
+  attributes         Json
+  firstName          String
+  lastName           String?
+  playerCharacter    Boolean              @default(false)
+  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active             Boolean              @default(false)
+  perks              Perk[]               @relation("CharacterToPerk")
+  campaign           Campaign?            @relation(fields: [campaignId], references: [id])
+  campaignId         Int?
+  sessions           Session[]
+  scenes             Scene[]
+  gang               Gang?                @relation(fields: [gangId], references: [id])
+  gangId             Int?
+  conditions         ConditionReference[]
+  characterCart      CharacterCart?
+  characterInventory CharacterInventory?
+  Note               Note[]
+  affiliations       Affiliation[]
 }
 
 model CharacterCart {
@@ -201,74 +201,34 @@ model CharacterInventory {
   items         Item[]
 }
 
-model CharacterCondition {
-  id          Int       @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId Int
+model ConditionReference {
+  id           Int         @id @default(autoincrement())
+  stacks       Int?
+  condition    Condition   @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  conditionId  Int
+  character    Character?  @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId  Int?
+  weapon       Weapon?     @relation(fields: [weaponId], references: [id], onDelete: Cascade)
+  weaponId     Int?
+  armor        Armor?      @relation(fields: [armorId], references: [id], onDelete: Cascade)
+  armorId      Int?
+  cybernetic   Cybernetic? @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
+  cyberneticId Int?
+  vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId    Int?
+  item         Item?       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId       Int?
 
   @@unique([conditionId, characterId])
 }
 
-model WeaponCondition {
-  id          Int       @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  weapon      Weapon?   @relation(fields: [weaponId], references: [id], onDelete: Cascade)
-  weaponId    Int?
-}
-
-model ArmorCondition {
-  id          Int       @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  armor       Armor?    @relation(fields: [weaponId], references: [id], onDelete: Cascade)
-  weaponId    Int?
-}
-
-model CyberneticCondition {
-  id          Int         @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition   @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  cybernetic  Cybernetic? @relation(fields: [weaponId], references: [id], onDelete: Cascade)
-  weaponId    Int?
-}
-
-model VehicleCondition {
-  id          Int       @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  vehicle     Vehicle?  @relation(fields: [weaponId], references: [id], onDelete: Cascade)
-  weaponId    Int?
-}
-
-model ItemCondition {
-  id          Int       @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  item        Item?     @relation(fields: [weaponId], references: [id], onDelete: Cascade)
-  weaponId    Int?
-}
-
 model Condition {
-  id                   Int                   @id @default(autoincrement())
-  name                 String
-  conditionType        ConditionType
-  description          String
-  keywords             Keyword[]
-  characterConditions  CharacterCondition[]
-  weaponConditions     WeaponCondition[]
-  armorConditions      ArmorCondition[]
-  cyberneticConditions CyberneticCondition[]
-  vehicleConditions    VehicleCondition[]
-  itemConditions       ItemCondition[]
+  id                 Int                  @id @default(autoincrement())
+  name               String
+  conditionType      ConditionType
+  description        String
+  keywords           Keyword[]
+  ConditionReference ConditionReference[]
 }
 
 model Keyword {
@@ -282,54 +242,54 @@ model Keyword {
 }
 
 model Weapon {
-  id                   Int                 @id @default(autoincrement())
+  id                   Int                  @id @default(autoincrement())
   name                 String
-  rarity               ItemRarity          @default(common)
-  grade                Int                 @default(1)
+  rarity               ItemRarity           @default(common)
+  grade                Int                  @default(1)
   picture              Json?
   description          String?
   stats                Json
   price                Int?
   keywords             Json[]
-  equipped             Boolean?            @default(false)
-  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
+  equipped             Boolean?             @default(false)
+  cybernetic           Cybernetic?          @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
-  vehicle              Vehicle?            @relation(fields: [vehicleId], references: [id])
+  vehicle              Vehicle?             @relation(fields: [vehicleId], references: [id])
   vehicleId            Int?
   actions              Action[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseWeaponId         Int?
-  weaponConditions     WeaponCondition[]
+  conditions           ConditionReference[]
 }
 
 model Armor {
-  id                   Int                 @id @default(autoincrement())
+  id                   Int                  @id @default(autoincrement())
   name                 String
-  rarity               ItemRarity          @default(common)
-  grade                Int                 @default(1)
+  rarity               ItemRarity           @default(common)
+  grade                Int                  @default(1)
   picture              Json?
   description          String?
   stats                Json
   price                Int?
   keywords             Json[]
-  equipped             Boolean?            @default(false)
-  cybernetic           Cybernetic?         @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
+  equipped             Boolean?             @default(false)
+  cybernetic           Cybernetic?          @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
   actions              Action[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseArmorId          Int?
-  armorConditions      ArmorCondition[]
+  conditions           ConditionReference[]
 }
 
 model Cybernetic {
-  id                   Int                   @id @default(autoincrement())
+  id                   Int                  @id @default(autoincrement())
   name                 String
-  rarity               ItemRarity            @default(common)
-  grade                Int                   @default(1)
+  rarity               ItemRarity           @default(common)
+  grade                Int                  @default(1)
   cyberneticType       CyberneticType
   stats                Json
   picture              Json?
@@ -337,23 +297,23 @@ model Cybernetic {
   body                 String[]
   price                Int?
   keywords             Json[]
-  equipped             Boolean?              @default(false)
+  equipped             Boolean?             @default(false)
   actions              Action[]
   armor                Armor[]
   weapons              Weapon[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory?   @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseCyberneticId     Int?
-  cyberneticConditions CyberneticCondition[]
+  conditions           ConditionReference[]
   modifiers            Modifier[]
 }
 
 model Vehicle {
-  id                   Int                 @id @default(autoincrement())
+  id                   Int                  @id @default(autoincrement())
   name                 String
-  rarity               ItemRarity          @default(common)
-  grade                Int                 @default(1)
+  rarity               ItemRarity           @default(common)
+  grade                Int                  @default(1)
   picture              Json?
   description          String?
   stats                Json
@@ -361,10 +321,10 @@ model Vehicle {
   weapons              Weapon[]
   modifications        Modification[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseVehicleId        Int?
-  vehicleConditions    VehicleCondition[]
+  conditions           ConditionReference[]
 }
 
 model Modification {
@@ -384,13 +344,13 @@ model Modification {
 }
 
 model Item {
-  id                   Int                 @id @default(autoincrement())
+  id                   Int                  @id @default(autoincrement())
   name                 String
-  rarity               ItemRarity          @default(common)
-  grade                Int                 @default(1)
+  rarity               ItemRarity           @default(common)
+  grade                Int                  @default(1)
   picture              Json?
   price                Int?
-  equipped             Boolean?            @default(false)
+  equipped             Boolean?             @default(false)
   category             ItemCategory
   subcategory          ItemSubcategory
   itemType             String?
@@ -398,10 +358,10 @@ model Item {
   stats                Json?
   actions              Action[]
   characterCart        CharacterCart[]
-  characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseItemId           Int?
-  itemConditions       ItemCondition[]
+  conditions           ConditionReference[]
   modifiers            Modifier[]
 }
 
