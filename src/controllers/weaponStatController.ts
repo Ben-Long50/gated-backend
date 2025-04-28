@@ -4,9 +4,14 @@ import weaponStatServices from '../services/weaponStatServices.js';
 const weaponStatController = {
   editWeaponAmmo: async (req: Request, res: Response) => {
     try {
+      if (!req.user) {
+        throw new Error('You must be logged in to perform this action');
+      }
+
       await weaponStatServices.editWeaponAmmo(
         req.params.weaponId,
         req.body.value,
+        req.user.id,
       );
       res
         .status(200)
@@ -20,7 +25,11 @@ const weaponStatController = {
 
   reloadWeapon: async (req: Request, res: Response) => {
     try {
-      await weaponStatServices.reloadWeapon(req.params.weaponId);
+      if (!req.user) {
+        throw new Error('You must be logged in to perform this action');
+      }
+
+      await weaponStatServices.reloadWeapon(req.params.weaponId, req.user.id);
       res.status(200).json({ message: `Reloaded weapon` });
     } catch (error) {
       if (error instanceof Error) {
@@ -31,7 +40,11 @@ const weaponStatController = {
 
   refreshAmmo: async (req: Request, res: Response) => {
     try {
-      await weaponStatServices.refreshAmmo(req.params.weaponId);
+      if (!req.user) {
+        throw new Error('You must be logged in to perform this action');
+      }
+
+      await weaponStatServices.refreshAmmo(req.params.weaponId, req.user.id);
       res.status(200).json({ message: `Refreshed weapon ammunition` });
     } catch (error) {
       if (error instanceof Error) {

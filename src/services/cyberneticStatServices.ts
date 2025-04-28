@@ -1,14 +1,29 @@
 import prisma from '../config/database.js';
 
 const cyberneticStatServices = {
-  editCyberneticPower: async (cyberneticId: string, value: string) => {
+  editCyberneticPower: async (
+    cyberneticId: string,
+    value: string,
+    userId: number,
+  ) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
         where: {
           id: Number(cyberneticId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== cybernetic?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!cybernetic) {
         throw new Error('Armor not found');
@@ -39,14 +54,25 @@ const cyberneticStatServices = {
     }
   },
 
-  refreshCyberneticPower: async (cyberneticId: string) => {
+  refreshCyberneticPower: async (cyberneticId: string, userId: number) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
         where: {
           id: Number(cyberneticId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== cybernetic?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!cybernetic) {
         throw new Error('Armor not found');

@@ -1,14 +1,25 @@
 import prisma from '../config/database.js';
 
 const armorStatServices = {
-  editArmorPower: async (armorId: string, value: string) => {
+  editArmorPower: async (armorId: string, value: string, userId: number) => {
     try {
       const armor = await prisma.armor.findUnique({
         where: {
           id: Number(armorId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== armor?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!armor) {
         throw new Error('Armor not found');
@@ -39,14 +50,25 @@ const armorStatServices = {
     }
   },
 
-  refreshArmorPower: async (armorId: string) => {
+  refreshArmorPower: async (armorId: string, userId: number) => {
     try {
       const armor = await prisma.armor.findUnique({
         where: {
           id: Number(armorId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== armor?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!armor) {
         throw new Error('Armor not found');
@@ -73,14 +95,25 @@ const armorStatServices = {
     }
   },
 
-  editArmorBlock: async (armorId: string, value: string) => {
+  editArmorBlock: async (armorId: string, value: string, userId: number) => {
     try {
       const armor = await prisma.armor.findUnique({
         where: {
           id: Number(armorId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== armor?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!armor) {
         throw new Error('Armor not found');
@@ -111,14 +144,25 @@ const armorStatServices = {
     }
   },
 
-  refreshArmorBlock: async (armorId: string) => {
+  refreshArmorBlock: async (armorId: string, userId: number) => {
     try {
       const armor = await prisma.armor.findUnique({
         where: {
           id: Number(armorId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== armor?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!armor) {
         throw new Error('Armor not found');

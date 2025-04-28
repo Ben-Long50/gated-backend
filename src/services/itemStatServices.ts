@@ -1,14 +1,25 @@
 import prisma from '../config/database.js';
 
 const itemStatServices = {
-  editItemPower: async (itemId: string, value: string) => {
+  editItemPower: async (itemId: string, value: string, userId: number) => {
     try {
       const item = await prisma.item.findUnique({
         where: {
           id: Number(itemId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== item?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!item) {
         throw new Error('Item not found');
@@ -39,14 +50,25 @@ const itemStatServices = {
     }
   },
 
-  refreshItemPower: async (itemId: string) => {
+  refreshItemPower: async (itemId: string, userId: number) => {
     try {
       const item = await prisma.item.findUnique({
         where: {
           id: Number(itemId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== item?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!item) {
         throw new Error('Item not found');
@@ -73,14 +95,25 @@ const itemStatServices = {
     }
   },
 
-  editItemStacks: async (itemId: string, value: string) => {
+  editItemStacks: async (itemId: string, value: string, userId: number) => {
     try {
       const item = await prisma.item.findUnique({
         where: {
           id: Number(itemId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== item?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!item) {
         throw new Error('Item not found');
@@ -111,14 +144,25 @@ const itemStatServices = {
     }
   },
 
-  refreshItemStacks: async (itemId: string) => {
+  refreshItemStacks: async (itemId: string, userId: number) => {
     try {
       const item = await prisma.item.findUnique({
         where: {
           id: Number(itemId),
         },
-        select: { stats: true },
+        select: {
+          stats: true,
+          characterInventory: {
+            include: { character: { select: { userId: true } } },
+          },
+        },
       });
+
+      if (userId !== item?.characterInventory?.character?.userId) {
+        throw new Error(
+          'You can only perform this action on a weapon your character owns',
+        );
+      }
 
       if (!item) {
         throw new Error('Item not found');

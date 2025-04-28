@@ -1,13 +1,22 @@
 import prisma from '../config/database.js';
 const itemStatServices = {
-    editItemPower: async (itemId, value) => {
+    editItemPower: async (itemId, value, userId) => {
+        var _a, _b;
         try {
             const item = await prisma.item.findUnique({
                 where: {
                     id: Number(itemId),
                 },
-                select: { stats: true },
+                select: {
+                    stats: true,
+                    characterInventory: {
+                        include: { character: { select: { userId: true } } },
+                    },
+                },
             });
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a weapon your character owns');
+            }
             if (!item) {
                 throw new Error('Item not found');
             }
@@ -30,14 +39,23 @@ const itemStatServices = {
             throw new Error('Failed to update item power');
         }
     },
-    refreshItemPower: async (itemId) => {
+    refreshItemPower: async (itemId, userId) => {
+        var _a, _b;
         try {
             const item = await prisma.item.findUnique({
                 where: {
                     id: Number(itemId),
                 },
-                select: { stats: true },
+                select: {
+                    stats: true,
+                    characterInventory: {
+                        include: { character: { select: { userId: true } } },
+                    },
+                },
             });
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a weapon your character owns');
+            }
             if (!item) {
                 throw new Error('Item not found');
             }
@@ -57,14 +75,23 @@ const itemStatServices = {
             throw new Error('Failed to refresh item power');
         }
     },
-    editItemStacks: async (itemId, value) => {
+    editItemStacks: async (itemId, value, userId) => {
+        var _a, _b;
         try {
             const item = await prisma.item.findUnique({
                 where: {
                     id: Number(itemId),
                 },
-                select: { stats: true },
+                select: {
+                    stats: true,
+                    characterInventory: {
+                        include: { character: { select: { userId: true } } },
+                    },
+                },
             });
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a weapon your character owns');
+            }
             if (!item) {
                 throw new Error('Item not found');
             }
@@ -87,14 +114,23 @@ const itemStatServices = {
             throw new Error('Failed to update item stacks');
         }
     },
-    refreshItemStacks: async (itemId) => {
+    refreshItemStacks: async (itemId, userId) => {
+        var _a, _b;
         try {
             const item = await prisma.item.findUnique({
                 where: {
                     id: Number(itemId),
                 },
-                select: { stats: true },
+                select: {
+                    stats: true,
+                    characterInventory: {
+                        include: { character: { select: { userId: true } } },
+                    },
+                },
             });
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a weapon your character owns');
+            }
             if (!item) {
                 throw new Error('Item not found');
             }
