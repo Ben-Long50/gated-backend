@@ -1,13 +1,11 @@
-import { Action, ActionType, Armor, Weapon } from '@prisma/client';
 import prisma from '../config/database.js';
-import {
-  getGroupKeywords,
-  getItemKeywords,
-} from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
 import armorServices from './armorServices.js';
 import weaponServices from './weaponServices.js';
 import { WeaponStats } from '../types/weapon.js';
+import { Cybernetic } from '../types/cybernetic.js';
+import { ArmorStats } from '../types/armor.js';
+import { Action } from '../types/action.js';
 
 const cyberneticServices = {
   getCybernetics: async () => {
@@ -15,10 +13,17 @@ const cyberneticServices = {
       const cybernetics = await prisma.cybernetic.findMany({
         where: { characterInventoryId: null },
         include: {
-          weapons: true,
-          armor: true,
-          actions: true,
+          weapons: {
+            orderBy: { name: 'asc' },
+            include: { keywords: { include: { keyword: true } } },
+          },
+          armor: {
+            orderBy: { name: 'asc' },
+            include: { keywords: { include: { keyword: true } } },
+          },
+          actions: { orderBy: { name: 'asc' } },
           modifiers: { include: { action: true } },
+          keywords: { include: { keyword: true } },
         },
         orderBy: { name: 'asc' },
       });
@@ -37,10 +42,17 @@ const cyberneticServices = {
           id: Number(cyberneticId),
         },
         include: {
-          weapons: true,
-          armor: true,
-          actions: true,
+          weapons: {
+            orderBy: { name: 'asc' },
+            include: { keywords: { include: { keyword: true } } },
+          },
+          armor: {
+            orderBy: { name: 'asc' },
+            include: { keywords: { include: { keyword: true } } },
+          },
+          actions: { orderBy: { name: 'asc' } },
           modifiers: { include: { action: true } },
+          keywords: { include: { keyword: true } },
         },
       });
 
@@ -48,50 +60,35 @@ const cyberneticServices = {
         throw new Error('Could not find cybernetic');
       }
 
-      const weaponDetails = await getGroupKeywords(cybernetic?.weapons);
-      const armorDetails = await getGroupKeywords(cybernetic?.armor);
-      const cyberneticDetails = await getItemKeywords(cybernetic);
-
-      return {
-        ...cyberneticDetails,
-        weapons: weaponDetails,
-        armor: armorDetails,
-      };
+      return cybernetic;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch cybernetic');
     }
   },
 
-  createOrUpdateCybernetic: async (formData: {
-    name: string;
-    rarity: string;
-    grade: string;
-    weapons: string;
-    armor: string;
-    actions: string;
-    publicId: string;
-    imageUrl: string;
-    cyberneticId: string;
-    cyberneticType: string;
-    description: string;
-    body: string;
-    price: string;
-    keywords: string;
-    modifiers: string;
-    stats: string;
-    picture: string;
-  }) => {
+  createOrUpdateCybernetic: async (formData: Cybernetic) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
-        where: { id: Number(JSON.parse(formData.cyberneticId)) },
+        where: { id: formData.id },
         include: {
           weapons: { select: { id: true } },
           armor: { select: { id: true } },
           actions: { select: { id: true } },
           modifiers: { select: { id: true } },
+          keywords: { select: { id: true } },
         },
       });
+
+      if (cybernetic && cybernetic.keywords) {
+        await prisma.keywordReference.deleteMany({
+          where: {
+            id: { in: cybernetic.keywords.map((keyword) => keyword.id) },
+          },
+        });
+      }
+      const { weapons, armor, actions, modifiers, keywords, stats, ...data } =
+        formData;
 
       if (cybernetic) {
         const oldModifierIds = cybernetic.modifiers.map(
@@ -104,9 +101,7 @@ const cyberneticServices = {
 
       const oldWeaponIds = cybernetic?.weapons?.map((id) => id.id);
 
-      const newWeaponIds = JSON.parse(formData.weapons).map(
-        (weapon: Weapon) => weapon.id,
-      );
+      const newWeaponIds = weapons.map((weapon: { id: number }) => weapon.id);
 
       const weaponsToDelete =
         oldWeaponIds?.filter((id) => !newWeaponIds.includes(id)) || [];
@@ -117,9 +112,7 @@ const cyberneticServices = {
 
       const oldArmorIds = cybernetic?.armor?.map((id) => id.id);
 
-      const newArmorIds = JSON.parse(formData.armor).map(
-        (armor: Armor) => armor.id,
-      );
+      const newArmorIds = armor.map((armor: { id: number }) => armor.id);
 
       const armorToDelete =
         oldArmorIds?.filter((id) => !newArmorIds.includes(id)) || [];
@@ -130,9 +123,7 @@ const cyberneticServices = {
 
       const oldActionIds = cybernetic?.actions?.map((id) => id.id);
 
-      const newActionIds = JSON.parse(formData.actions).map(
-        (action: Action) => action.id,
-      );
+      const newActionIds = actions.map((action: Action) => action.id);
 
       const actionsToDelete =
         oldActionIds?.filter((id) => !newActionIds.includes(id)) || [];
@@ -141,18 +132,8 @@ const cyberneticServices = {
         await actionServices.deleteActions(actionsToDelete);
       }
 
-      const getPictureInfo = () => {
-        if (formData.publicId) {
-          return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-        } else {
-          return JSON.parse(formData.picture);
-        }
-      };
-
-      const pictureInfo = getPictureInfo();
-
       const weaponIds = await Promise.all(
-        JSON.parse(formData.weapons).map(
+        weapons.map(
           async (weapon: {
             id?: number;
             name: string;
@@ -161,9 +142,9 @@ const cyberneticServices = {
           }) => {
             const newWeapon = await weaponServices.createIntegratedWeapon(
               weapon,
-              pictureInfo,
-              JSON.parse(formData.rarity),
-              Number(JSON.parse(formData.grade)),
+              formData.picture,
+              formData.rarity,
+              formData.grade,
             );
             return { id: newWeapon.id };
           },
@@ -171,53 +152,45 @@ const cyberneticServices = {
       );
 
       const armorIds = await Promise.all(
-        JSON.parse(formData.armor).map(
+        armor.map(
           async (armor: {
+            id?: number;
             name: string;
-            stats: string;
+            stats: Partial<ArmorStats>;
             keywords: { keywordId: number; value?: number }[];
           }) => {
             const newArmor = await armorServices.createIntegratedArmor(
               armor,
-              pictureInfo,
-              JSON.parse(formData.rarity),
-              Number(JSON.parse(formData.grade)),
+              formData.picture,
+              formData.rarity,
+              formData.grade,
             );
             return { id: newArmor.id };
           },
         ),
       );
 
-      const actionIds = await Promise.all(
-        JSON.parse(formData.actions).map(
-          async (action: {
-            name: string;
-            description: string;
-            costs: string;
-            roll: string;
-            duration: string;
-            actionType: ActionType;
-            actionSubtypes: string[];
-            id?: string;
-          }) => {
-            const newAction = await actionServices.createAction(action);
-            return { id: newAction.id };
-          },
-        ),
-      );
+      const actionIds = actions
+        ? await Promise.all(
+            actions.map(async (action: Action) => {
+              const newAction = await actionServices.createAction(action);
+              return { id: newAction.id };
+            }),
+          )
+        : [];
+
+      const keywordData = keywords.map((keyword) => ({
+        keywordId: keyword.keywordId,
+        value: keyword.value,
+      }));
 
       const newCybernetic = await prisma.cybernetic.upsert({
-        where: { id: Number(JSON.parse(formData.cyberneticId)) || 0 },
+        where: { id: formData.id || 0 },
         update: {
-          name: JSON.parse(formData.name),
-          rarity: JSON.parse(formData.rarity),
-          grade: Number(JSON.parse(formData.grade)),
-          cyberneticType: JSON.parse(formData.cyberneticType),
-          stats: JSON.parse(formData.stats),
-          picture: pictureInfo,
-          description: JSON.parse(formData.description),
-          body: JSON.parse(formData.body),
-          price: JSON.parse(formData.price),
+          ...data,
+          stats: {
+            ...stats,
+          },
           weapons: {
             connect: weaponIds,
           },
@@ -227,28 +200,21 @@ const cyberneticServices = {
           actions: {
             connect: actionIds,
           },
-          keywords: JSON.parse(formData.keywords),
+          keywords: { createMany: { data: keywordData } },
           modifiers: {
             createMany: {
-              data: JSON.parse(formData.modifiers).map(
-                ({ action, ...modifier }: { action: Action }) => ({
-                  ...modifier,
-                  actionId: action ? Number(action) : null,
-                }),
-              ),
+              data: modifiers.map(({ action, ...modifier }) => ({
+                ...modifier,
+                actionId: action ? Number(action) : null,
+              })),
             },
           },
         },
         create: {
-          name: JSON.parse(formData.name),
-          rarity: JSON.parse(formData.rarity),
-          grade: Number(JSON.parse(formData.grade)),
-          cyberneticType: JSON.parse(formData.cyberneticType),
-          stats: JSON.parse(formData.stats),
-          picture: pictureInfo,
-          description: JSON.parse(formData.description),
-          body: JSON.parse(formData.body),
-          price: JSON.parse(formData.price),
+          ...data,
+          stats: {
+            ...stats,
+          },
           weapons: {
             connect: weaponIds,
           },
@@ -258,15 +224,13 @@ const cyberneticServices = {
           actions: {
             connect: actionIds,
           },
-          keywords: JSON.parse(formData.keywords),
+          keywords: { createMany: { data: keywordData } },
           modifiers: {
             createMany: {
-              data: JSON.parse(formData.modifiers).map(
-                ({ action, ...modifier }: { action: Action }) => ({
-                  ...modifier,
-                  actionId: action ? Number(action) : null,
-                }),
-              ),
+              data: modifiers.map(({ action, ...modifier }) => ({
+                ...modifier,
+                actionId: action ? Number(action) : null,
+              })),
             },
           },
         },

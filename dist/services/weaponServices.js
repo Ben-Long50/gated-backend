@@ -1,3 +1,14 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 import prisma from '../config/database.js';
 import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
@@ -10,7 +21,7 @@ const weaponServices = {
                     vehicleId: null,
                     cyberneticId: null,
                 },
-                include: { actions: true },
+                include: { actions: true, keywords: { include: { keyword: true } } },
                 orderBy: { name: 'asc' },
             });
             return weapons;
@@ -26,7 +37,7 @@ const weaponServices = {
                 where: {
                     id: Number(weaponId),
                 },
-                include: { actions: true },
+                include: { actions: true, keywords: { include: { keyword: true } } },
             });
             if (!weapon) {
                 throw new Error('Could not find weapon');
@@ -41,24 +52,31 @@ const weaponServices = {
     },
     createIntegratedWeapon: async (formData, picture, rarity, grade) => {
         try {
+            const weapon = await prisma.weapon.findUnique({
+                where: { id: formData.id },
+                include: {
+                    actions: { select: { id: true } },
+                    keywords: { select: { id: true } },
+                },
+            });
+            if (weapon && weapon.keywords) {
+                await prisma.keywordReference.deleteMany({
+                    where: {
+                        id: { in: weapon.keywords.map((keyword) => keyword.id) },
+                    },
+                });
+            }
+            const _a = Object.assign(Object.assign({}, formData), { picture,
+                rarity,
+                grade }), { keywords, stats } = _a, data = __rest(_a, ["keywords", "stats"]);
+            const keywordData = keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }));
             const newWeapon = await prisma.weapon.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
-                update: {
-                    name: formData.name,
-                    picture,
-                    rarity,
-                    grade,
-                    stats: formData.stats,
-                    keywords: formData.keywords,
-                },
-                create: {
-                    name: formData.name,
-                    picture,
-                    rarity,
-                    grade,
-                    stats: formData.stats,
-                    keywords: formData.keywords,
-                },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), keywords: { createMany: { data: keywordData } } }),
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), keywords: { createMany: { data: keywordData } } }),
             });
             return newWeapon;
         }
@@ -71,58 +89,44 @@ const weaponServices = {
         var _a;
         try {
             const weapon = await prisma.weapon.findUnique({
-                where: { id: Number(JSON.parse(formData.weaponId)) },
+                where: { id: formData.id },
                 include: {
                     actions: { select: { id: true } },
+                    keywords: { select: { id: true } },
                 },
             });
+            if (weapon && weapon.keywords) {
+                await prisma.keywordReference.deleteMany({
+                    where: {
+                        id: { in: weapon.keywords.map((keyword) => keyword.id) },
+                    },
+                });
+            }
+            const { actions, keywords, stats } = formData, data = __rest(formData, ["actions", "keywords", "stats"]);
             const oldActionIds = (_a = weapon === null || weapon === void 0 ? void 0 : weapon.actions) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
-            const newActionIds = JSON.parse(formData.actions).map((action) => action.id);
+            const newActionIds = (actions === null || actions === void 0 ? void 0 : actions.map((action) => action.id)) || [];
             const actionsToDelete = (oldActionIds === null || oldActionIds === void 0 ? void 0 : oldActionIds.filter((id) => !newActionIds.includes(id))) || [];
             if (actionsToDelete.length > 0) {
                 await actionServices.deleteActions(actionsToDelete);
             }
-            const getPictureInfo = () => {
-                if (formData.publicId) {
-                    return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-                }
-                else {
-                    return JSON.parse(formData.picture);
-                }
-            };
-            const pictureInfo = getPictureInfo();
-            const actionIds = await Promise.all(JSON.parse(formData.actions).map(async (action) => {
-                const newAction = await actionServices.createAction(action);
-                return { id: newAction.id };
+            const actionIds = actions
+                ? await Promise.all(actions.map(async (action) => {
+                    const newAction = await actionServices.createAction(action);
+                    return { id: newAction.id };
+                }))
+                : [];
+            const keywordData = keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
             }));
             const newWeapon = await prisma.weapon.upsert({
-                where: { id: Number(JSON.parse(formData.weaponId)) || 0 },
-                update: {
-                    name: JSON.parse(formData.name),
-                    rarity: JSON.parse(formData.rarity),
-                    grade: Number(JSON.parse(formData.grade)),
-                    picture: pictureInfo,
-                    stats: JSON.parse(formData.stats),
-                    price: Number(JSON.parse(formData.price)),
-                    description: JSON.parse(formData.description),
-                    actions: {
+                where: { id: data.id || 0 },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), actions: {
                         connect: actionIds,
-                    },
-                    keywords: JSON.parse(formData.keywords),
-                },
-                create: {
-                    name: JSON.parse(formData.name),
-                    rarity: JSON.parse(formData.rarity),
-                    grade: Number(JSON.parse(formData.grade)),
-                    picture: pictureInfo,
-                    stats: JSON.parse(formData.stats),
-                    price: JSON.parse(formData.price),
-                    description: JSON.parse(formData.description),
-                    actions: {
+                    }, keywords: { createMany: { data: keywordData } } }),
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), actions: {
                         connect: actionIds,
-                    },
-                    keywords: JSON.parse(formData.keywords),
-                },
+                    }, keywords: { createMany: { data: keywordData } } }),
             });
             return newWeapon;
         }

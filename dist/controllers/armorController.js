@@ -1,6 +1,7 @@
 import armorServices from '../services/armorServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 const armorController = {
     getArmor: async (_req, res) => {
         try {
@@ -29,7 +30,8 @@ const armorController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                await armorServices.createOrUpdateArmor(req.body);
+                const parsedBody = parseRequestBody(req.body);
+                await armorServices.createOrUpdateArmor(parsedBody);
                 res.status(200).json({
                     message: req.body.armorId
                         ? 'Successfully updated armor'
@@ -48,7 +50,8 @@ const armorController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                await armorServices.createOrUpdateArmor(req.body);
+                const parsedBody = parseRequestBody(req.body);
+                await armorServices.createOrUpdateArmor(parsedBody);
                 res.status(200).json({ message: 'Successfully modified armor' });
             }
             catch (error) {

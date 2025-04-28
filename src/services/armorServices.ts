@@ -1,14 +1,16 @@
-import { $Enums, Action, ActionType } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 import prisma from '../config/database.js';
 import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
+import { Armor, ArmorStats } from '../types/armor.js';
+import { Action } from '../types/action.js';
 
 const armorServices = {
   getArmor: async () => {
     try {
       const armor = await prisma.armor.findMany({
         where: { characterInventoryId: null, cyberneticId: null },
-        include: { actions: true },
+        include: { actions: true, keywords: { include: { keyword: true } } },
         orderBy: { name: 'asc' },
       });
 
@@ -25,7 +27,7 @@ const armorServices = {
         where: {
           id: Number(armorId),
         },
-        include: { actions: true },
+        include: { actions: true, keywords: { include: { keyword: true } } },
       });
 
       if (!armor) {
@@ -45,7 +47,7 @@ const armorServices = {
     formData: {
       id?: number;
       name: string;
-      stats: string;
+      stats: Partial<ArmorStats>;
       keywords: { keywordId: number; value?: number }[];
     },
     picture: { publicId: string; imageUrl: string },
@@ -53,23 +55,45 @@ const armorServices = {
     grade: number,
   ) => {
     try {
+      const armor = await prisma.armor.findUnique({
+        where: { id: formData.id },
+        include: {
+          actions: { select: { id: true } },
+          keywords: { select: { id: true } },
+        },
+      });
+
+      if (armor && armor.keywords) {
+        await prisma.keywordReference.deleteMany({
+          where: {
+            id: { in: armor.keywords.map((keyword) => keyword.id) },
+          },
+        });
+      }
+
+      const { keywords, stats, ...data } = {
+        ...formData,
+        picture,
+        rarity,
+        grade,
+      };
+
+      const keywordData = keywords.map((keyword) => ({
+        keywordId: keyword.keywordId,
+        value: keyword.value,
+      }));
+
       const newArmor = await prisma.armor.upsert({
         where: { id: formData?.id || 0 },
         update: {
-          name: formData.name,
-          picture,
-          rarity,
-          grade,
-          stats: formData.stats,
-          keywords: formData.keywords,
+          ...data,
+          stats: { ...stats },
+          keywords: { createMany: { data: keywordData } },
         },
         create: {
-          name: formData.name,
-          picture,
-          rarity,
-          grade,
-          stats: formData.stats,
-          keywords: formData.keywords,
+          ...data,
+          stats: { ...stats },
+          keywords: { createMany: { data: keywordData } },
         },
       });
 
@@ -80,33 +104,28 @@ const armorServices = {
     }
   },
 
-  createOrUpdateArmor: async (formData: {
-    publicId: string;
-    imageUrl: string;
-    picture: string;
-    armorId: string;
-    name: string;
-    rarity: string;
-    grade: string;
-    stats: string;
-    price: string;
-    description: string;
-    actions: string;
-    keywords: string;
-  }) => {
+  createOrUpdateArmor: async (formData: Armor) => {
     try {
       const armor = await prisma.armor.findUnique({
-        where: { id: Number(JSON.parse(formData.armorId)) },
+        where: { id: formData.id },
         include: {
           actions: { select: { id: true } },
+          keywords: { select: { id: true } },
         },
       });
 
+      if (armor && armor.keywords) {
+        await prisma.keywordReference.deleteMany({
+          where: {
+            id: { in: armor.keywords.map((keyword) => keyword.id) },
+          },
+        });
+      }
+      const { actions, keywords, stats, ...data } = formData;
+
       const oldActionIds = armor?.actions?.map((id) => id.id);
 
-      const newActionIds = JSON.parse(formData.actions).map(
-        (action: Action) => action.id,
-      );
+      const newActionIds = actions?.map((action: Action) => action.id) || [];
 
       const actionsToDelete =
         oldActionIds?.filter((id) => !newActionIds.includes(id)) || [];
@@ -115,61 +134,41 @@ const armorServices = {
         await actionServices.deleteActions(actionsToDelete);
       }
 
-      const getPictureInfo = () => {
-        if (formData.publicId) {
-          return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-        } else {
-          return JSON.parse(formData.picture);
-        }
-      };
+      const actionIds = actions
+        ? await Promise.all(
+            actions.map(async (action: Action) => {
+              const newAction = await actionServices.createAction(action);
+              return { id: newAction.id };
+            }),
+          )
+        : [];
 
-      const pictureInfo = getPictureInfo();
-
-      const actionIds = await Promise.all(
-        JSON.parse(formData.actions).map(
-          async (action: {
-            name: string;
-            description: string;
-            costs: string;
-            roll: string;
-            duration: string;
-            actionType: ActionType;
-            actionSubtypes: string[];
-            id?: string;
-          }) => {
-            const newAction = await actionServices.createAction(action);
-            return { id: newAction.id };
-          },
-        ),
-      );
+      const keywordData = keywords.map((keyword) => ({
+        keywordId: keyword.keywordId,
+        value: keyword.value,
+      }));
 
       const newArmor = await prisma.armor.upsert({
-        where: { id: Number(JSON.parse(formData.armorId)) || 0 },
+        where: { id: data.id || 0 },
         update: {
-          name: JSON.parse(formData.name),
-          rarity: JSON.parse(formData.rarity),
-          grade: Number(JSON.parse(formData.grade)),
-          picture: pictureInfo,
-          stats: JSON.parse(formData.stats),
-          price: JSON.parse(formData.price),
-          description: JSON.parse(formData.description),
+          ...data,
+          stats: {
+            ...stats,
+          },
           actions: {
             connect: actionIds,
           },
-          keywords: JSON.parse(formData.keywords),
+          keywords: { createMany: { data: keywordData } },
         },
         create: {
-          name: JSON.parse(formData.name),
-          rarity: JSON.parse(formData.rarity),
-          grade: Number(JSON.parse(formData.grade)),
-          picture: pictureInfo,
-          stats: JSON.parse(formData.stats),
-          price: JSON.parse(formData.price),
-          description: JSON.parse(formData.description),
+          ...data,
+          stats: {
+            ...stats,
+          },
           actions: {
             connect: actionIds,
           },
-          keywords: JSON.parse(formData.keywords),
+          keywords: { createMany: { data: keywordData } },
         },
       });
 

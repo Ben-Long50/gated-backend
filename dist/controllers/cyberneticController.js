@@ -1,6 +1,7 @@
 import cyberneticServices from '../services/cyberneticServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 const cyberneticController = {
     getCybernetics: async (_req, res) => {
         try {
@@ -29,7 +30,8 @@ const cyberneticController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                await cyberneticServices.createOrUpdateCybernetic(req.body);
+                const parsedBody = parseRequestBody(req.body);
+                await cyberneticServices.createOrUpdateCybernetic(parsedBody);
                 res.status(200).json({
                     message: req.body.cyberneticId
                         ? 'Successfully updated cybernetic'
@@ -48,7 +50,8 @@ const cyberneticController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                await cyberneticServices.createOrUpdateCybernetic(req.body);
+                const parsedBody = parseRequestBody(req.body);
+                await cyberneticServices.createOrUpdateCybernetic(parsedBody);
                 res.status(200).json({ message: 'Successfully modified cybernetic' });
             }
             catch (error) {

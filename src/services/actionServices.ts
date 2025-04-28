@@ -1,5 +1,6 @@
-import { ActionType } from '@prisma/client';
+import { ActionType, Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
+import { ActionCost, ActionRoll } from '../types/action.js';
 
 const actionServices = {
   getActions: async () => {
@@ -30,12 +31,12 @@ const actionServices = {
   createAction: async (formData: {
     name: string;
     description: string;
-    costs: string;
-    roll: string;
-    duration: string;
+    costs: ActionCost[];
+    roll: ActionRoll[];
+    duration: { unit: string; value: number | null };
     actionType: ActionType;
     actionSubtypes: string[];
-    id?: string;
+    id?: number;
   }) => {
     try {
       const action = await prisma.action.upsert({
@@ -43,8 +44,8 @@ const actionServices = {
         update: {
           name: formData.name,
           description: formData.description,
-          costs: formData.costs,
-          roll: formData.roll,
+          costs: formData.costs as unknown as Prisma.JsonArray,
+          roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
@@ -52,8 +53,8 @@ const actionServices = {
         create: {
           name: formData.name,
           description: formData.description,
-          costs: formData.costs,
-          roll: formData.roll,
+          costs: formData.costs as unknown as Prisma.JsonArray,
+          roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,

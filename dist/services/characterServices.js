@@ -101,9 +101,9 @@ const characterServices = {
                             },
                             cybernetics: {
                                 include: {
-                                    weapons: true,
-                                    armor: true,
-                                    actions: true,
+                                    weapons: { orderBy: { name: 'desc' } },
+                                    armor: { orderBy: { name: 'desc' } },
+                                    actions: { orderBy: { name: 'desc' } },
                                     modifiers: { include: { action: true } },
                                 },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
@@ -155,9 +155,9 @@ const characterServices = {
                             },
                             cybernetics: {
                                 include: {
-                                    weapons: true,
-                                    armor: true,
-                                    actions: true,
+                                    weapons: { orderBy: { name: 'desc' } },
+                                    armor: { orderBy: { name: 'desc' } },
+                                    actions: { orderBy: { name: 'desc' } },
                                     modifiers: { include: { action: true } },
                                 },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],

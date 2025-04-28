@@ -222,6 +222,29 @@ model ConditionReference {
   @@unique([conditionId, characterId])
 }
 
+model KeywordReference {
+  id           Int         @id @default(autoincrement())
+  value        Int?
+  keyword      Keyword     @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  keywordId    Int
+  weapon       Weapon?     @relation(fields: [weaponId], references: [id], onDelete: Cascade)
+  weaponId     Int?
+  armor        Armor?      @relation(fields: [armorId], references: [id], onDelete: Cascade)
+  armorId      Int?
+  cybernetic   Cybernetic? @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
+  cyberneticId Int?
+  vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId    Int?
+  item         Item?       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId       Int?
+
+  @@unique([keywordId, weaponId])
+  @@unique([keywordId, armorId])
+  @@unique([keywordId, cyberneticId])
+  @@unique([keywordId, vehicleId])
+  @@unique([keywordId, itemId])
+}
+
 model Condition {
   id                 Int                  @id @default(autoincrement())
   name               String
@@ -232,11 +255,13 @@ model Condition {
 }
 
 model Keyword {
-  id          Int         @id @default(autoincrement())
-  keywordType KeywordType
-  name        String
-  description String
-  conditions  Condition[]
+  id               Int                @id @default(autoincrement())
+  keywordType      KeywordType
+  name             String
+  description      String
+  KeywordReference KeywordReference[]
+  Condition        Condition?         @relation(fields: [conditionId], references: [id])
+  conditionId      Int?
 
   @@unique([name, keywordType])
 }
@@ -250,7 +275,6 @@ model Weapon {
   description          String?
   stats                Json
   price                Int?
-  keywords             Json[]
   equipped             Boolean?             @default(false)
   cybernetic           Cybernetic?          @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
@@ -262,6 +286,7 @@ model Weapon {
   characterInventoryId Int?
   baseWeaponId         Int?
   conditions           ConditionReference[]
+  keywords             KeywordReference[]
 }
 
 model Armor {
@@ -273,7 +298,6 @@ model Armor {
   description          String?
   stats                Json
   price                Int?
-  keywords             Json[]
   equipped             Boolean?             @default(false)
   cybernetic           Cybernetic?          @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
   cyberneticId         Int?
@@ -283,6 +307,7 @@ model Armor {
   characterInventoryId Int?
   baseArmorId          Int?
   conditions           ConditionReference[]
+  keywords             KeywordReference[]
 }
 
 model Cybernetic {
@@ -296,7 +321,6 @@ model Cybernetic {
   description          String
   body                 String[]
   price                Int?
-  keywords             Json[]
   equipped             Boolean?             @default(false)
   actions              Action[]
   armor                Armor[]
@@ -307,6 +331,7 @@ model Cybernetic {
   baseCyberneticId     Int?
   conditions           ConditionReference[]
   modifiers            Modifier[]
+  keywords             KeywordReference[]
 }
 
 model Vehicle {
@@ -325,6 +350,7 @@ model Vehicle {
   characterInventoryId Int?
   baseVehicleId        Int?
   conditions           ConditionReference[]
+  keywords             KeywordReference[]
 }
 
 model Modification {
@@ -363,6 +389,7 @@ model Item {
   baseItemId           Int?
   conditions           ConditionReference[]
   modifiers            Modifier[]
+  keywords             KeywordReference[]
 }
 
 model Modifier {

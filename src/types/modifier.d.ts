@@ -1,3 +1,5 @@
+import { Action } from './action';
+
 export type Modifier = StatModifier | RollModifier;
 
 export interface StatModifier {
@@ -11,6 +13,7 @@ export interface StatModifier {
 export interface RollModifier {
   type: 'Roll';
   action: number;
+  action: Action;
   operator: ModifierOperator;
   dice: number;
   duration: { unit: string; value: number };

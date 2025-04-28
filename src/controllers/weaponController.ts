@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import weaponServices from '../services/weaponServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 
 const weaponController = {
   getWeapons: async (_req: Request, res: Response) => {
@@ -31,7 +32,9 @@ const weaponController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
-        await weaponServices.createOrUpdateWeapon(req.body);
+        const parsedBody = parseRequestBody(req.body);
+
+        await weaponServices.createOrUpdateWeapon(parsedBody);
         res.status(200).json({
           message: req.body.weaponId
             ? 'Successfully updated weapon'
@@ -50,7 +53,9 @@ const weaponController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
-        await weaponServices.createOrUpdateWeapon(req.body);
+        const parsedBody = parseRequestBody(req.body);
+
+        await weaponServices.createOrUpdateWeapon(parsedBody);
         res.status(200).json({ message: 'Successfully modified weapon' });
       } catch (error) {
         if (error instanceof Error) {
