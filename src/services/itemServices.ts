@@ -2,6 +2,7 @@ import { Action, ActionType } from '@prisma/client';
 import prisma from '../config/database.js';
 import { Item } from '../types/item.js';
 import actionServices from './actionServices.js';
+import { ActionCost, ActionRoll } from '../types/action.js';
 
 const itemServices = {
   getItems: async () => {
@@ -67,12 +68,12 @@ const itemServices = {
           async (action: {
             name: string;
             description: string;
-            costs: string;
-            roll: string;
-            duration: string;
+            costs: ActionCost[];
+            roll: ActionRoll[];
+            duration: { unit: string; value: number };
             actionType: ActionType;
             actionSubtypes: string[];
-            id?: string;
+            id?: number;
           }) => {
             const newAction = await actionServices.createAction(action);
             return { id: newAction.id };

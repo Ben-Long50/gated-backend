@@ -1,6 +1,7 @@
 import vehicleServices from '../services/vehicleServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
 const vehicleController = {
     getVehicles: async (_req, res) => {
         try {
@@ -51,14 +52,7 @@ const vehicleController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                const parsedBody = Object.fromEntries(Object.entries(req.body).map(([key, value]) => {
-                    try {
-                        return [key, JSON.parse(value)];
-                    }
-                    catch (_a) {
-                        return [key, value];
-                    }
-                }));
+                const parsedBody = parseRequestBody(req.body);
                 await vehicleServices.createOrUpdateVehicle(parsedBody);
                 res.status(200).json({
                     message: req.body.vehicleId
@@ -78,14 +72,7 @@ const vehicleController = {
         uploadToCloudinary,
         async (req, res) => {
             try {
-                const parsedBody = Object.fromEntries(Object.entries(req.body).map(([key, value]) => {
-                    try {
-                        return [key, JSON.parse(value)];
-                    }
-                    catch (_a) {
-                        return [key, value];
-                    }
-                }));
+                const parsedBody = parseRequestBody(req.body);
                 await vehicleServices.createOrUpdateVehicle(parsedBody);
                 res.status(200).json({ message: 'Successfully modified vehicle' });
             }

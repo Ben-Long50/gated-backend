@@ -1,6 +1,6 @@
-import { $Enums, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
-import { VehicleStats } from '../types/vehicle.js';
+import { Vehicle } from '../types/vehicle.js';
 
 const vehicleServices = {
   getVehicles: async () => {
@@ -67,20 +67,7 @@ const vehicleServices = {
     }
   },
 
-  createOrUpdateVehicle: async (formData: {
-    publicId?: string;
-    imageUrl?: string;
-    picture?: { publicId: string; imageUrl: string };
-    vehicleId: string;
-    name: string;
-    rarity: $Enums.ItemRarity;
-    grade: number;
-    stats: Partial<VehicleStats>;
-    price: number;
-    description: string;
-    weapons: number[];
-    modifications: number[];
-  }) => {
+  createOrUpdateVehicle: async (formData: Vehicle) => {
     try {
       if (
         formData.stats.weapon
@@ -94,7 +81,7 @@ const vehicleServices = {
 
       const oldVehicle =
         (await prisma.vehicle.findUnique({
-          where: { id: Number(formData.vehicleId) },
+          where: { id: formData.id },
           include: {
             weapons: { select: { id: true } },
             modifications: { select: { id: true } },
@@ -119,24 +106,14 @@ const vehicleServices = {
         previousModIds,
       );
 
-      const getPictureInfo = () => {
-        if (formData.publicId) {
-          return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-        } else {
-          return formData.picture;
-        }
-      };
-
-      const pictureInfo = getPictureInfo();
-
       const newVehicle = await prisma.vehicle.upsert({
-        where: { id: Number(formData.vehicleId) || 0 },
+        where: { id: formData.id },
         update: {
           name: formData.name,
           rarity: formData.rarity,
           grade: formData.grade,
-          picture: pictureInfo,
-          stats: formData.stats,
+          picture: formData.picture,
+          stats: { ...formData.stats },
           price: formData.price,
           description: formData.description,
           weapons: {
@@ -154,8 +131,8 @@ const vehicleServices = {
           name: formData.name,
           rarity: formData.rarity,
           grade: formData.grade,
-          picture: pictureInfo,
-          stats: formData.stats,
+          picture: formData.picture,
+          stats: { ...formData.stats },
           price: formData.price,
           description: formData.description,
           weapons: { create: weaponData.data },
@@ -187,6 +164,7 @@ const vehicleServices = {
 
     const weapons = await prisma.weapon.findMany({
       where: { id: { in: newIds }, characterInventoryId: null },
+      include: { keywords: { include: { keyword: true } } },
     });
 
     const newOwnedIds = newIds.filter(
@@ -202,8 +180,25 @@ const vehicleServices = {
         ? (rest.stats as Prisma.InputJsonValue)
         : Prisma.JsonNull,
       keywords: rest.keywords
-        ? (rest.keywords as Prisma.InputJsonValue[])
+        ? {
+            createMany: {
+              data: rest.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+              })),
+            },
+          }
         : undefined,
+      // actions: rest.actions
+      //   ? {
+      //       createMany: {
+      //         data: rest.actions.map(({ id, baseActionId, ...action }) => ({
+      //           ...action,
+      //           baseActionId: id,
+      //         })),
+      //       },
+      //     }
+      //   : undefined,
     }));
 
     return {

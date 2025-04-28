@@ -10,7 +10,6 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
 const armorServices = {
     getArmor: async () => {
@@ -38,8 +37,7 @@ const armorServices = {
             if (!armor) {
                 throw new Error('Could not find armor');
             }
-            const armorDetails = await getItemKeywords(armor);
-            return armorDetails;
+            return armor;
         }
         catch (error) {
             console.error(error);

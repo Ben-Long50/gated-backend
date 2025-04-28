@@ -6,6 +6,7 @@ import { WeaponStats } from '../types/weapon.js';
 import { Cybernetic } from '../types/cybernetic.js';
 import { ArmorStats } from '../types/armor.js';
 import { Action } from '../types/action.js';
+import { CyberneticType, ModifierType } from '@prisma/client';
 
 const cyberneticServices = {
   getCybernetics: async () => {
@@ -87,8 +88,16 @@ const cyberneticServices = {
           },
         });
       }
-      const { weapons, armor, actions, modifiers, keywords, stats, ...data } =
-        formData;
+      const {
+        weapons,
+        armor,
+        actions,
+        modifiers,
+        keywords,
+        stats,
+        cyberneticType,
+        ...data
+      } = formData;
 
       if (cybernetic) {
         const oldModifierIds = cybernetic.modifiers.map(
@@ -188,6 +197,7 @@ const cyberneticServices = {
         where: { id: formData.id || 0 },
         update: {
           ...data,
+          cyberneticType: cyberneticType as CyberneticType,
           stats: {
             ...stats,
           },
@@ -203,15 +213,16 @@ const cyberneticServices = {
           keywords: { createMany: { data: keywordData } },
           modifiers: {
             createMany: {
-              data: modifiers.map(({ action, ...modifier }) => ({
+              data: modifiers.map(({ type, ...modifier }) => ({
+                type: type.toLowerCase() as ModifierType,
                 ...modifier,
-                actionId: action ? Number(action) : null,
               })),
             },
           },
         },
         create: {
           ...data,
+          cyberneticType: cyberneticType as CyberneticType,
           stats: {
             ...stats,
           },
@@ -227,9 +238,9 @@ const cyberneticServices = {
           keywords: { createMany: { data: keywordData } },
           modifiers: {
             createMany: {
-              data: modifiers.map(({ action, ...modifier }) => ({
+              data: modifiers.map(({ type, ...modifier }) => ({
+                type: type.toLowerCase() as ModifierType,
                 ...modifier,
-                actionId: action ? Number(action) : null,
               })),
             },
           },

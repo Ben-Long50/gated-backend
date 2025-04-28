@@ -1,6 +1,5 @@
 import { $Enums } from '@prisma/client';
 import prisma from '../config/database.js';
-import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
 import { Armor, ArmorStats } from '../types/armor.js';
 import { Action } from '../types/action.js';
@@ -34,9 +33,7 @@ const armorServices = {
         throw new Error('Could not find armor');
       }
 
-      const armorDetails = await getItemKeywords(armor);
-
-      return armorDetails;
+      return armor;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch armor');

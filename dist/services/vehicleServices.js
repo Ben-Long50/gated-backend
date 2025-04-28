@@ -79,7 +79,7 @@ const vehicleServices = {
                 throw new Error('Your vehicle does not have enough weapon slots to support the chosen weapons');
             }
             const oldVehicle = (await prisma.vehicle.findUnique({
-                where: { id: Number(formData.vehicleId) },
+                where: { id: formData.id },
                 include: {
                     weapons: { select: { id: true } },
                     modifications: { select: { id: true } },
@@ -93,23 +93,14 @@ const vehicleServices = {
                 : [];
             const weaponData = await vehicleServices.swapWeapons(formData.weapons, previousWeaponIds);
             const modData = await vehicleServices.swapMods(formData.modifications, previousModIds);
-            const getPictureInfo = () => {
-                if (formData.publicId) {
-                    return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-                }
-                else {
-                    return formData.picture;
-                }
-            };
-            const pictureInfo = getPictureInfo();
             const newVehicle = await prisma.vehicle.upsert({
-                where: { id: Number(formData.vehicleId) || 0 },
+                where: { id: formData.id },
                 update: {
                     name: formData.name,
                     rarity: formData.rarity,
                     grade: formData.grade,
-                    picture: pictureInfo,
-                    stats: formData.stats,
+                    picture: formData.picture,
+                    stats: Object.assign({}, formData.stats),
                     price: formData.price,
                     description: formData.description,
                     weapons: {
@@ -127,8 +118,8 @@ const vehicleServices = {
                     name: formData.name,
                     rarity: formData.rarity,
                     grade: formData.grade,
-                    picture: pictureInfo,
-                    stats: formData.stats,
+                    picture: formData.picture,
+                    stats: Object.assign({}, formData.stats),
                     price: formData.price,
                     description: formData.description,
                     weapons: { create: weaponData.data },
@@ -153,6 +144,7 @@ const vehicleServices = {
         const newIds = newWeaponIds.filter((id) => !previousWeaponIds.some((item) => item === id));
         const weapons = await prisma.weapon.findMany({
             where: { id: { in: newIds }, characterInventoryId: null },
+            include: { keywords: { include: { keyword: true } } },
         });
         const newOwnedIds = newIds.filter((id) => !weapons.map((weapon) => weapon.id).includes(id));
         const data = weapons.map((_a) => {
@@ -162,7 +154,14 @@ const vehicleServices = {
                     : undefined, stats: rest.stats
                     ? rest.stats
                     : Prisma.JsonNull, keywords: rest.keywords
-                    ? rest.keywords
+                    ? {
+                        createMany: {
+                            data: rest.keywords.map((keyword) => ({
+                                keywordId: keyword.keywordId,
+                                value: keyword.value,
+                            })),
+                        },
+                    }
                     : undefined }));
         });
         return {

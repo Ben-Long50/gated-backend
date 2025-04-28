@@ -1,7 +1,6 @@
 import { $Enums } from '@prisma/client';
 import prisma from '../config/database.js';
 import { Weapon, WeaponStats } from '../types/weapon.js';
-import { getItemKeywords } from '../utils/getAssociatedKeywords.js';
 import actionServices from './actionServices.js';
 import { Action } from '../types/action.js';
 
@@ -38,9 +37,7 @@ const weaponServices = {
         throw new Error('Could not find weapon');
       }
 
-      const weaponDetails = await getItemKeywords(weapon);
-
-      return weaponDetails;
+      return weapon;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch weapon');

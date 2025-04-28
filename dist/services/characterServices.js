@@ -23,24 +23,49 @@ const characterServices = {
                     characterInventory: {
                         include: {
                             weapons: {
-                                include: { actions: true },
+                                include: {
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             armor: {
-                                include: { actions: true },
+                                include: {
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             cybernetics: {
                                 include: {
-                                    weapons: true,
-                                    armor: true,
+                                    weapons: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    armor: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    keywords: { include: { keyword: true } },
                                     actions: true,
                                     modifiers: { include: { action: true } },
                                 },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             vehicles: {
-                                include: { weapons: true, modifications: true },
+                                include: {
+                                    weapons: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    modifications: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
@@ -92,24 +117,49 @@ const characterServices = {
                     characterInventory: {
                         include: {
                             weapons: {
-                                include: { actions: true },
+                                include: {
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             armor: {
-                                include: { actions: true },
+                                include: {
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             cybernetics: {
                                 include: {
-                                    weapons: { orderBy: { name: 'desc' } },
-                                    armor: { orderBy: { name: 'desc' } },
-                                    actions: { orderBy: { name: 'desc' } },
+                                    weapons: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    armor: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
                                     modifiers: { include: { action: true } },
                                 },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             vehicles: {
-                                include: { weapons: true, modifications: true },
+                                include: {
+                                    weapons: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    modifications: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
@@ -146,24 +196,49 @@ const characterServices = {
                     characterInventory: {
                         include: {
                             weapons: {
-                                include: { actions: true },
+                                include: {
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             armor: {
-                                include: { actions: true },
+                                include: {
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             cybernetics: {
                                 include: {
-                                    weapons: { orderBy: { name: 'desc' } },
-                                    armor: { orderBy: { name: 'desc' } },
-                                    actions: { orderBy: { name: 'desc' } },
+                                    weapons: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    armor: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    keywords: { include: { keyword: true } },
+                                    actions: true,
                                     modifiers: { include: { action: true } },
                                 },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             vehicles: {
-                                include: { weapons: true, modifications: true },
+                                include: {
+                                    weapons: {
+                                        include: {
+                                            keywords: { include: { keyword: true } },
+                                            actions: true,
+                                        },
+                                    },
+                                    modifications: true,
+                                },
                                 orderBy: [{ name: 'asc' }, { grade: 'desc' }],
                             },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
@@ -207,11 +282,22 @@ const characterServices = {
             const equipment = await prisma.characterInventory.findUnique({
                 where: { characterId: Number(characterId), id: Number(inventoryId) },
                 select: {
-                    weapons: { where: { equipped: true }, orderBy: { name: 'asc' } },
-                    armor: { where: { equipped: true }, orderBy: { name: 'asc' } },
+                    weapons: {
+                        where: { equipped: true },
+                        include: { keywords: { include: { keyword: true } } },
+                        orderBy: { name: 'asc' },
+                    },
+                    armor: {
+                        where: { equipped: true },
+                        include: { keywords: { include: { keyword: true } } },
+                        orderBy: { name: 'asc' },
+                    },
                     cybernetics: {
                         where: { equipped: true },
-                        include: { actions: true },
+                        include: {
+                            keywords: { include: { keyword: true } },
+                            actions: true,
+                        },
                         orderBy: { name: 'asc' },
                     },
                     actions: true,
@@ -377,7 +463,7 @@ const characterServices = {
         const weaponIds = weaponList === null || weaponList === void 0 ? void 0 : weaponList.map((weapon) => weapon.weaponId);
         const weapons = await prisma.weapon.findMany({
             where: { id: { in: weaponIds } },
-            include: { actions: true },
+            include: { actions: true, keywords: { include: { keyword: true } } },
         });
         const promises = [];
         for (const { weaponId, quantity } of weaponList) {
@@ -396,6 +482,10 @@ const characterServices = {
                 });
                 actionIds = await characterServices.createCharacterActionCopy(inventoryId, actionInfo);
             }
+            const keywordData = (weaponDetails === null || weaponDetails === void 0 ? void 0 : weaponDetails.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
             if (weaponDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(prisma.weapon.create({
@@ -407,7 +497,7 @@ const characterServices = {
                             description: weaponDetails.description,
                             stats: stats || {},
                             price: weaponDetails.price,
-                            keywords: weaponDetails.keywords,
+                            keywords: { createMany: { data: keywordData } },
                             actions: actionIds.length > 0
                                 ? {
                                     connect: actionIds.map((id) => ({ id })),
@@ -431,7 +521,7 @@ const characterServices = {
         const armorIds = armorList === null || armorList === void 0 ? void 0 : armorList.map((armor) => armor.armorId);
         const armor = await prisma.armor.findMany({
             where: { id: { in: armorIds } },
-            include: { actions: true },
+            include: { actions: true, keywords: { include: { keyword: true } } },
         });
         const promises = [];
         for (const { armorId, quantity } of armorList) {
@@ -450,6 +540,10 @@ const characterServices = {
                 });
                 actionIds = await characterServices.createCharacterActionCopy(inventoryId, actionInfo);
             }
+            const keywordData = (armorDetails === null || armorDetails === void 0 ? void 0 : armorDetails.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
             if (armorDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(prisma.armor.create({
@@ -461,7 +555,7 @@ const characterServices = {
                             description: armorDetails.description,
                             stats: stats || {},
                             price: armorDetails.price,
-                            keywords: armorDetails.keywords,
+                            keywords: { createMany: { data: keywordData } },
                             actions: actionIds.length > 0
                                 ? {
                                     connect: actionIds.map((id) => ({ id })),
@@ -516,10 +610,15 @@ const characterServices = {
         const cybernetics = await prisma.cybernetic.findMany({
             where: { id: { in: cyberneticIds } },
             include: {
-                weapons: true,
-                armor: true,
+                weapons: {
+                    include: { keywords: { include: { keyword: true } }, actions: true },
+                },
+                armor: {
+                    include: { keywords: { include: { keyword: true } }, actions: true },
+                },
                 actions: true,
                 modifiers: { include: { action: true } },
+                keywords: { include: { keyword: true } },
             },
         });
         const promises = [];
@@ -552,6 +651,10 @@ const characterServices = {
                 });
                 actionIds = await characterServices.createCharacterActionCopy(inventoryId, actionInfo);
             }
+            const keywordData = (cyberneticDetails === null || cyberneticDetails === void 0 ? void 0 : cyberneticDetails.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
             if (cyberneticDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(prisma.cybernetic.create({
@@ -573,7 +676,7 @@ const characterServices = {
                                     }),
                                 },
                             },
-                            keywords: cyberneticDetails.keywords,
+                            keywords: { createMany: { data: keywordData } },
                             weapons: weaponIds.length > 0
                                 ? {
                                     connect: weaponIds.map((id) => ({ id })),

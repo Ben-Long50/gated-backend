@@ -1,5 +1,9 @@
+import { Armor } from './armor';
 import { AttributeName, SkillName } from './attributeTree';
 import { Cybernetic } from './cybernetic';
+import { Item } from './item';
+import { Modifier } from './modifier';
+import { Weapon } from './weapon';
 
 interface Action {
   id: number;
@@ -10,7 +14,16 @@ interface Action {
   actionType: ActionType;
   actionSubtypes: string[];
   duration: { unit: string; value: number | null };
-  cybernetics: Cybernetic[];
+  weaponId?: number;
+  weapon?: Weapon;
+  armorId?: number;
+  armor?: Armor;
+  cyberneticId?: number;
+  cybernetic?: Cybernetic;
+  itemId?: number;
+  item?: Item;
+  baseActionId?: number;
+  modifiers: Modifier[];
 }
 
 interface ActionCost {

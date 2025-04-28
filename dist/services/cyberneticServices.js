@@ -90,7 +90,7 @@ const cyberneticServices = {
                     },
                 });
             }
-            const { weapons, armor, actions, modifiers, keywords, stats } = formData, data = __rest(formData, ["weapons", "armor", "actions", "modifiers", "keywords", "stats"]);
+            const { weapons, armor, actions, modifiers, keywords, stats, cyberneticType } = formData, data = __rest(formData, ["weapons", "armor", "actions", "modifiers", "keywords", "stats", "cyberneticType"]);
             if (cybernetic) {
                 const oldModifierIds = cybernetic.modifiers.map((modifier) => modifier.id);
                 await prisma.modifier.deleteMany({
@@ -135,7 +135,7 @@ const cyberneticServices = {
             }));
             const newCybernetic = await prisma.cybernetic.upsert({
                 where: { id: formData.id || 0 },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), weapons: {
+                update: Object.assign(Object.assign({}, data), { cyberneticType: cyberneticType, stats: Object.assign({}, stats), weapons: {
                         connect: weaponIds,
                     }, armor: {
                         connect: armorIds,
@@ -144,12 +144,12 @@ const cyberneticServices = {
                     }, keywords: { createMany: { data: keywordData } }, modifiers: {
                         createMany: {
                             data: modifiers.map((_a) => {
-                                var { action } = _a, modifier = __rest(_a, ["action"]);
-                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
+                                var { type } = _a, modifier = __rest(_a, ["type"]);
+                                return (Object.assign({ type: type.toLowerCase() }, modifier));
                             }),
                         },
                     } }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), weapons: {
+                create: Object.assign(Object.assign({}, data), { cyberneticType: cyberneticType, stats: Object.assign({}, stats), weapons: {
                         connect: weaponIds,
                     }, armor: {
                         connect: armorIds,
@@ -158,8 +158,8 @@ const cyberneticServices = {
                     }, keywords: { createMany: { data: keywordData } }, modifiers: {
                         createMany: {
                             data: modifiers.map((_a) => {
-                                var { action } = _a, modifier = __rest(_a, ["action"]);
-                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
+                                var { type } = _a, modifier = __rest(_a, ["type"]);
+                                return (Object.assign({ type: type.toLowerCase() }, modifier));
                             }),
                         },
                     } }),
