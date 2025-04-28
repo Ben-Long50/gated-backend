@@ -12,7 +12,7 @@ const userServices = {
                         mode: 'insensitive',
                     },
                 },
-                select: { id: true, username: true, profilePicture: true },
+                select: { id: true, username: true, profilePicture: true, role: true },
                 take: 10,
             });
             return users;

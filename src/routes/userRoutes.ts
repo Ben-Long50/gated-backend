@@ -16,6 +16,13 @@ router.post('/users', authentication.authenticate, userController.createUser);
 
 router.put('/users', authentication.authenticate, userController.updateUser);
 
+router.patch(
+  '/users/:userId/role',
+  authentication.authenticate,
+  authentication.authenticateSuperadmin,
+  userController.updateUserRole,
+);
+
 router.get('/users/:userId', userController.getUser);
 
 export default router;

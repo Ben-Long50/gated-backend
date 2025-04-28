@@ -1,3 +1,4 @@
+import { User } from '@prisma/client';
 import prisma from '../config/database.js';
 
 const userServices = {
@@ -12,7 +13,7 @@ const userServices = {
             mode: 'insensitive',
           },
         },
-        select: { id: true, username: true, profilePicture: true },
+        select: { id: true, username: true, profilePicture: true, role: true },
         take: 10,
       });
 
@@ -124,15 +125,7 @@ const userServices = {
     }
   },
 
-  updateUser: async (
-    userData: {
-      username: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    },
-    userId: number,
-  ) => {
+  updateUser: async (userData: Partial<User>, userId: number) => {
     try {
       await prisma.user.update({
         where: { id: userId },
