@@ -7,6 +7,8 @@
 import debug from 'debug';
 import http from 'http';
 import app from '../dist/app.js';
+import { Server } from 'socket.io';
+import { setupSocketIO } from '../dist/sockets/index.js';
 
 const debugLogger = debug('PROJECT_NAME:server');
 
@@ -22,6 +24,21 @@ app.set('port', port);
  */
 
 const server = http.createServer(app);
+
+const io = new Server(server, {
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2 * 60 * 1000,
+    skipMiddlewares: true,
+  },
+  cors: {
+    origin: process.env.CLIENT_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  },
+  pingInterval: 10000,
+  pingTimeout: 60 * 1000,
+});
+
+setupSocketIO(io);
 
 /**
  * Listen on provided port, on all network interfaces.

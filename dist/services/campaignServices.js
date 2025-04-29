@@ -64,47 +64,7 @@ const campaignServices = {
                     pendingPlayers: { orderBy: { firstName: 'desc' } },
                     factions: { include: { affiliations: true } },
                     characters: {
-                        include: {
-                            perks: {
-                                include: { modifiers: { include: { action: true } } },
-                            },
-                            characterInventory: {
-                                include: {
-                                    weapons: {
-                                        where: { equipped: true },
-                                        include: { actions: true },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    armor: {
-                                        where: { equipped: true },
-                                        include: { actions: true },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    cybernetics: {
-                                        where: { equipped: true },
-                                        include: {
-                                            weapons: true,
-                                            armor: true,
-                                            actions: true,
-                                            modifiers: { include: { action: true } },
-                                        },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    vehicles: {
-                                        include: { weapons: true, modifications: true },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    items: {
-                                        where: { equipped: true },
-                                        include: {
-                                            actions: true,
-                                            modifiers: { include: { action: true } },
-                                        },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                },
-                            },
-                        },
+                        select: { id: true },
                     },
                     owner: true,
                 },
