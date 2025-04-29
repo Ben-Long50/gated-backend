@@ -1,6 +1,6 @@
 import { ActionType, Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
-import { ActionCost, ActionRoll } from '../types/action.js';
+import { ActionCost, ActionCosts, ActionRoll } from '../types/action.js';
 
 const actionServices = {
   getActions: async () => {
@@ -31,7 +31,7 @@ const actionServices = {
   createAction: async (formData: {
     name: string;
     description: string;
-    costs: ActionCost[];
+    costs: ActionCosts;
     roll: ActionRoll[];
     duration: { unit: string; value: number | null };
     actionType: ActionType;
@@ -44,7 +44,7 @@ const actionServices = {
         update: {
           name: formData.name,
           description: formData.description,
-          costs: formData.costs as unknown as Prisma.JsonArray,
+          costs: { ...formData.costs },
           roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
           actionType: formData.actionType,
@@ -53,7 +53,7 @@ const actionServices = {
         create: {
           name: formData.name,
           description: formData.description,
-          costs: formData.costs as unknown as Prisma.JsonArray,
+          costs: { ...formData.costs },
           roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
           actionType: formData.actionType,

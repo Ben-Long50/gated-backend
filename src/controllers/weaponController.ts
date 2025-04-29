@@ -33,6 +33,7 @@ const weaponController = {
     async (req: Request, res: Response) => {
       try {
         const parsedBody = parseRequestBody(req.body);
+        console.log(parsedBody);
 
         await weaponServices.createOrUpdateWeapon(parsedBody);
         res.status(200).json({

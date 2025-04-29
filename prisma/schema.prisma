@@ -542,6 +542,7 @@ enum ActionType {
   action
   extendedAction
   reaction
+  passive
 }
 
 enum ItemRarity {

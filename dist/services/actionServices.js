@@ -32,7 +32,7 @@ const actionServices = {
                 update: {
                     name: formData.name,
                     description: formData.description,
-                    costs: formData.costs,
+                    costs: Object.assign({}, formData.costs),
                     roll: formData.roll,
                     duration: formData.duration,
                     actionType: formData.actionType,
@@ -41,7 +41,7 @@ const actionServices = {
                 create: {
                     name: formData.name,
                     description: formData.description,
-                    costs: formData.costs,
+                    costs: Object.assign({}, formData.costs),
                     roll: formData.roll,
                     duration: formData.duration,
                     actionType: formData.actionType,
