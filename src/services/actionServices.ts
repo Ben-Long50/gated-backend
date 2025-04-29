@@ -1,6 +1,6 @@
 import { ActionType, Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
-import { ActionCost, ActionCosts, ActionRoll } from '../types/action.js';
+import { ActionCosts, ActionRoll } from '../types/action.js';
 
 const actionServices = {
   getActions: async () => {
