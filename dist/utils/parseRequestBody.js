@@ -11,7 +11,7 @@ const parseRequestBody = (requestBody) => {
             return [key, JSON.parse(value)];
         }
     })
-        .filter(([_, value]) => !!value));
+        .filter(([_, value]) => value !== null && value !== undefined));
     return parsedBody;
 };
 export default parseRequestBody;

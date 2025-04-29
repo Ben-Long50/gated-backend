@@ -13,7 +13,7 @@ const parseRequestBody = (requestBody: any) => {
           return [key, JSON.parse(value)];
         }
       })
-      .filter(([_, value]) => !!value),
+      .filter(([_, value]) => value !== null && value !== undefined),
   );
 
   return parsedBody;
