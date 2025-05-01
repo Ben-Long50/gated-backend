@@ -17,14 +17,14 @@ router.get(
 );
 
 router.post(
-  '/vehicles/modifications',
+  '/modifications',
   authentication.authenticate,
   authentication.authenticateAdmin,
   modificationController.createOrUpdateModification,
 );
 
 router.delete(
-  '/vehicles/modifications/:modId',
+  '/modifications/:modId',
   authentication.authenticate,
   authentication.authenticateAdmin,
   modificationController.deleteModification,
