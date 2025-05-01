@@ -10,8 +10,6 @@ interface Item {
   stats: ItemStats;
   price: number | null;
   category: $Enums.ItemCategory;
-  subcategory: $Enums.ItemSubcategory;
-  itemType: string | null;
   actionIds?: number[];
   itemLinkReferenceId?: number | null;
   characterInventoryId: number | null;

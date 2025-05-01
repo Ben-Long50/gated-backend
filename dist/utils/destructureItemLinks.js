@@ -26,12 +26,16 @@ export const destructureLinkReference = (item) => {
         const _d = Object.assign({}, item), { vehicleLinkReference } = _d, vehicleData = __rest(_d, ["vehicleLinkReference"]);
         return Object.assign({ weapons: vehicleLinkReference === null || vehicleLinkReference === void 0 ? void 0 : vehicleLinkReference.weapons, armor: vehicleLinkReference === null || vehicleLinkReference === void 0 ? void 0 : vehicleLinkReference.armors, modifications: vehicleLinkReference === null || vehicleLinkReference === void 0 ? void 0 : vehicleLinkReference.modifications, actions: vehicleLinkReference === null || vehicleLinkReference === void 0 ? void 0 : vehicleLinkReference.actions }, vehicleData);
     }
+    else if ('droneLinkReference' in item) {
+        const _e = Object.assign({}, item), { droneLinkReference } = _e, droneData = __rest(_e, ["droneLinkReference"]);
+        return Object.assign({ weapons: droneLinkReference === null || droneLinkReference === void 0 ? void 0 : droneLinkReference.weapons, modifications: droneLinkReference === null || droneLinkReference === void 0 ? void 0 : droneLinkReference.modifications, actions: droneLinkReference === null || droneLinkReference === void 0 ? void 0 : droneLinkReference.actions }, droneData);
+    }
     else if ('modificationLinkReference' in item) {
-        const _e = Object.assign({}, item), { modificationLinkReference } = _e, modificationData = __rest(_e, ["modificationLinkReference"]);
+        const _f = Object.assign({}, item), { modificationLinkReference } = _f, modificationData = __rest(_f, ["modificationLinkReference"]);
         return Object.assign({ actions: modificationLinkReference === null || modificationLinkReference === void 0 ? void 0 : modificationLinkReference.actions }, modificationData);
     }
     else if ('itemLinkReference' in item) {
-        const _f = Object.assign({}, item), { itemLinkReference } = _f, itemData = __rest(_f, ["itemLinkReference"]);
+        const _g = Object.assign({}, item), { itemLinkReference } = _g, itemData = __rest(_g, ["itemLinkReference"]);
         return Object.assign({ actions: itemLinkReference === null || itemLinkReference === void 0 ? void 0 : itemLinkReference.actions }, itemData);
     }
     return;

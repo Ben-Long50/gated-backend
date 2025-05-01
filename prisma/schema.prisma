@@ -184,6 +184,7 @@ model CharacterCart {
   armor         Armor[]
   cybernetics   Cybernetic[]
   vehicles      Vehicle[]
+  drones        Drone[]
   modifications Modification[]
   items         Item[]
 }
@@ -196,6 +197,7 @@ model CharacterInventory {
   armor         Armor[]
   cybernetics   Cybernetic[]
   vehicles      Vehicle[]
+  drones        Drone[]
   actions       Action[]
   modifications Modification[]
   items         Item[]
@@ -216,6 +218,8 @@ model ConditionReference {
   cyberneticId Int?
   vehicle      Vehicle?    @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   vehicleId    Int?
+  drone        Drone?      @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  droneId      Int?
   item         Item?       @relation(fields: [itemId], references: [id], onDelete: Cascade)
   itemId       Int?
 
@@ -235,6 +239,8 @@ model KeywordReference {
   cyberneticId   Int?
   vehicle        Vehicle?      @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   vehicleId      Int?
+  drone          Drone?        @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  droneId        Int?
   item           Item?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
   itemId         Int?
   modification   Modification? @relation(fields: [modificationId], references: [id], onDelete: Cascade)
@@ -246,6 +252,7 @@ model KeywordReference {
   @@unique([keywordId, vehicleId])
   @@unique([keywordId, itemId])
   @@unique([keywordId, modificationId])
+  @@unique([keywordId, droneId])
 }
 
 model Condition {
@@ -295,6 +302,8 @@ model Weapon {
   cyberneticLinkId      Int?
   vehicleLink           VehicleLinkReference?    @relation(fields: [vehicleLinkId], references: [id], onDelete: Cascade)
   vehicleLinkId         Int?
+  droneLink             DroneLinkReference?      @relation(fields: [droneLinkId], references: [id], onDelete: Cascade)
+  droneLinkId           Int?
 }
 
 model WeaponLinkReference {
@@ -404,6 +413,8 @@ model Action {
   cyberneticLinkId     Int?
   vehicleLink          VehicleLinkReference?      @relation(fields: [vehicleLinkId], references: [id], onDelete: Cascade)
   vehicleLinkId        Int?
+  droneLink            DroneLinkReference?        @relation(fields: [droneLinkId], references: [id], onDelete: Cascade)
+  droneLinkId          Int?
   modificationLink     ModificationLinkReference? @relation(fields: [modificationLinkId], references: [id], onDelete: Cascade)
   modificationLinkId   Int?
   itemLink             ItemLinkReference?         @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
@@ -438,6 +449,33 @@ model VehicleLinkReference {
   actions       Action[]
 }
 
+model Drone {
+  id                   Int                  @id @default(autoincrement())
+  name                 String
+  rarity               ItemRarity           @default(common)
+  grade                Int                  @default(1)
+  picture              Json?
+  description          String?
+  stats                Json
+  price                Int?
+  droneLinkReference   DroneLinkReference?  @relation("PrimaryLink")
+  characterCart        CharacterCart[]
+  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  characterInventoryId Int?
+  baseDroneId          Int?
+  conditions           ConditionReference[]
+  keywords             KeywordReference[]
+}
+
+model DroneLinkReference {
+  id            Int            @id @default(autoincrement())
+  drone         Drone          @relation("PrimaryLink", fields: [droneId], references: [id], onDelete: Cascade)
+  droneId       Int            @unique
+  weapons       Weapon[]
+  modifications Modification[]
+  actions       Action[]
+}
+
 model Modification {
   id                        Int                        @id @default(autoincrement())
   name                      String
@@ -451,6 +489,8 @@ model Modification {
   modificationLinkReference ModificationLinkReference? @relation("PrimaryLink")
   vehicleLink               VehicleLinkReference?      @relation(fields: [vehicleLinkId], references: [id], onDelete: Cascade)
   vehicleLinkId             Int?
+  droneLink                 DroneLinkReference?        @relation(fields: [droneLinkId], references: [id], onDelete: Cascade)
+  droneLinkId               Int?
   characterCart             CharacterCart[]
   characterInventory        CharacterInventory?        @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId      Int?
@@ -474,8 +514,6 @@ model Item {
   price                Int?
   equipped             Boolean?             @default(false)
   category             ItemCategory
-  subcategory          ItemSubcategory
-  itemType             String?
   description          String?
   stats                Json?
   characterCart        CharacterCart[]
@@ -529,14 +567,6 @@ enum ModifierType {
 enum ItemCategory {
   reusable
   consumable
-}
-
-enum ItemSubcategory {
-  chemicalTherapy
-  chemicalAssistance
-  anomaly
-  gadget
-  misc
 }
 
 enum DurationUnit {
@@ -607,7 +637,10 @@ enum UserRole {
 enum KeywordType {
   weapon
   armor
-  cybernetic
+  vehicle
+  chromebits
+  hardwired
+  networked
 }
 
 enum CyberneticType {

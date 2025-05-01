@@ -203,6 +203,38 @@ const authentication = {
     return next();
   },
 
+  authenticateDroneModification: async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    if (!req.user) {
+      res.status(401).json({ error: 'No user found' });
+      return;
+    }
+
+    const drone = await prisma.drone.findUnique({
+      where: { id: Number(req.params.vehicleId) },
+      select: {
+        characterInventory: {
+          select: {
+            character: { select: { userId: true } },
+          },
+        },
+      },
+    });
+
+    const userId = drone?.characterInventory?.character?.userId || null;
+
+    if (req.user.id !== userId) {
+      res.status(403).json({
+        error: 'You do not have the required permissions to modify this drone',
+      });
+      return;
+    }
+    return next();
+  },
+
   authenticateItemModification: async (
     req: Request,
     res: Response,

@@ -33,6 +33,13 @@ type LinkReferencePlaylaods =
         actions: true;
       };
     }>
+  | Prisma.DroneLinkReferenceGetPayload<{
+      include: {
+        weapons: true;
+        modifications: true;
+        actions: true;
+      };
+    }>
   | Prisma.ModificationLinkReferenceGetPayload<{
       include: {
         actions: true;

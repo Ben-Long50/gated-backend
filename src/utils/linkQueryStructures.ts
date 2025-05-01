@@ -125,6 +125,28 @@ export const includeVehicleLinkReference: Prisma.VehicleLinkReferenceInclude = {
   actions: { orderBy: { name: 'asc' } },
 };
 
+export const includeDroneLinkReference: Prisma.DroneLinkReferenceInclude = {
+  weapons: {
+    include: {
+      keywords: {
+        include: { keyword: true },
+        orderBy: { keyword: { name: 'asc' } },
+      },
+    },
+    orderBy: { name: 'asc' },
+  },
+  modifications: {
+    include: {
+      keywords: {
+        include: { keyword: true },
+        orderBy: { keyword: { name: 'asc' } },
+      },
+    },
+    orderBy: { name: 'asc' },
+  },
+  actions: { orderBy: { name: 'asc' } },
+};
+
 export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
   weapons: {
     include: {

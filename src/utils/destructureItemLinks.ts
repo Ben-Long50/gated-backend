@@ -52,6 +52,18 @@ type VehicleWithLink = Prisma.VehicleGetPayload<{
   };
 }>;
 
+type DroneWithLink = Prisma.DroneGetPayload<{
+  include: {
+    droneLinkReference: {
+      include: {
+        weapons: true;
+        modifications: true;
+        actions: true;
+      };
+    };
+  };
+}>;
+
 type ModificationWithLink = Prisma.ModificationGetPayload<{
   include: {
     modificationLinkReference: {
@@ -73,6 +85,7 @@ type ItemWithLinkReference =
   | ArmorWithLink
   | CyberneticWithLink
   | VehicleWithLink
+  | DroneWithLink
   | ModificationWithLink
   | ItemWithLink;
 
@@ -116,6 +129,15 @@ export const destructureLinkReference = (item: ItemWithLinkReference) => {
       modifications: vehicleLinkReference?.modifications,
       actions: vehicleLinkReference?.actions,
       ...vehicleData,
+    };
+  } else if ('droneLinkReference' in item) {
+    const { droneLinkReference, ...droneData } = { ...item };
+
+    return {
+      weapons: droneLinkReference?.weapons,
+      modifications: droneLinkReference?.modifications,
+      actions: droneLinkReference?.actions,
+      ...droneData,
     };
   } else if ('modificationLinkReference' in item) {
     const { modificationLinkReference, ...modificationData } = { ...item };
