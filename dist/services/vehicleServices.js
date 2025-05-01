@@ -59,9 +59,10 @@ const vehicleServices = {
         }
     },
     createOrUpdateVehicle: async (formData) => {
+        var _a;
         try {
             const vehicle = await prisma.vehicle.findUnique({
-                where: { id: formData.id },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -80,10 +81,10 @@ const vehicleServices = {
                 value: keyword.value,
             }))) || [];
             const newVehicle = await prisma.vehicle.upsert({
-                where: { id },
+                where: { id: id !== null && id !== void 0 ? id : 0 },
                 update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), vehicleLinkReference: {
                         upsert: {
-                            where: { vehicleId: id },
+                            where: { vehicleId: id !== null && id !== void 0 ? id : 0 },
                             update: {
                                 weapons: {
                                     set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
@@ -204,80 +205,6 @@ const vehicleServices = {
         }
         await Promise.all(promises);
     },
-    // swapWeapons: async (newWeaponIds: number[], previousWeaponIds: number[]) => {
-    //   const oldIds =
-    //     previousWeaponIds.filter((id) => !newWeaponIds.includes(id)) || [];
-    //   await prisma.weapon.deleteMany({
-    //     where: { id: { in: oldIds }, characterInventoryId: null },
-    //   });
-    //   const newIds = newWeaponIds.filter(
-    //     (id: number) => !previousWeaponIds.some((item) => item === id),
-    //   );
-    //   const weapons = await prisma.weapon.findMany({
-    //     where: { id: { in: newIds }, characterInventoryId: null },
-    //     include: { keywords: { include: { keyword: true } } },
-    //   });
-    //   const newOwnedIds = newIds.filter(
-    //     (id) => !weapons.map((weapon) => weapon.id).includes(id),
-    //   );
-    //   const data = weapons.map(({ id, vehicleId, cyberneticId, ...rest }) => ({
-    //     ...rest,
-    //     picture: rest.picture
-    //       ? (rest.picture as Prisma.InputJsonValue)
-    //       : undefined,
-    //     stats: rest.stats
-    //       ? (rest.stats as Prisma.InputJsonValue)
-    //       : Prisma.JsonNull,
-    //     keywords: rest.keywords
-    //       ? {
-    //           createMany: {
-    //             data: rest.keywords.map((keyword) => ({
-    //               keywordId: keyword.keywordId,
-    //               value: keyword.value,
-    //             })),
-    //           },
-    //         }
-    //       : undefined,
-    //     actions: rest.actions
-    //       ? {
-    //           createMany: {
-    //             data: rest.actions.map(({ id, baseActionId, ...action }) => ({
-    //               ...action,
-    //               baseActionId: id,
-    //             })),
-    //           },
-    //         }
-    //       : undefined,
-    //   }));
-    //   return {
-    //     oldIds,
-    //     newOwnedIds,
-    //     data,
-    //   };
-    // },
-    // swapMods: async (newModIds: number[], previousModIds: number[]) => {
-    //   const oldIds = previousModIds.filter((id) => !newModIds.includes(id)) || [];
-    //   await prisma.modification.deleteMany({
-    //     where: { id: { in: oldIds }, characterInventoryId: null },
-    //   });
-    //   const newIds = newModIds.filter(
-    //     (id: number) => !previousModIds.some((item) => item === id),
-    //   );
-    //   const modifications = await prisma.modification.findMany({
-    //     where: { id: { in: newIds }, characterInventoryId: null },
-    //   });
-    //   const newOwnedIds = newIds.filter(
-    //     (id) => !modifications.map((mod) => mod.id).includes(id),
-    //   );
-    //   const data = modifications.map(({ id, vehicleId, ...rest }) => ({
-    //     ...rest,
-    //   }));
-    //   return {
-    //     oldIds,
-    //     newOwnedIds,
-    //     data,
-    //   };
-    // },
     deleteVehicle: async (vehicleId) => {
         try {
             await prisma.vehicle.delete({

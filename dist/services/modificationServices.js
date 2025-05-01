@@ -59,9 +59,10 @@ const modificationServices = {
         }
     },
     createOrUpdateModification: async (formData) => {
+        var _a;
         try {
             const modification = await prisma.modification.findUnique({
-                where: { id: formData.id },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -80,10 +81,10 @@ const modificationServices = {
                 value: keyword.value,
             }))) || [];
             const newModification = await prisma.modification.upsert({
-                where: { id },
+                where: { id: id !== null && id !== void 0 ? id : 0 },
                 update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), modificationLinkReference: {
                         upsert: {
-                            where: { modificationId: id },
+                            where: { modificationId: id !== null && id !== void 0 ? id : 0 },
                             update: {
                                 actions: {
                                     set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),

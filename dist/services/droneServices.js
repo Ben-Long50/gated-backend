@@ -56,9 +56,10 @@ const droneServices = {
         }
     },
     createOrUpdateDrone: async (formData) => {
+        var _a;
         try {
             const drone = await prisma.drone.findUnique({
-                where: { id: formData.id },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -77,10 +78,10 @@ const droneServices = {
                 value: keyword.value,
             }))) || [];
             const newDrone = await prisma.drone.upsert({
-                where: { id },
+                where: { id: id !== null && id !== void 0 ? id : 0 },
                 update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), droneLinkReference: {
                         upsert: {
-                            where: { droneId: id },
+                            where: { droneId: id !== null && id !== void 0 ? id : 0 },
                             update: {
                                 weapons: {
                                     set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),

@@ -55,7 +55,7 @@ const armorServices = {
   createOrUpdateArmor: async (formData: Armor) => {
     try {
       const armor = await prisma.armor.findUnique({
-        where: { id: formData.id },
+        where: { id: formData.id ?? 0 },
         include: {
           keywords: { select: { id: true } },
         },
@@ -102,7 +102,7 @@ const armorServices = {
         ) || [];
 
       const newArmor = await prisma.armor.upsert({
-        where: { id },
+        where: { id: id ?? 0 },
         update: {
           ...data,
           stats: {
@@ -110,7 +110,7 @@ const armorServices = {
           },
           armorLinkReference: {
             upsert: {
-              where: { armorId: formData.id },
+              where: { armorId: id ?? 0 },
               update: {
                 weapons: {
                   set: weaponIds?.map((id) => ({ id })),

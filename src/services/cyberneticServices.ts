@@ -60,7 +60,7 @@ const cyberneticServices = {
   createOrUpdateCybernetic: async (formData: Cybernetic) => {
     try {
       const cybernetic = await prisma.cybernetic.findUnique({
-        where: { id: formData.id },
+        where: { id: formData.id ?? 0 },
         include: {
           keywords: { select: { id: true } },
         },
@@ -109,7 +109,7 @@ const cyberneticServices = {
         ) || [];
 
       const newCybernetic = await prisma.cybernetic.upsert({
-        where: { id },
+        where: { id: id ?? 0 },
         update: {
           ...data,
           cyberneticType: cyberneticType as CyberneticType,
@@ -118,7 +118,7 @@ const cyberneticServices = {
           },
           cyberneticLinkReference: {
             upsert: {
-              where: { cyberneticId: id },
+              where: { cyberneticId: id ?? 0 },
               update: {
                 weapons: {
                   set: weaponIds?.map((id) => ({ id })),

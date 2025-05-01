@@ -51,7 +51,7 @@ const droneServices = {
   createOrUpdateDrone: async (formData: Drone) => {
     try {
       const drone = await prisma.drone.findUnique({
-        where: { id: formData.id },
+        where: { id: formData.id ?? 0 },
         include: {
           keywords: { select: { id: true } },
         },
@@ -94,7 +94,7 @@ const droneServices = {
         ) || [];
 
       const newDrone = await prisma.drone.upsert({
-        where: { id },
+        where: { id: id ?? 0 },
         update: {
           ...data,
           stats: {
@@ -102,7 +102,7 @@ const droneServices = {
           },
           droneLinkReference: {
             upsert: {
-              where: { droneId: id },
+              where: { droneId: id ?? 0 },
               update: {
                 weapons: {
                   set: weaponIds?.map((id) => ({ id })),

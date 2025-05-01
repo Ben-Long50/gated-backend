@@ -63,7 +63,7 @@ const weaponServices = {
   createOrUpdateWeapon: async (formData: Weapon) => {
     try {
       const weapon = await prisma.weapon.findUnique({
-        where: { id: formData.id },
+        where: { id: formData.id ?? 0 },
         include: {
           keywords: { select: { id: true } },
         },
@@ -111,7 +111,7 @@ const weaponServices = {
         ) || [];
 
       const newWeapon = await prisma.weapon.upsert({
-        where: { id },
+        where: { id: id ?? 0 },
         update: {
           ...data,
           stats: {
@@ -119,7 +119,7 @@ const weaponServices = {
           },
           weaponLinkReference: {
             upsert: {
-              where: { weaponId: formData.id },
+              where: { weaponId: id ?? 0 },
               update: {
                 weapons: {
                   set: weaponIds?.map((id) => ({ id })),
