@@ -8,9 +8,7 @@ const bookController = {
             res.status(200).json(book);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getBookEntry: async (req, res) => {
@@ -19,9 +17,7 @@ const bookController = {
             res.status(200).json(bookEntry);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createBookEntry: async (req, res) => {
@@ -30,9 +26,7 @@ const bookController = {
             res.status(200).json(bookEntry);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createBookSection: async (req, res) => {
@@ -41,9 +35,7 @@ const bookController = {
             res.status(200).json(bookSection);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     deleteBookEntry: async (req, res) => {
@@ -52,9 +44,7 @@ const bookController = {
             res.status(200).json({ message: 'Book entry successfully deleted' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     deleteBookSection: async (req, res) => {
@@ -63,9 +53,7 @@ const bookController = {
             res.status(200).json({ message: 'Book section successfully deleted' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     uploadBookImage: [

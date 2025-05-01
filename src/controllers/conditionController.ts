@@ -6,10 +6,8 @@ const conditionController = {
     try {
       const conditions = await conditionServices.getConditions();
       res.status(200).json(conditions);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -19,10 +17,8 @@ const conditionController = {
         req.params.conditionId,
       );
       res.status(200).json(condition);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -30,10 +26,8 @@ const conditionController = {
     try {
       await conditionServices.createCondition(req.body);
       res.status(200).json({ message: 'Successfully created condition' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -46,10 +40,8 @@ const conditionController = {
       res.status(200).json({
         message: `Successfully applied condition to character ${req.params.characterId}`,
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -61,10 +53,8 @@ const conditionController = {
       res
         .status(200)
         .json({ message: 'Successfully deleted character condition' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -72,10 +62,8 @@ const conditionController = {
     try {
       await conditionServices.deleteCondition(req.params.conditionId);
       res.status(200).json({ message: 'Successfully deleted condition' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

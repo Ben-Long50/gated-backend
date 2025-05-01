@@ -3,27 +3,32 @@ import weaponServices from '../services/weaponServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 
 const weaponController = {
   getWeapons: async (_req: Request, res: Response) => {
     try {
       const weapons = await weaponServices.getWeapons();
-      res.status(200).json(weapons);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+
+      const weaponData = weapons.map((weapon) =>
+        destructureLinkReference(weapon),
+      );
+
+      res.status(200).json(weaponData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
   getWeaponById: async (req: Request, res: Response) => {
     try {
       const weapon = await weaponServices.getWeaponById(req.params.weaponId);
-      res.status(200).json(weapon);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+
+      const weaponData = destructureLinkReference(weapon);
+
+      res.status(200).json(weaponData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -33,18 +38,16 @@ const weaponController = {
     async (req: Request, res: Response) => {
       try {
         const parsedBody = parseRequestBody(req.body);
-        console.log(parsedBody);
 
         await weaponServices.createOrUpdateWeapon(parsedBody);
+
         res.status(200).json({
           message: req.body.weaponId
             ? 'Successfully updated weapon'
             : 'Successfully created weapon',
         });
-      } catch (error) {
-        if (error instanceof Error) {
-          res.status(500).json({ error: error.message });
-        }
+      } catch (error: any) {
+        res.status(500).json({ error: error.message });
       }
     },
   ],
@@ -70,10 +73,8 @@ const weaponController = {
     try {
       await weaponServices.deleteWeapon(req.params.weaponId);
       res.status(200).json({ message: 'Successfully deleted weapon' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

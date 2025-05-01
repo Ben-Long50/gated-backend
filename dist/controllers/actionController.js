@@ -6,9 +6,7 @@ const actionController = {
             res.status(200).json(actions);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getActionById: async (req, res) => {
@@ -17,9 +15,7 @@ const actionController = {
             res.status(200).json(action);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createAction: async (req, res) => {
@@ -28,9 +24,7 @@ const actionController = {
             res.status(200).json({ message: 'Successfully created action' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     deleteAction: async (req, res) => {
@@ -39,9 +33,7 @@ const actionController = {
             res.status(200).json({ message: 'Successfully deleted action' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

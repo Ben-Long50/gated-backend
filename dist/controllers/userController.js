@@ -25,9 +25,7 @@ const userController = {
             res.status(200).json(users);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getUser: async (req, res) => {
@@ -46,9 +44,7 @@ const userController = {
             });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createUser: [
@@ -198,9 +194,7 @@ const userController = {
                 .json({ message: 'Successfully updated account information' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

@@ -1,12 +1,9 @@
 import prisma from '../config/database.js';
-import actionServices from './actionServices.js';
-import armorServices from './armorServices.js';
-import weaponServices from './weaponServices.js';
-import { WeaponStats } from '../types/weapon.js';
-import { Cybernetic } from '../types/cybernetic.js';
-import { ArmorStats } from '../types/armor.js';
-import { Action } from '../types/action.js';
-import { CyberneticType, ModifierType } from '@prisma/client';
+import { Cybernetic, CyberneticStats } from '../types/cybernetic.js';
+import { CyberneticType } from '@prisma/client';
+import { includeCyberneticLinkReference } from '../utils/linkQueryStructures.js';
+import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 
 const cyberneticServices = {
   getCybernetics: async () => {
@@ -14,17 +11,13 @@ const cyberneticServices = {
       const cybernetics = await prisma.cybernetic.findMany({
         where: { characterInventoryId: null },
         include: {
-          weapons: {
-            orderBy: { name: 'asc' },
-            include: { keywords: { include: { keyword: true } } },
+          cyberneticLinkReference: {
+            include: includeCyberneticLinkReference,
           },
-          armor: {
-            orderBy: { name: 'asc' },
-            include: { keywords: { include: { keyword: true } } },
+          keywords: {
+            include: { keyword: true },
+            orderBy: { keyword: { name: 'asc' } },
           },
-          actions: { orderBy: { name: 'asc' } },
-          modifiers: { include: { action: true } },
-          keywords: { include: { keyword: true } },
         },
         orderBy: { name: 'asc' },
       });
@@ -43,17 +36,13 @@ const cyberneticServices = {
           id: Number(cyberneticId),
         },
         include: {
-          weapons: {
-            orderBy: { name: 'asc' },
-            include: { keywords: { include: { keyword: true } } },
+          cyberneticLinkReference: {
+            include: includeCyberneticLinkReference,
           },
-          armor: {
-            orderBy: { name: 'asc' },
-            include: { keywords: { include: { keyword: true } } },
+          keywords: {
+            include: { keyword: true },
+            orderBy: { keyword: { name: 'asc' } },
           },
-          actions: { orderBy: { name: 'asc' } },
-          modifiers: { include: { action: true } },
-          keywords: { include: { keyword: true } },
         },
       });
 
@@ -73,10 +62,6 @@ const cyberneticServices = {
       const cybernetic = await prisma.cybernetic.findUnique({
         where: { id: formData.id },
         include: {
-          weapons: { select: { id: true } },
-          armor: { select: { id: true } },
-          actions: { select: { id: true } },
-          modifiers: { select: { id: true } },
           keywords: { select: { id: true } },
         },
       });
@@ -88,137 +73,84 @@ const cyberneticServices = {
           },
         });
       }
+
       const {
-        weapons,
-        armor,
-        actions,
+        id,
+        weaponLinkId,
+        armorLinkId,
+        cyberneticLinkId,
+        weaponIds,
+        armorIds,
+        cyberneticIds,
+        actionIds,
         modifiers,
-        keywords,
+        keywordIds,
         stats,
         cyberneticType,
+        characterInventoryId,
         ...data
       } = formData;
 
-      if (cybernetic) {
-        const oldModifierIds = cybernetic.modifiers.map(
-          (modifier) => modifier.id,
-        );
-        await prisma.modifier.deleteMany({
-          where: { id: { in: oldModifierIds } },
-        });
-      }
-
-      const oldWeaponIds = cybernetic?.weapons?.map((id) => id.id);
-
-      const newWeaponIds = weapons.map((weapon: { id: number }) => weapon.id);
-
-      const weaponsToDelete =
-        oldWeaponIds?.filter((id) => !newWeaponIds.includes(id)) || [];
-
-      if (weaponsToDelete.length > 0) {
-        await weaponServices.deleteWeapons(weaponsToDelete);
-      }
-
-      const oldArmorIds = cybernetic?.armor?.map((id) => id.id);
-
-      const newArmorIds = armor.map((armor: { id: number }) => armor.id);
-
-      const armorToDelete =
-        oldArmorIds?.filter((id) => !newArmorIds.includes(id)) || [];
-
-      if (armorToDelete.length > 0) {
-        await armorServices.deleteArmors(armorToDelete);
-      }
-
-      const oldActionIds = cybernetic?.actions?.map((id) => id.id);
-
-      const newActionIds = actions.map((action: Action) => action.id);
-
-      const actionsToDelete =
-        oldActionIds?.filter((id) => !newActionIds.includes(id)) || [];
-
-      if (actionsToDelete.length > 0) {
-        await actionServices.deleteActions(actionsToDelete);
-      }
-
-      const weaponIds = await Promise.all(
-        weapons.map(
-          async (weapon: {
-            id?: number;
-            name: string;
-            stats: Partial<WeaponStats>;
-            keywords: { keywordId: number; value?: number }[];
-          }) => {
-            const newWeapon = await weaponServices.createIntegratedWeapon(
-              weapon,
-              formData.picture,
-              formData.rarity,
-              formData.grade,
-            );
-            return { id: newWeapon.id };
-          },
-        ),
+      await enforceSingularLinking(
+        id,
+        weaponIds,
+        armorIds,
+        cyberneticIds,
+        actionIds,
+        undefined,
       );
 
-      const armorIds = await Promise.all(
-        armor.map(
-          async (armor: {
-            id?: number;
-            name: string;
-            stats: Partial<ArmorStats>;
-            keywords: { keywordId: number; value?: number }[];
-          }) => {
-            const newArmor = await armorServices.createIntegratedArmor(
-              armor,
-              formData.picture,
-              formData.rarity,
-              formData.grade,
-            );
-            return { id: newArmor.id };
-          },
-        ),
-      );
-
-      const actionIds = actions
-        ? await Promise.all(
-            actions.map(async (action: Action) => {
-              const newAction = await actionServices.createAction(action);
-              return { id: newAction.id };
-            }),
-          )
-        : [];
-
-      const keywordData = keywords.map((keyword) => ({
-        keywordId: keyword.keywordId,
-        value: keyword.value,
-      }));
+      const keywordData =
+        keywordIds?.map(
+          (keyword: { keywordId: number; value: number | null }) => ({
+            keywordId: keyword.keywordId,
+            value: keyword.value,
+          }),
+        ) || [];
 
       const newCybernetic = await prisma.cybernetic.upsert({
-        where: { id: formData.id || 0 },
+        where: { id },
         update: {
           ...data,
           cyberneticType: cyberneticType as CyberneticType,
           stats: {
             ...stats,
           },
-          weapons: {
-            connect: weaponIds,
-          },
-          armor: {
-            connect: armorIds,
-          },
-          actions: {
-            connect: actionIds,
-          },
-          keywords: { createMany: { data: keywordData } },
-          modifiers: {
-            createMany: {
-              data: modifiers.map(({ type, ...modifier }) => ({
-                type: type.toLowerCase() as ModifierType,
-                ...modifier,
-              })),
+          cyberneticLinkReference: {
+            upsert: {
+              where: { cyberneticId: id },
+              update: {
+                weapons: {
+                  set: weaponIds?.map((id) => ({ id })),
+                },
+                armors: {
+                  set: armorIds?.map((id) => ({ id })),
+                },
+                actions: {
+                  set: actionIds?.map((id) => ({ id })),
+                },
+              },
+              create: {
+                weapons: {
+                  connect: weaponIds?.map((id) => ({ id })),
+                },
+                armors: {
+                  connect: armorIds?.map((id) => ({ id })),
+                },
+                actions: {
+                  connect: actionIds?.map((id) => ({ id })),
+                },
+              },
             },
           },
+          keywords: { createMany: { data: keywordData } },
+          characterInventory: characterInventoryId
+            ? {
+                connect: {
+                  id: characterInventoryId,
+                },
+              }
+            : undefined,
         },
         create: {
           ...data,
@@ -226,32 +158,120 @@ const cyberneticServices = {
           stats: {
             ...stats,
           },
-          weapons: {
-            connect: weaponIds,
-          },
-          armor: {
-            connect: armorIds,
-          },
-          actions: {
-            connect: actionIds,
-          },
-          keywords: { createMany: { data: keywordData } },
-          modifiers: {
-            createMany: {
-              data: modifiers.map(({ type, ...modifier }) => ({
-                type: type.toLowerCase() as ModifierType,
-                ...modifier,
-              })),
+          cyberneticLinkReference: {
+            create: {
+              weapons: {
+                connect: weaponIds?.map((id) => ({ id })),
+              },
+              armors: {
+                connect: armorIds?.map((id) => ({ id })),
+              },
+              actions: {
+                connect: actionIds?.map((id) => ({ id })),
+              },
             },
           },
+          keywords: { createMany: { data: keywordData } },
+          characterInventory: characterInventoryId
+            ? {
+                connect: {
+                  id: characterInventoryId,
+                },
+              }
+            : undefined,
+          // modifiers: {
+          //   createMany: {
+          //     data: modifiers?.map(({ type, ...modifier }) => ({
+          //       type: type.toLowerCase() as ModifierType,
+          //       ...modifier,
+          //     })),
+          //   },
+          // },
         },
       });
 
       return newCybernetic;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      throw new Error('Failed to create cybernetic');
+      throw new Error(error.message || 'Failed to create cybernetic');
     }
+  },
+
+  createCharacterCyberneticCopy: async (
+    inventoryId: string,
+    cyberneticList: { cyberneticId: number; price: number; quantity: number }[],
+  ) => {
+    const cyberneticIds = cyberneticList?.map(
+      (cybernetic) => cybernetic.cyberneticId,
+    );
+
+    const cybernetics = await prisma.cybernetic.findMany({
+      where: { id: { in: cyberneticIds } },
+      include: {
+        cyberneticLinkReference: { include: includeCyberneticLinkReference },
+        keywords: { include: { keyword: true } },
+      },
+    });
+
+    const promises = [];
+
+    for (const { cyberneticId, quantity } of cyberneticList) {
+      const cyberneticDetails = cybernetics.find(
+        (cybernetic) => cybernetic.id === cyberneticId,
+      );
+
+      if (!cyberneticDetails) continue;
+
+      let stats = {
+        ...(cyberneticDetails.stats as CyberneticStats),
+      };
+
+      if (stats?.power && !stats?.currentPower) {
+        stats = { ...stats, currentPower: stats.power };
+      }
+
+      const { weaponIds, armorIds, cyberneticIds, actionIds } =
+        await createLinkedCopies(
+          cyberneticDetails.cyberneticLinkReference,
+          inventoryId,
+          quantity,
+        );
+
+      const keywordIds =
+        cyberneticDetails?.keywords.map((keyword) => ({
+          keywordId: keyword.keywordId,
+          value: keyword.value,
+        })) || [];
+
+      const { keywords, ...rest } = cyberneticDetails;
+
+      const cyberneticData = {
+        ...rest,
+        stats,
+        weaponIds,
+        armorIds,
+        cyberneticIds,
+        actionIds,
+        keywordIds,
+        id: 0,
+        characterInventoryId: Number(inventoryId),
+        baseCyberneticId: cyberneticDetails.id,
+      };
+
+      if (cyberneticDetails) {
+        for (let i = 0; i < quantity; i++) {
+          promises.push(
+            cyberneticServices.createOrUpdateCybernetic(cyberneticData),
+          );
+        }
+      }
+    }
+
+    const newCybernetics = await Promise.all(promises);
+
+    return newCybernetics
+      .filter((cybernetic) => cybernetic !== undefined)
+      .map((cybernetic) => cybernetic.id);
   },
 
   deleteCybernetic: async (cyberneticId: string) => {

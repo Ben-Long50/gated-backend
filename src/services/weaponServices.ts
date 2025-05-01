@@ -1,8 +1,8 @@
-import { $Enums } from '@prisma/client';
 import prisma from '../config/database.js';
 import { Weapon, WeaponStats } from '../types/weapon.js';
-import actionServices from './actionServices.js';
-import { Action } from '../types/action.js';
+import { includeWeaponLinkReference } from '../utils/linkQueryStructures.js';
+import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 
 const weaponServices = {
   getWeapons: async () => {
@@ -10,10 +10,18 @@ const weaponServices = {
       const weapons = await prisma.weapon.findMany({
         where: {
           characterInventoryId: null,
-          vehicleId: null,
-          cyberneticId: null,
+          weaponLinkId: null,
+          armorLinkId: null,
+          cyberneticLinkId: null,
+          vehicleLinkId: null,
         },
-        include: { actions: true, keywords: { include: { keyword: true } } },
+        include: {
+          weaponLinkReference: { include: includeWeaponLinkReference },
+          keywords: {
+            include: { keyword: true },
+            orderBy: { keyword: { name: 'asc' } },
+          },
+        },
         orderBy: { name: 'asc' },
       });
 
@@ -30,7 +38,15 @@ const weaponServices = {
         where: {
           id: Number(weaponId),
         },
-        include: { actions: true, keywords: { include: { keyword: true } } },
+        include: {
+          weaponLinkReference: {
+            include: includeWeaponLinkReference,
+          },
+          keywords: {
+            include: { keyword: true },
+            orderBy: { keyword: { name: 'asc' } },
+          },
+        },
       });
 
       if (!weapon) {
@@ -44,73 +60,11 @@ const weaponServices = {
     }
   },
 
-  createIntegratedWeapon: async (
-    formData: {
-      id?: number;
-      name: string;
-      stats: Partial<WeaponStats>;
-      keywords: { keywordId: number; value?: number }[];
-    },
-    picture: { publicId: string; imageUrl: string },
-    rarity: $Enums.ItemRarity,
-    grade: number,
-  ) => {
-    try {
-      const weapon = await prisma.weapon.findUnique({
-        where: { id: formData.id },
-        include: {
-          actions: { select: { id: true } },
-          keywords: { select: { id: true } },
-        },
-      });
-
-      if (weapon && weapon.keywords) {
-        await prisma.keywordReference.deleteMany({
-          where: {
-            id: { in: weapon.keywords.map((keyword) => keyword.id) },
-          },
-        });
-      }
-
-      const { keywords, stats, ...data } = {
-        ...formData,
-        picture,
-        rarity,
-        grade,
-      };
-
-      const keywordData = keywords.map((keyword) => ({
-        keywordId: keyword.keywordId,
-        value: keyword.value,
-      }));
-
-      const newWeapon = await prisma.weapon.upsert({
-        where: { id: formData?.id || 0 },
-        update: {
-          ...data,
-          stats: { ...stats },
-          keywords: { createMany: { data: keywordData } },
-        },
-        create: {
-          ...data,
-          stats: { ...stats },
-          keywords: { createMany: { data: keywordData } },
-        },
-      });
-
-      return newWeapon;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to create or update integrated weapon');
-    }
-  },
-
   createOrUpdateWeapon: async (formData: Weapon) => {
     try {
       const weapon = await prisma.weapon.findUnique({
         where: { id: formData.id },
         include: {
-          actions: { select: { id: true } },
           keywords: { select: { id: true } },
         },
       });
@@ -122,62 +76,198 @@ const weaponServices = {
           },
         });
       }
-      const { actions, keywords, stats, ...data } = formData;
 
-      const oldActionIds = weapon?.actions?.map((id) => id.id);
+      const {
+        id,
+        weaponLinkId,
+        armorLinkId,
+        cyberneticLinkId,
+        vehicleLinkId,
+        weaponIds,
+        armorIds,
+        cyberneticIds,
+        actionIds,
+        keywordIds,
+        stats,
+        characterInventoryId,
+        ...data
+      } = formData;
 
-      const newActionIds = actions?.map((action: Action) => action.id) || [];
+      await enforceSingularLinking(
+        id,
+        weaponIds,
+        armorIds,
+        cyberneticIds,
+        actionIds,
+        undefined,
+      );
 
-      const actionsToDelete =
-        oldActionIds?.filter((id) => !newActionIds.includes(id)) || [];
-
-      if (actionsToDelete.length > 0) {
-        await actionServices.deleteActions(actionsToDelete);
-      }
-
-      const actionIds = actions
-        ? await Promise.all(
-            actions.map(async (action: Action) => {
-              const newAction = await actionServices.createAction(action);
-              return { id: newAction.id };
-            }),
-          )
-        : [];
-
-      const keywordData = keywords.map((keyword) => ({
-        keywordId: keyword.keywordId,
-        value: keyword.value,
-      }));
+      const keywordData =
+        keywordIds?.map(
+          (keyword: { keywordId: number; value?: number | null }) => ({
+            keywordId: keyword.keywordId,
+            value: keyword.value,
+          }),
+        ) || [];
 
       const newWeapon = await prisma.weapon.upsert({
-        where: { id: data.id || 0 },
+        where: { id },
         update: {
           ...data,
           stats: {
             ...stats,
           },
-          actions: {
-            connect: actionIds,
+          weaponLinkReference: {
+            upsert: {
+              where: { weaponId: formData.id },
+              update: {
+                weapons: {
+                  set: weaponIds?.map((id) => ({ id })),
+                },
+                armors: {
+                  set: armorIds?.map((id) => ({ id })),
+                },
+                cybernetics: {
+                  set: cyberneticIds?.map((id) => ({ id })),
+                },
+                actions: {
+                  set: actionIds?.map((id) => ({ id })),
+                },
+              },
+              create: {
+                weapons: {
+                  connect: weaponIds?.map((id) => ({ id })),
+                },
+                armors: {
+                  connect: armorIds?.map((id) => ({ id })),
+                },
+                cybernetics: {
+                  connect: cyberneticIds?.map((id) => ({ id })),
+                },
+                actions: {
+                  connect: actionIds?.map((id) => ({ id })),
+                },
+              },
+            },
           },
           keywords: { createMany: { data: keywordData } },
+          characterInventory: characterInventoryId
+            ? {
+                connect: {
+                  id: characterInventoryId,
+                },
+              }
+            : undefined,
         },
         create: {
           ...data,
           stats: {
             ...stats,
           },
-          actions: {
-            connect: actionIds,
+          weaponLinkReference: {
+            create: {
+              weapons: {
+                connect: weaponIds?.map((id) => ({ id })),
+              },
+              armors: {
+                connect: armorIds?.map((id) => ({ id })),
+              },
+              cybernetics: {
+                connect: cyberneticIds?.map((id) => ({ id })),
+              },
+              actions: {
+                connect: actionIds?.map((id) => ({ id })),
+              },
+            },
           },
           keywords: { createMany: { data: keywordData } },
+          characterInventory: characterInventoryId
+            ? {
+                connect: {
+                  id: characterInventoryId,
+                },
+              }
+            : undefined,
         },
       });
 
       return newWeapon;
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      throw new Error('Failed to create or update weapon');
+      throw new Error(error.message || 'Failed to create or update weapon');
     }
+  },
+
+  createCharacterWeaponCopy: async (
+    inventoryId: string,
+    weaponList: { weaponId: number; price: number | null; quantity: number }[],
+  ) => {
+    const weaponIds = weaponList?.map((weapon) => weapon.weaponId);
+
+    const weapons = await prisma.weapon.findMany({
+      where: { id: { in: weaponIds } },
+      include: {
+        weaponLinkReference: { include: includeWeaponLinkReference },
+        keywords: { include: { keyword: true } },
+      },
+    });
+
+    const promises = [];
+
+    for (const { weaponId, quantity } of weaponList) {
+      const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
+
+      if (!weaponDetails) continue;
+
+      let stats = { ...(weaponDetails.stats as WeaponStats) };
+
+      if (stats?.magCount && !stats?.currentMagCount) {
+        stats = { ...stats, currentMagCount: stats.magCount - 1 };
+      }
+      if (stats?.magCapacity && !stats?.currentAmmoCount) {
+        stats = { ...stats, currentAmmoCount: stats.magCapacity };
+      }
+
+      const { weaponIds, armorIds, cyberneticIds, actionIds } =
+        await createLinkedCopies(
+          weaponDetails.weaponLinkReference,
+          inventoryId,
+          quantity,
+        );
+
+      const keywordIds =
+        weaponDetails?.keywords.map((keyword) => ({
+          keywordId: keyword.keywordId,
+          value: keyword.value,
+        })) || [];
+
+      const { keywords, ...rest } = weaponDetails;
+
+      const weaponData = {
+        ...rest,
+        stats,
+        weaponIds,
+        armorIds,
+        cyberneticIds,
+        actionIds,
+        keywordIds,
+        id: 0,
+        characterInventoryId: Number(inventoryId),
+        baseWeaponId: weaponDetails.id,
+      };
+
+      if (weaponDetails) {
+        for (let i = 0; i < quantity; i++) {
+          promises.push(weaponServices.createOrUpdateWeapon(weaponData));
+        }
+      }
+    }
+
+    const newWeapons = await Promise.all(promises);
+
+    return newWeapons
+      .filter((weapon) => weapon !== undefined)
+      .map((weapon) => weapon.id);
   },
 
   deleteWeapon: async (weaponId: string) => {

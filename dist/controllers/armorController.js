@@ -2,27 +2,26 @@ import armorServices from '../services/armorServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 const armorController = {
     getArmor: async (_req, res) => {
         try {
             const armors = await armorServices.getArmor();
-            res.status(200).json(armors);
+            const armorData = armors.map((armor) => destructureLinkReference(armor));
+            res.status(200).json(armorData);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getArmorById: async (req, res) => {
         try {
             const armor = await armorServices.getArmorById(req.params.armorId);
-            res.status(200).json(armor);
+            const armorData = destructureLinkReference(armor);
+            res.status(200).json(armorData);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createOrUpdateArmor: [
@@ -39,9 +38,7 @@ const armorController = {
                 });
             }
             catch (error) {
-                if (error instanceof Error) {
-                    res.status(500).json({ error: error.message });
-                }
+                res.status(500).json({ error: error.message });
             }
         },
     ],
@@ -55,9 +52,7 @@ const armorController = {
                 res.status(200).json({ message: 'Successfully modified armor' });
             }
             catch (error) {
-                if (error instanceof Error) {
-                    res.status(500).json({ error: error.message });
-                }
+                res.status(500).json({ error: error.message });
             }
         },
     ],
@@ -67,9 +62,7 @@ const armorController = {
             res.status(200).json({ message: 'Successfully deleted armor' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

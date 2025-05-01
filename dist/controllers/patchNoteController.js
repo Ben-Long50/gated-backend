@@ -6,9 +6,7 @@ const patchNoteController = {
             res.status(200).json(patchNotes);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getPatchNoteById: async (req, res) => {
@@ -17,9 +15,7 @@ const patchNoteController = {
             res.status(200).json(patchNote);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createPatchNote: async (req, res) => {
@@ -28,9 +24,7 @@ const patchNoteController = {
             res.status(200).json(patchNote);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     deletePatchNote: async (req, res) => {
@@ -39,9 +33,7 @@ const patchNoteController = {
             res.status(200).json({ message: 'Patch note successfully deleted' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

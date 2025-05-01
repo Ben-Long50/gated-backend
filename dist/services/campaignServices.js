@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import { includeCharacterInventory } from '../utils/linkQueryStructures.js';
 const campaignServices = {
     getOwnerCampaigns: async (userId) => {
         try {
@@ -69,40 +70,7 @@ const campaignServices = {
                                 include: { modifiers: { include: { action: true } } },
                             },
                             characterInventory: {
-                                include: {
-                                    weapons: {
-                                        where: { equipped: true },
-                                        include: { actions: true },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    armor: {
-                                        where: { equipped: true },
-                                        include: { actions: true },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    cybernetics: {
-                                        where: { equipped: true },
-                                        include: {
-                                            weapons: true,
-                                            armor: true,
-                                            actions: true,
-                                            modifiers: { include: { action: true } },
-                                        },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    vehicles: {
-                                        include: { weapons: true, modifications: true },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                    items: {
-                                        where: { equipped: true },
-                                        include: {
-                                            actions: true,
-                                            modifiers: { include: { action: true } },
-                                        },
-                                        orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-                                    },
-                                },
+                                include: includeCharacterInventory,
                             },
                         },
                     },

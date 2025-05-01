@@ -16,10 +16,8 @@ const itemStatController = {
       res
         .status(200)
         .json({ message: `Changed item power by ${req.body.value}` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -31,10 +29,8 @@ const itemStatController = {
 
       await itemStatServices.refreshItemPower(req.params.itemId, req.user.id);
       res.status(200).json({ message: `Refreshed item power` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -52,10 +48,8 @@ const itemStatController = {
       res
         .status(200)
         .json({ message: `Changed item stacks by ${req.body.value}` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -67,10 +61,8 @@ const itemStatController = {
 
       await itemStatServices.refreshItemStacks(req.params.itemId, req.user.id);
       res.status(200).json({ message: `Refreshed item stacks` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

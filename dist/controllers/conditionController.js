@@ -6,9 +6,7 @@ const conditionController = {
             res.status(200).json(conditions);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getConditionById: async (req, res) => {
@@ -17,9 +15,7 @@ const conditionController = {
             res.status(200).json(condition);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createCondition: async (req, res) => {
@@ -28,9 +24,7 @@ const conditionController = {
             res.status(200).json({ message: 'Successfully created condition' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createCharacterCondition: async (req, res) => {
@@ -41,9 +35,7 @@ const conditionController = {
             });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     deleteCharacterCondition: async (req, res) => {
@@ -54,9 +46,7 @@ const conditionController = {
                 .json({ message: 'Successfully deleted character condition' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     deleteCondition: async (req, res) => {
@@ -65,9 +55,7 @@ const conditionController = {
             res.status(200).json({ message: 'Successfully deleted condition' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

@@ -19,10 +19,8 @@ const campaignController = {
 
       const campaigns = await campaignServices.getOwnerCampaigns(req.user.id);
       res.status(200).json(campaigns);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -37,10 +35,8 @@ const campaignController = {
 
       const campaigns = await campaignServices.getPlayerCampaigns(req.user.id);
       res.status(200).json(campaigns);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -55,10 +51,8 @@ const campaignController = {
 
       const campaigns = await campaignServices.getPendingCampaigns(req.user.id);
       res.status(200).json(campaigns);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -68,10 +62,8 @@ const campaignController = {
         req.params.campaignId,
       );
       res.status(200).json(campaign);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -133,10 +125,8 @@ const campaignController = {
 
       await campaignServices.joinCampaign(req.params.campaignId, req.user.id);
       res.status(200).json({ message: 'Successfully joined the campaign' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -154,10 +144,8 @@ const campaignController = {
         req.user.id,
       );
       res.status(200).json({ message: 'Successfully deleted campaign' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

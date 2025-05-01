@@ -16,10 +16,8 @@ const armorStatController = {
       res
         .status(200)
         .json({ message: `Changed current power by ${req.body.value}` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -34,10 +32,8 @@ const armorStatController = {
         req.user.id,
       );
       res.status(200).json({ message: `Refreshed armor power` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -55,10 +51,8 @@ const armorStatController = {
       res
         .status(200)
         .json({ message: `Changed current block points by ${req.body.value}` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -73,10 +67,8 @@ const armorStatController = {
         req.user.id,
       );
       res.status(200).json({ message: `Refreshed armor block points` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

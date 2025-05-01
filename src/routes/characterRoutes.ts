@@ -24,11 +24,11 @@ router.get(
   characterController.getCharacterById,
 );
 
-router.get(
-  '/characters/:characterId/inventory/:inventoryId/equipment',
-  authentication.authenticate,
-  characterController.getEquippedItems,
-);
+// router.get(
+//   '/characters/:characterId/inventory/:inventoryId/equipment',
+//   authentication.authenticate,
+//   characterController.getEquippedItems,
+// );
 
 router.patch(
   '/characters/:characterId/inventory/:inventoryId/equipment/:itemId',

@@ -10,26 +10,22 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import actionServices from './actionServices.js';
-import armorServices from './armorServices.js';
-import weaponServices from './weaponServices.js';
+import { includeCyberneticLinkReference } from '../utils/linkQueryStructures.js';
+import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const cyberneticServices = {
     getCybernetics: async () => {
         try {
             const cybernetics = await prisma.cybernetic.findMany({
                 where: { characterInventoryId: null },
                 include: {
-                    weapons: {
-                        orderBy: { name: 'asc' },
-                        include: { keywords: { include: { keyword: true } } },
+                    cyberneticLinkReference: {
+                        include: includeCyberneticLinkReference,
                     },
-                    armor: {
-                        orderBy: { name: 'asc' },
-                        include: { keywords: { include: { keyword: true } } },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
                     },
-                    actions: { orderBy: { name: 'asc' } },
-                    modifiers: { include: { action: true } },
-                    keywords: { include: { keyword: true } },
                 },
                 orderBy: { name: 'asc' },
             });
@@ -47,17 +43,13 @@ const cyberneticServices = {
                     id: Number(cyberneticId),
                 },
                 include: {
-                    weapons: {
-                        orderBy: { name: 'asc' },
-                        include: { keywords: { include: { keyword: true } } },
+                    cyberneticLinkReference: {
+                        include: includeCyberneticLinkReference,
                     },
-                    armor: {
-                        orderBy: { name: 'asc' },
-                        include: { keywords: { include: { keyword: true } } },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
                     },
-                    actions: { orderBy: { name: 'asc' } },
-                    modifiers: { include: { action: true } },
-                    keywords: { include: { keyword: true } },
                 },
             });
             if (!cybernetic) {
@@ -71,15 +63,10 @@ const cyberneticServices = {
         }
     },
     createOrUpdateCybernetic: async (formData) => {
-        var _a, _b, _c;
         try {
             const cybernetic = await prisma.cybernetic.findUnique({
                 where: { id: formData.id },
                 include: {
-                    weapons: { select: { id: true } },
-                    armor: { select: { id: true } },
-                    actions: { select: { id: true } },
-                    modifiers: { select: { id: true } },
                     keywords: { select: { id: true } },
                 },
             });
@@ -90,86 +77,114 @@ const cyberneticServices = {
                     },
                 });
             }
-            const { weapons, armor, actions, modifiers, keywords, stats, cyberneticType } = formData, data = __rest(formData, ["weapons", "armor", "actions", "modifiers", "keywords", "stats", "cyberneticType"]);
-            if (cybernetic) {
-                const oldModifierIds = cybernetic.modifiers.map((modifier) => modifier.id);
-                await prisma.modifier.deleteMany({
-                    where: { id: { in: oldModifierIds } },
-                });
-            }
-            const oldWeaponIds = (_a = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.weapons) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
-            const newWeaponIds = weapons.map((weapon) => weapon.id);
-            const weaponsToDelete = (oldWeaponIds === null || oldWeaponIds === void 0 ? void 0 : oldWeaponIds.filter((id) => !newWeaponIds.includes(id))) || [];
-            if (weaponsToDelete.length > 0) {
-                await weaponServices.deleteWeapons(weaponsToDelete);
-            }
-            const oldArmorIds = (_b = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.armor) === null || _b === void 0 ? void 0 : _b.map((id) => id.id);
-            const newArmorIds = armor.map((armor) => armor.id);
-            const armorToDelete = (oldArmorIds === null || oldArmorIds === void 0 ? void 0 : oldArmorIds.filter((id) => !newArmorIds.includes(id))) || [];
-            if (armorToDelete.length > 0) {
-                await armorServices.deleteArmors(armorToDelete);
-            }
-            const oldActionIds = (_c = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.actions) === null || _c === void 0 ? void 0 : _c.map((id) => id.id);
-            const newActionIds = actions.map((action) => action.id);
-            const actionsToDelete = (oldActionIds === null || oldActionIds === void 0 ? void 0 : oldActionIds.filter((id) => !newActionIds.includes(id))) || [];
-            if (actionsToDelete.length > 0) {
-                await actionServices.deleteActions(actionsToDelete);
-            }
-            const weaponIds = await Promise.all(weapons.map(async (weapon) => {
-                const newWeapon = await weaponServices.createIntegratedWeapon(weapon, formData.picture, formData.rarity, formData.grade);
-                return { id: newWeapon.id };
-            }));
-            const armorIds = await Promise.all(armor.map(async (armor) => {
-                const newArmor = await armorServices.createIntegratedArmor(armor, formData.picture, formData.rarity, formData.grade);
-                return { id: newArmor.id };
-            }));
-            const actionIds = actions
-                ? await Promise.all(actions.map(async (action) => {
-                    const newAction = await actionServices.createAction(action);
-                    return { id: newAction.id };
-                }))
-                : [];
-            const keywordData = keywords.map((keyword) => ({
+            const { id, weaponLinkId, armorLinkId, cyberneticLinkId, weaponIds, armorIds, cyberneticIds, actionIds, modifiers, keywordIds, stats, cyberneticType, characterInventoryId } = formData, data = __rest(formData, ["id", "weaponLinkId", "armorLinkId", "cyberneticLinkId", "weaponIds", "armorIds", "cyberneticIds", "actionIds", "modifiers", "keywordIds", "stats", "cyberneticType", "characterInventoryId"]);
+            await enforceSingularLinking(id, weaponIds, armorIds, cyberneticIds, actionIds, undefined);
+            const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
-            }));
+            }))) || [];
             const newCybernetic = await prisma.cybernetic.upsert({
-                where: { id: formData.id || 0 },
-                update: Object.assign(Object.assign({}, data), { cyberneticType: cyberneticType, stats: Object.assign({}, stats), weapons: {
-                        connect: weaponIds,
-                    }, armor: {
-                        connect: armorIds,
-                    }, actions: {
-                        connect: actionIds,
-                    }, keywords: { createMany: { data: keywordData } }, modifiers: {
-                        createMany: {
-                            data: modifiers.map((_a) => {
-                                var { type } = _a, modifier = __rest(_a, ["type"]);
-                                return (Object.assign({ type: type.toLowerCase() }, modifier));
-                            }),
+                where: { id },
+                update: Object.assign(Object.assign({}, data), { cyberneticType: cyberneticType, stats: Object.assign({}, stats), cyberneticLinkReference: {
+                        upsert: {
+                            where: { cyberneticId: id },
+                            update: {
+                                weapons: {
+                                    set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                                },
+                                armors: {
+                                    set: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                            },
+                            create: {
+                                weapons: {
+                                    connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                                },
+                                armors: {
+                                    connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                            },
                         },
-                    } }),
-                create: Object.assign(Object.assign({}, data), { cyberneticType: cyberneticType, stats: Object.assign({}, stats), weapons: {
-                        connect: weaponIds,
-                    }, armor: {
-                        connect: armorIds,
-                    }, actions: {
-                        connect: actionIds,
-                    }, keywords: { createMany: { data: keywordData } }, modifiers: {
-                        createMany: {
-                            data: modifiers.map((_a) => {
-                                var { type } = _a, modifier = __rest(_a, ["type"]);
-                                return (Object.assign({ type: type.toLowerCase() }, modifier));
-                            }),
+                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
+                        ? {
+                            connect: {
+                                id: characterInventoryId,
+                            },
+                        }
+                        : undefined }),
+                create: Object.assign(Object.assign({}, data), { cyberneticType: cyberneticType, stats: Object.assign({}, stats), cyberneticLinkReference: {
+                        create: {
+                            weapons: {
+                                connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                            },
+                            armors: {
+                                connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                            },
+                            actions: {
+                                connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                            },
                         },
-                    } }),
+                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
+                        ? {
+                            connect: {
+                                id: characterInventoryId,
+                            },
+                        }
+                        : undefined }),
             });
             return newCybernetic;
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to create cybernetic');
+            throw new Error(error.message || 'Failed to create cybernetic');
         }
+    },
+    createCharacterCyberneticCopy: async (inventoryId, cyberneticList) => {
+        const cyberneticIds = cyberneticList === null || cyberneticList === void 0 ? void 0 : cyberneticList.map((cybernetic) => cybernetic.cyberneticId);
+        const cybernetics = await prisma.cybernetic.findMany({
+            where: { id: { in: cyberneticIds } },
+            include: {
+                cyberneticLinkReference: { include: includeCyberneticLinkReference },
+                keywords: { include: { keyword: true } },
+            },
+        });
+        const promises = [];
+        for (const { cyberneticId, quantity } of cyberneticList) {
+            const cyberneticDetails = cybernetics.find((cybernetic) => cybernetic.id === cyberneticId);
+            if (!cyberneticDetails)
+                continue;
+            let stats = Object.assign({}, cyberneticDetails.stats);
+            if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {
+                stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
+            }
+            const { weaponIds, armorIds, cyberneticIds, actionIds } = await createLinkedCopies(cyberneticDetails.cyberneticLinkReference, inventoryId, quantity);
+            const keywordIds = (cyberneticDetails === null || cyberneticDetails === void 0 ? void 0 : cyberneticDetails.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
+            const { keywords } = cyberneticDetails, rest = __rest(cyberneticDetails, ["keywords"]);
+            const cyberneticData = Object.assign(Object.assign({}, rest), { stats,
+                weaponIds,
+                armorIds,
+                cyberneticIds,
+                actionIds,
+                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseCyberneticId: cyberneticDetails.id });
+            if (cyberneticDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(cyberneticServices.createOrUpdateCybernetic(cyberneticData));
+                }
+            }
+        }
+        const newCybernetics = await Promise.all(promises);
+        return newCybernetics
+            .filter((cybernetic) => cybernetic !== undefined)
+            .map((cybernetic) => cybernetic.id);
     },
     deleteCybernetic: async (cyberneticId) => {
         try {

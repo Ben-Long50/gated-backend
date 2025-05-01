@@ -1,9 +1,3 @@
-import { Cybernetic } from '@prisma/client';
-import { Action } from './action';
-import { Armor, ArmorWithKeywords } from './armor';
-import { Weapon, WeaponWithKeywords } from './weapon';
-import { Modifier } from './modifier';
-
 export interface Cybernetic {
   id: number;
   name: string;
@@ -12,24 +6,24 @@ export interface Cybernetic {
   picture: Picture;
   description: string;
   cyberneticType: string;
-  cyber: number;
   stats: CyberneticStats;
-  price: number;
-  equipped: boolean;
-  body: string[];
-  weapons: Weapon[];
-  armor: Armor[];
-  actions: Action[];
-  modifiers: Modifier[];
-  keywords: { keywordId: number; value?: number }[];
+  price: number | null;
+  equipped: boolean | null;
+  weaponLinkId: number | null;
+  armorLinkId: number | null;
+  cyberneticLinkId: number | null;
+  weaponIds?: number[];
+  armorIds?: number[];
+  cyberneticIds?: number[];
+  actionIds?: number[];
+  modifiers?: Modifier[];
+  keywordIds?: { keywordId: number; value: number | null }[];
+  baseCyberneticId: number | null;
+  characterInventoryId: number | null;
 }
 
-interface CyberneticStats {
-  power: number;
-  damage: number;
-  salvo: number;
-  flurry: number;
-  range: number;
-  magCapacity: number;
-  magCount: number;
+export interface CyberneticStats {
+  cyber?: number;
+  power?: number;
+  currentPower?: number;
 }

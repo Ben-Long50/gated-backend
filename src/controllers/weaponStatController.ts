@@ -16,10 +16,8 @@ const weaponStatController = {
       res
         .status(200)
         .json({ message: `Changed current ammo count by ${req.body.value}` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -31,10 +29,8 @@ const weaponStatController = {
 
       await weaponStatServices.reloadWeapon(req.params.weaponId, req.user.id);
       res.status(200).json({ message: `Reloaded weapon` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -46,10 +42,8 @@ const weaponStatController = {
 
       await weaponStatServices.refreshAmmo(req.params.weaponId, req.user.id);
       res.status(200).json({ message: `Refreshed weapon ammunition` });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

@@ -8,9 +8,7 @@ const characterStatController = {
                 .json({ message: `Changed current health by ${req.body.value}` });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     editCurrentSanity: async (req, res) => {
@@ -21,9 +19,7 @@ const characterStatController = {
                 .json({ message: `Changed current sanity by ${req.body.value}` });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

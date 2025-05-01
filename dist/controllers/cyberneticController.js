@@ -2,27 +2,26 @@ import cyberneticServices from '../services/cyberneticServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 const cyberneticController = {
     getCybernetics: async (_req, res) => {
         try {
             const cybernetics = await cyberneticServices.getCybernetics();
-            res.status(200).json(cybernetics);
+            const cyberneticData = cybernetics.map((cybernetic) => destructureLinkReference(cybernetic));
+            res.status(200).json(cyberneticData);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getCyberneticById: async (req, res) => {
         try {
             const cybernetic = await cyberneticServices.getCyberneticById(req.params.cyberneticId);
-            res.status(200).json(cybernetic);
+            const cyberneticData = destructureLinkReference(cybernetic);
+            res.status(200).json(cyberneticData);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createOrUpdateCybernetic: [
@@ -39,9 +38,7 @@ const cyberneticController = {
                 });
             }
             catch (error) {
-                if (error instanceof Error) {
-                    res.status(500).json({ error: error.message });
-                }
+                res.status(500).json({ error: error.message });
             }
         },
     ],
@@ -67,9 +64,7 @@ const cyberneticController = {
             res.status(200).json({ message: 'Successfully deleted cybernetic' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

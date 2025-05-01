@@ -10,13 +10,21 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import actionServices from './actionServices.js';
+import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
+import { includeArmorLinkReference } from '../utils/linkQueryStructures.js';
 const armorServices = {
     getArmor: async () => {
         try {
             const armor = await prisma.armor.findMany({
-                where: { characterInventoryId: null, cyberneticId: null },
-                include: { actions: true, keywords: { include: { keyword: true } } },
+                where: { characterInventoryId: null },
+                include: {
+                    armorLinkReference: { include: includeArmorLinkReference },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                },
                 orderBy: { name: 'asc' },
             });
             return armor;
@@ -32,7 +40,13 @@ const armorServices = {
                 where: {
                     id: Number(armorId),
                 },
-                include: { actions: true, keywords: { include: { keyword: true } } },
+                include: {
+                    armorLinkReference: { include: includeArmorLinkReference },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                },
             });
             if (!armor) {
                 throw new Error('Could not find armor');
@@ -44,12 +58,11 @@ const armorServices = {
             throw new Error('Failed to fetch armor');
         }
     },
-    createIntegratedArmor: async (formData, picture, rarity, grade) => {
+    createOrUpdateArmor: async (formData) => {
         try {
             const armor = await prisma.armor.findUnique({
                 where: { id: formData.id },
                 include: {
-                    actions: { select: { id: true } },
                     keywords: { select: { id: true } },
                 },
             });
@@ -60,74 +73,117 @@ const armorServices = {
                     },
                 });
             }
-            const _a = Object.assign(Object.assign({}, formData), { picture,
-                rarity,
-                grade }), { keywords, stats } = _a, data = __rest(_a, ["keywords", "stats"]);
-            const keywordData = keywords.map((keyword) => ({
+            const { id, weaponLinkId, armorLinkId, cyberneticLinkId, vehicleLinkId, weaponIds, armorIds, cyberneticIds, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "weaponLinkId", "armorLinkId", "cyberneticLinkId", "vehicleLinkId", "weaponIds", "armorIds", "cyberneticIds", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
+            await enforceSingularLinking(id, weaponIds, armorIds, cyberneticIds, actionIds, undefined);
+            const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
-            }));
+            }))) || [];
             const newArmor = await prisma.armor.upsert({
-                where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), keywords: { createMany: { data: keywordData } } }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), keywords: { createMany: { data: keywordData } } }),
+                where: { id },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), armorLinkReference: {
+                        upsert: {
+                            where: { armorId: formData.id },
+                            update: {
+                                weapons: {
+                                    set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                                },
+                                armors: {
+                                    set: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                            },
+                            create: {
+                                weapons: {
+                                    connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                                },
+                                armors: {
+                                    connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                            },
+                        },
+                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
+                        ? {
+                            connect: {
+                                id: characterInventoryId,
+                            },
+                        }
+                        : undefined }),
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), armorLinkReference: {
+                        create: {
+                            weapons: {
+                                connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                            },
+                            armors: {
+                                connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                            },
+                            actions: {
+                                connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                            },
+                        },
+                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
+                        ? {
+                            connect: {
+                                id: characterInventoryId,
+                            },
+                        }
+                        : undefined }),
             });
             return newArmor;
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to create or update integrated armor');
+            throw new Error(error.message || 'Failed to create or update armor');
         }
     },
-    createOrUpdateArmor: async (formData) => {
-        var _a;
-        try {
-            const armor = await prisma.armor.findUnique({
-                where: { id: formData.id },
-                include: {
-                    actions: { select: { id: true } },
-                    keywords: { select: { id: true } },
-                },
-            });
-            if (armor && armor.keywords) {
-                await prisma.keywordReference.deleteMany({
-                    where: {
-                        id: { in: armor.keywords.map((keyword) => keyword.id) },
-                    },
-                });
+    createCharacterArmorCopy: async (inventoryId, armorList) => {
+        const armorIds = armorList === null || armorList === void 0 ? void 0 : armorList.map((armor) => armor.armorId);
+        const armor = await prisma.armor.findMany({
+            where: { id: { in: armorIds } },
+            include: {
+                armorLinkReference: { include: includeArmorLinkReference },
+                keywords: { include: { keyword: true } },
+            },
+        });
+        const promises = [];
+        for (const { armorId, quantity } of armorList) {
+            const armorDetails = armor.find((armor) => armor.id === armorId);
+            if (!armorDetails)
+                continue;
+            let stats = Object.assign({}, armorDetails.stats);
+            if ((stats === null || stats === void 0 ? void 0 : stats.block) && !(stats === null || stats === void 0 ? void 0 : stats.currentBlock)) {
+                stats = Object.assign(Object.assign({}, stats), { currentBlock: stats.block });
             }
-            const { actions, keywords, stats } = formData, data = __rest(formData, ["actions", "keywords", "stats"]);
-            const oldActionIds = (_a = armor === null || armor === void 0 ? void 0 : armor.actions) === null || _a === void 0 ? void 0 : _a.map((id) => id.id);
-            const newActionIds = (actions === null || actions === void 0 ? void 0 : actions.map((action) => action.id)) || [];
-            const actionsToDelete = (oldActionIds === null || oldActionIds === void 0 ? void 0 : oldActionIds.filter((id) => !newActionIds.includes(id))) || [];
-            if (actionsToDelete.length > 0) {
-                await actionServices.deleteActions(actionsToDelete);
+            if ((stats === null || stats === void 0 ? void 0 : stats.power) && !(stats === null || stats === void 0 ? void 0 : stats.currentPower)) {
+                stats = Object.assign(Object.assign({}, stats), { currentPower: stats.power });
             }
-            const actionIds = actions
-                ? await Promise.all(actions.map(async (action) => {
-                    const newAction = await actionServices.createAction(action);
-                    return { id: newAction.id };
-                }))
-                : [];
-            const keywordData = keywords.map((keyword) => ({
+            const { weaponIds, armorIds, cyberneticIds, actionIds } = await createLinkedCopies(armorDetails.armorLinkReference, inventoryId, quantity);
+            const keywordIds = (armorDetails === null || armorDetails === void 0 ? void 0 : armorDetails.keywords.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
-            }));
-            const newArmor = await prisma.armor.upsert({
-                where: { id: data.id || 0 },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), actions: {
-                        connect: actionIds,
-                    }, keywords: { createMany: { data: keywordData } } }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), actions: {
-                        connect: actionIds,
-                    }, keywords: { createMany: { data: keywordData } } }),
-            });
-            return newArmor;
+            }))) || [];
+            const { keywords } = armorDetails, rest = __rest(armorDetails, ["keywords"]);
+            const armorData = Object.assign(Object.assign({}, rest), { stats,
+                weaponIds,
+                armorIds,
+                cyberneticIds,
+                actionIds,
+                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseArmorId: armorDetails.id });
+            if (armorDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(armorServices.createOrUpdateArmor(armorData));
+                }
+            }
         }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to create or update armor');
-        }
+        const newArmor = await Promise.all(promises);
+        return newArmor
+            .filter((armor) => armor !== undefined)
+            .map((armor) => armor.id);
     },
     deleteArmor: async (armorId) => {
         try {

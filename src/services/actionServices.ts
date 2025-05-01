@@ -68,6 +68,48 @@ const actionServices = {
     }
   },
 
+  createCharacterActionCopy: async (
+    inventoryId: string,
+    actionList: { actionId: number; quantity: number }[],
+  ) => {
+    const actionIds = actionList?.map((action) => action.actionId);
+
+    const actions = await prisma.action.findMany({
+      where: { id: { in: actionIds } },
+    });
+
+    const newAction = await Promise.all(
+      actionList.flatMap(({ actionId, quantity }) => {
+        const actionDetails = actions.find((action) => action.id === actionId);
+
+        if (actionDetails) {
+          return Array.from({ length: quantity }).map(() =>
+            prisma.action.create({
+              data: {
+                name: actionDetails.name,
+                description: actionDetails.description,
+                costs: actionDetails.costs || undefined,
+                roll: actionDetails.roll || undefined,
+                duration: actionDetails.duration || undefined,
+                actionType: actionDetails.actionType,
+                actionSubtypes: actionDetails.actionSubtypes,
+                characterInventory: {
+                  connect: { id: Number(inventoryId) },
+                },
+                baseActionId: actionDetails.id,
+              },
+            }),
+          );
+        }
+        return;
+      }),
+    );
+
+    return newAction
+      .filter((action) => action !== undefined)
+      .map((action) => action.id);
+  },
+
   deleteAction: async (actionId: string) => {
     try {
       await prisma.action.delete({

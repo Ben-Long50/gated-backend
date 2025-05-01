@@ -9,15 +9,23 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-import { Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
+import { includeVehicleLinkReference } from '../utils/linkQueryStructures.js';
+import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const vehicleServices = {
     getVehicles: async () => {
         try {
             const vehicles = await prisma.vehicle.findMany({
                 where: { characterInventoryId: null },
+                include: {
+                    vehicleLinkReference: { include: includeVehicleLinkReference },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                },
                 orderBy: { name: 'asc' },
-                include: { weapons: true, modifications: true },
             });
             return vehicles;
         }
@@ -26,26 +34,19 @@ const vehicleServices = {
             throw new Error('Failed to fetch vehicles');
         }
     },
-    getVehicleMods: async () => {
-        try {
-            const vehicleMods = await prisma.modification.findMany({
-                where: { characterInventoryId: null, vehicleId: null },
-                orderBy: { name: 'asc' },
-            });
-            return vehicleMods;
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to fetch vehicle modifications');
-        }
-    },
     getVehicleById: async (vehicleId) => {
         try {
             const vehicle = await prisma.vehicle.findUnique({
                 where: {
                     id: Number(vehicleId),
                 },
-                include: { weapons: true, modifications: true },
+                include: {
+                    vehicleLinkReference: { include: includeVehicleLinkReference },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                },
             });
             if (!vehicle) {
                 throw new Error('Could not find vehicle');
@@ -57,74 +58,90 @@ const vehicleServices = {
             throw new Error('Failed to fetch vehicle');
         }
     },
-    getVehicleModById: async (modId) => {
-        try {
-            const vehicleMod = await prisma.modification.findUnique({
-                where: {
-                    id: Number(modId),
-                },
-            });
-            return vehicleMod;
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to fetch vehicle');
-        }
-    },
     createOrUpdateVehicle: async (formData) => {
         try {
-            if (formData.stats.weapon
-                ? formData.weapons.length > formData.stats.weapon
-                : formData.weapons.length > 0) {
-                throw new Error('Your vehicle does not have enough weapon slots to support the chosen weapons');
-            }
-            const oldVehicle = (await prisma.vehicle.findUnique({
+            const vehicle = await prisma.vehicle.findUnique({
                 where: { id: formData.id },
                 include: {
-                    weapons: { select: { id: true } },
-                    modifications: { select: { id: true } },
+                    keywords: { select: { id: true } },
                 },
-            })) || null;
-            const previousWeaponIds = oldVehicle
-                ? oldVehicle.weapons.map((item) => item.id)
-                : [];
-            const previousModIds = oldVehicle
-                ? oldVehicle.modifications.map((item) => item.id)
-                : [];
-            const weaponData = await vehicleServices.swapWeapons(formData.weapons, previousWeaponIds);
-            const modData = await vehicleServices.swapMods(formData.modifications, previousModIds);
+            });
+            if (vehicle && vehicle.keywords) {
+                await prisma.keywordReference.deleteMany({
+                    where: {
+                        id: { in: vehicle.keywords.map((keyword) => keyword.id) },
+                    },
+                });
+            }
+            const { id, weaponIds, armorIds, actionIds, modificationIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "weaponIds", "armorIds", "actionIds", "modificationIds", "keywordIds", "stats", "characterInventoryId"]);
+            await enforceSingularLinking(id, weaponIds, armorIds, undefined, actionIds, modificationIds);
+            const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
             const newVehicle = await prisma.vehicle.upsert({
-                where: { id: formData.id },
-                update: {
-                    name: formData.name,
-                    rarity: formData.rarity,
-                    grade: formData.grade,
-                    picture: formData.picture,
-                    stats: Object.assign({}, formData.stats),
-                    price: formData.price,
-                    description: formData.description,
-                    weapons: {
-                        create: weaponData.data,
-                        connect: weaponData.newOwnedIds.map((id) => ({ id })),
-                        disconnect: weaponData.oldIds.map((id) => ({ id })),
-                    },
-                    modifications: {
-                        create: modData.data,
-                        connect: modData.newOwnedIds.map((id) => ({ id })),
-                        disconnect: modData.oldIds.map((id) => ({ id })),
-                    },
-                },
-                create: {
-                    name: formData.name,
-                    rarity: formData.rarity,
-                    grade: formData.grade,
-                    picture: formData.picture,
-                    stats: Object.assign({}, formData.stats),
-                    price: formData.price,
-                    description: formData.description,
-                    weapons: { create: weaponData.data },
-                    modifications: { create: modData.data },
-                },
+                where: { id },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), vehicleLinkReference: {
+                        upsert: {
+                            where: { vehicleId: id },
+                            update: {
+                                weapons: {
+                                    set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                                },
+                                armors: {
+                                    set: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                                modifications: {
+                                    set: modificationIds === null || modificationIds === void 0 ? void 0 : modificationIds.map((id) => ({ id })),
+                                },
+                            },
+                            create: {
+                                weapons: {
+                                    connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                                },
+                                armors: {
+                                    connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                                modifications: {
+                                    connect: modificationIds === null || modificationIds === void 0 ? void 0 : modificationIds.map((id) => ({ id })),
+                                },
+                            },
+                        },
+                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
+                        ? {
+                            connect: {
+                                id: characterInventoryId,
+                            },
+                        }
+                        : undefined }),
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), vehicleLinkReference: {
+                        create: {
+                            weapons: {
+                                connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
+                            },
+                            armors: {
+                                connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                            },
+                            actions: {
+                                connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                            },
+                            modifications: {
+                                connect: modificationIds === null || modificationIds === void 0 ? void 0 : modificationIds.map((id) => ({ id })),
+                            },
+                        },
+                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
+                        ? {
+                            connect: {
+                                id: characterInventoryId,
+                            },
+                        }
+                        : undefined }),
             });
             return newVehicle;
         }
@@ -133,120 +150,145 @@ const vehicleServices = {
             if (error instanceof Error) {
                 throw error;
             }
-            throw new Error('Failed to create or update vehicle');
+            throw new Error(error.message || 'Failed to create or update vehicle');
         }
     },
-    swapWeapons: async (newWeaponIds, previousWeaponIds) => {
-        const oldIds = previousWeaponIds.filter((id) => !newWeaponIds.includes(id)) || [];
-        await prisma.weapon.deleteMany({
-            where: { id: { in: oldIds }, characterInventoryId: null },
-        });
-        const newIds = newWeaponIds.filter((id) => !previousWeaponIds.some((item) => item === id));
-        const weapons = await prisma.weapon.findMany({
-            where: { id: { in: newIds }, characterInventoryId: null },
-            include: { keywords: { include: { keyword: true } } },
-        });
-        const newOwnedIds = newIds.filter((id) => !weapons.map((weapon) => weapon.id).includes(id));
-        const data = weapons.map((_a) => {
-            var { id, vehicleId, cyberneticId } = _a, rest = __rest(_a, ["id", "vehicleId", "cyberneticId"]);
-            return (Object.assign(Object.assign({}, rest), { picture: rest.picture
-                    ? rest.picture
-                    : undefined, stats: rest.stats
-                    ? rest.stats
-                    : Prisma.JsonNull, keywords: rest.keywords
-                    ? {
-                        createMany: {
-                            data: rest.keywords.map((keyword) => ({
-                                keywordId: keyword.keywordId,
-                                value: keyword.value,
-                            })),
-                        },
-                    }
-                    : undefined }));
-        });
-        return {
-            oldIds,
-            newOwnedIds,
-            data,
-        };
-    },
-    swapMods: async (newModIds, previousModIds) => {
-        const oldIds = previousModIds.filter((id) => !newModIds.includes(id)) || [];
-        await prisma.modification.deleteMany({
-            where: { id: { in: oldIds }, characterInventoryId: null },
-        });
-        const newIds = newModIds.filter((id) => !previousModIds.some((item) => item === id));
-        const modifications = await prisma.modification.findMany({
-            where: { id: { in: newIds }, characterInventoryId: null },
-        });
-        const newOwnedIds = newIds.filter((id) => !modifications.map((mod) => mod.id).includes(id));
-        const data = modifications.map((_a) => {
-            var { id, vehicleId } = _a, rest = __rest(_a, ["id", "vehicleId"]);
-            return (Object.assign({}, rest));
-        });
-        return {
-            oldIds,
-            newOwnedIds,
-            data,
-        };
-    },
-    createOrUpdateVehicleMod: async (formData) => {
-        try {
-            const newVehicleMod = await prisma.modification.upsert({
-                where: { id: Number(formData.modId) || 0 },
-                update: {
-                    name: formData.name,
-                    price: Number(formData.price),
-                    modificationType: formData.modificationType,
-                    description: formData.description,
-                },
-                create: {
-                    name: formData.name,
-                    price: Number(formData.price),
-                    modificationType: formData.modificationType,
-                    description: formData.description,
-                },
-            });
-            return newVehicleMod;
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to create or update vehicle modification');
-        }
-    },
-    deleteVehicle: async (vehicleId) => {
+    createCharacterVehicleCopy: async (inventoryId, vehicleList) => {
         var _a;
+        const vehicleIds = vehicleList === null || vehicleList === void 0 ? void 0 : vehicleList.map((vehicle) => vehicle.vehicleId);
+        const vehicles = await prisma.vehicle.findMany({
+            where: { id: { in: vehicleIds } },
+            include: {
+                vehicleLinkReference: { include: includeVehicleLinkReference },
+                keywords: { include: { keyword: true } },
+            },
+        });
+        const promises = [];
+        for (const { vehicleId, quantity } of vehicleList) {
+            const vehicleDetails = vehicles.find((vehicle) => vehicle.id === vehicleId);
+            if (!vehicleDetails)
+                continue;
+            let stats = Object.assign({}, vehicleDetails.stats);
+            if ((stats === null || stats === void 0 ? void 0 : stats.hull) && !(stats === null || stats === void 0 ? void 0 : stats.currentHull)) {
+                stats = Object.assign(Object.assign({}, stats), { currentHull: stats.hull });
+            }
+            if ((stats === null || stats === void 0 ? void 0 : stats.cargo) && !(stats === null || stats === void 0 ? void 0 : stats.currentCargo)) {
+                stats = Object.assign(Object.assign({}, stats), { currentCargo: 0 });
+            }
+            if ((stats === null || stats === void 0 ? void 0 : stats.hangar) && !(stats === null || stats === void 0 ? void 0 : stats.currentHangar)) {
+                stats = Object.assign(Object.assign({}, stats), { currentHangar: 0 });
+            }
+            if ((stats === null || stats === void 0 ? void 0 : stats.pass) && !(stats === null || stats === void 0 ? void 0 : stats.currentPass)) {
+                stats = Object.assign(Object.assign({}, stats), { currentPass: 0 });
+            }
+            if ((stats === null || stats === void 0 ? void 0 : stats.weapon) && !(stats === null || stats === void 0 ? void 0 : stats.currentWeapon)) {
+                stats = Object.assign(Object.assign({}, stats), { currentWeapon: (_a = vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.vehicleLinkReference) === null || _a === void 0 ? void 0 : _a.weapons.length });
+            }
+            const { weaponIds, armorIds, actionIds, modificationIds } = await createLinkedCopies(vehicleDetails.vehicleLinkReference, inventoryId, quantity);
+            const keywordIds = (vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
+            const { keywords } = vehicleDetails, rest = __rest(vehicleDetails, ["keywords"]);
+            const vehicleData = Object.assign(Object.assign({}, rest), { stats,
+                weaponIds,
+                armorIds,
+                actionIds,
+                modificationIds,
+                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseVehicleId: vehicleDetails.id });
+            if (vehicleDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(vehicleServices.createOrUpdateVehicle(vehicleData));
+                }
+            }
+        }
+        await Promise.all(promises);
+    },
+    // swapWeapons: async (newWeaponIds: number[], previousWeaponIds: number[]) => {
+    //   const oldIds =
+    //     previousWeaponIds.filter((id) => !newWeaponIds.includes(id)) || [];
+    //   await prisma.weapon.deleteMany({
+    //     where: { id: { in: oldIds }, characterInventoryId: null },
+    //   });
+    //   const newIds = newWeaponIds.filter(
+    //     (id: number) => !previousWeaponIds.some((item) => item === id),
+    //   );
+    //   const weapons = await prisma.weapon.findMany({
+    //     where: { id: { in: newIds }, characterInventoryId: null },
+    //     include: { keywords: { include: { keyword: true } } },
+    //   });
+    //   const newOwnedIds = newIds.filter(
+    //     (id) => !weapons.map((weapon) => weapon.id).includes(id),
+    //   );
+    //   const data = weapons.map(({ id, vehicleId, cyberneticId, ...rest }) => ({
+    //     ...rest,
+    //     picture: rest.picture
+    //       ? (rest.picture as Prisma.InputJsonValue)
+    //       : undefined,
+    //     stats: rest.stats
+    //       ? (rest.stats as Prisma.InputJsonValue)
+    //       : Prisma.JsonNull,
+    //     keywords: rest.keywords
+    //       ? {
+    //           createMany: {
+    //             data: rest.keywords.map((keyword) => ({
+    //               keywordId: keyword.keywordId,
+    //               value: keyword.value,
+    //             })),
+    //           },
+    //         }
+    //       : undefined,
+    //     actions: rest.actions
+    //       ? {
+    //           createMany: {
+    //             data: rest.actions.map(({ id, baseActionId, ...action }) => ({
+    //               ...action,
+    //               baseActionId: id,
+    //             })),
+    //           },
+    //         }
+    //       : undefined,
+    //   }));
+    //   return {
+    //     oldIds,
+    //     newOwnedIds,
+    //     data,
+    //   };
+    // },
+    // swapMods: async (newModIds: number[], previousModIds: number[]) => {
+    //   const oldIds = previousModIds.filter((id) => !newModIds.includes(id)) || [];
+    //   await prisma.modification.deleteMany({
+    //     where: { id: { in: oldIds }, characterInventoryId: null },
+    //   });
+    //   const newIds = newModIds.filter(
+    //     (id: number) => !previousModIds.some((item) => item === id),
+    //   );
+    //   const modifications = await prisma.modification.findMany({
+    //     where: { id: { in: newIds }, characterInventoryId: null },
+    //   });
+    //   const newOwnedIds = newIds.filter(
+    //     (id) => !modifications.map((mod) => mod.id).includes(id),
+    //   );
+    //   const data = modifications.map(({ id, vehicleId, ...rest }) => ({
+    //     ...rest,
+    //   }));
+    //   return {
+    //     oldIds,
+    //     newOwnedIds,
+    //     data,
+    //   };
+    // },
+    deleteVehicle: async (vehicleId) => {
         try {
-            const deletedVehicle = await prisma.vehicle.delete({
+            await prisma.vehicle.delete({
                 where: {
                     id: Number(vehicleId),
                 },
-                include: { weapons: { select: { id: true } } },
             });
-            if (deletedVehicle.characterInventoryId === null) {
-                await prisma.weapon.deleteMany({
-                    where: {
-                        id: { in: (_a = deletedVehicle.weapons) === null || _a === void 0 ? void 0 : _a.map((weapon) => weapon.id) },
-                    },
-                });
-            }
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to delete vehicle');
-        }
-    },
-    deleteVehicleMod: async (modId) => {
-        try {
-            await prisma.modification.delete({
-                where: {
-                    id: Number(modId),
-                },
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to delete vehicle modification');
         }
     },
 };

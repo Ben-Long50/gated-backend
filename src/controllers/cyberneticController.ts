@@ -3,16 +3,20 @@ import cyberneticServices from '../services/cyberneticServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 
 const cyberneticController = {
   getCybernetics: async (_req: Request, res: Response) => {
     try {
       const cybernetics = await cyberneticServices.getCybernetics();
-      res.status(200).json(cybernetics);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+
+      const cyberneticData = cybernetics.map((cybernetic) =>
+        destructureLinkReference(cybernetic),
+      );
+
+      res.status(200).json(cyberneticData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -21,11 +25,12 @@ const cyberneticController = {
       const cybernetic = await cyberneticServices.getCyberneticById(
         req.params.cyberneticId,
       );
-      res.status(200).json(cybernetic);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+
+      const cyberneticData = destructureLinkReference(cybernetic);
+
+      res.status(200).json(cyberneticData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -42,10 +47,8 @@ const cyberneticController = {
             ? 'Successfully updated cybernetic'
             : 'Successfully created cybernetic',
         });
-      } catch (error) {
-        if (error instanceof Error) {
-          res.status(500).json({ error: error.message });
-        }
+      } catch (error: any) {
+        res.status(500).json({ error: error.message });
       }
     },
   ],
@@ -71,10 +74,8 @@ const cyberneticController = {
     try {
       await cyberneticServices.deleteCybernetic(req.params.cyberneticId);
       res.status(200).json({ message: 'Successfully deleted cybernetic' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

@@ -12,10 +12,8 @@ const characterController = {
       }
       const characters = await characterServices.getCharacters(req.user.id);
       res.status(200).json(characters);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -28,10 +26,8 @@ const characterController = {
         req.user.id,
       );
       res.status(200).json(activeCharacter);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -41,10 +37,8 @@ const characterController = {
         req.params.characterId,
       );
       res.status(200).json(character);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -58,26 +52,24 @@ const characterController = {
         req.body.characterId,
       );
       res.status(200).json(activeCharacter);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
-  getEquippedItems: async (req: Request, res: Response) => {
-    try {
-      const equipment = await characterServices.getEquippedItems(
-        req.params.characterId,
-        req.params.inventoryId,
-      );
-      res.status(200).json(equipment);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
-    }
-  },
+  // getEquippedItems: async (req: Request, res: Response) => {
+  //   try {
+  //     const equipment = await characterServices.getEquippedItems(
+  //       req.params.characterId,
+  //       req.params.inventoryId,
+  //     );
+  //     res.status(200).json(equipment);
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       res.status(500).json({ error: error.message });
+  //     }
+  //   }
+  // },
 
   toggleEquipment: async (req: Request, res: Response) => {
     try {
@@ -87,10 +79,8 @@ const characterController = {
         req.body.category,
       );
       res.status(200).json({ message: 'Successfully toggled equipment' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -103,10 +93,8 @@ const characterController = {
         req.body.itemId,
       );
       res.status(200).json({ message: 'Successfully added item to cart' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -119,10 +107,8 @@ const characterController = {
       );
       await characterServices.clearCart(req.params.characterId);
       res.status(200).json({ message: 'Purchase completed' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -194,10 +180,8 @@ const characterController = {
         req.params.characterId,
       );
       res.status(200).json({ message: 'Successfully deleted character' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

@@ -27,10 +27,8 @@ const userController = {
 
       const users = await userServices.getAllUsers(query, userId);
       res.status(200).json(users);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -49,10 +47,8 @@ const userController = {
         role: user.role,
         profilePicture: user.profilePicture,
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -217,10 +213,8 @@ const userController = {
       res
         .status(200)
         .json({ message: 'Successfully updated account information' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

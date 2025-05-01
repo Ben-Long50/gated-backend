@@ -11,9 +11,7 @@ const itemStatController = {
                 .json({ message: `Changed item power by ${req.body.value}` });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     refreshItemPower: async (req, res) => {
@@ -25,9 +23,7 @@ const itemStatController = {
             res.status(200).json({ message: `Refreshed item power` });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     editItemStacks: async (req, res) => {
@@ -41,9 +37,7 @@ const itemStatController = {
                 .json({ message: `Changed item stacks by ${req.body.value}` });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     refreshItemStacks: async (req, res) => {
@@ -55,9 +49,7 @@ const itemStatController = {
             res.status(200).json({ message: `Refreshed item stacks` });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

@@ -8,10 +8,8 @@ const bookController = {
     try {
       const book = await bookServices.getBookSections();
       res.status(200).json(book);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -19,10 +17,8 @@ const bookController = {
     try {
       const bookEntry = await bookServices.getBookEntry(req.params.bookEntryId);
       res.status(200).json(bookEntry);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -30,10 +26,8 @@ const bookController = {
     try {
       const bookEntry = await bookServices.createBookEntry(req.body);
       res.status(200).json(bookEntry);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -41,10 +35,8 @@ const bookController = {
     try {
       const bookSection = await bookServices.createBookSection(req.body);
       res.status(200).json(bookSection);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -52,10 +44,8 @@ const bookController = {
     try {
       await bookServices.deleteBookEntry(req.params.bookEntryId);
       res.status(200).json({ message: 'Book entry successfully deleted' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -63,10 +53,8 @@ const bookController = {
     try {
       await bookServices.deleteBookSection(req.params.bookSectionId);
       res.status(200).json({ message: 'Book section successfully deleted' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
