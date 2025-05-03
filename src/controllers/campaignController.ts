@@ -8,7 +8,7 @@ import notificationServices from '../services/notificationServices.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
 
 const campaignController = {
-  getOwnerCampaigns: async (req: Request, res: Response) => {
+  getCampaigns: async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         res
@@ -17,39 +17,8 @@ const campaignController = {
         return;
       }
 
-      const campaigns = await campaignServices.getOwnerCampaigns(req.user.id);
-      res.status(200).json(campaigns);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  },
+      const campaigns = await campaignServices.getCampaigns(req.user.id);
 
-  getPlayerCampaigns: async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        res
-          .status(401)
-          .json({ error: 'You must be signed in to use this function' });
-        return;
-      }
-
-      const campaigns = await campaignServices.getPlayerCampaigns(req.user.id);
-      res.status(200).json(campaigns);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
-  getPendingCampaigns: async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        res
-          .status(401)
-          .json({ error: 'You must be signed in to use this function' });
-        return;
-      }
-
-      const campaigns = await campaignServices.getPendingCampaigns(req.user.id);
       res.status(200).json(campaigns);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

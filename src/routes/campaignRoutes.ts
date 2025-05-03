@@ -13,21 +13,9 @@ router.patch(
 );
 
 router.get(
-  '/campaigns/owner',
+  '/campaigns',
   authentication.authenticate,
-  campaignController.getOwnerCampaigns,
-);
-
-router.get(
-  '/campaigns/player',
-  authentication.authenticate,
-  campaignController.getPlayerCampaigns,
-);
-
-router.get(
-  '/campaigns/pending',
-  authentication.authenticate,
-  campaignController.getPendingCampaigns,
+  campaignController.getCampaigns,
 );
 
 router.get(
