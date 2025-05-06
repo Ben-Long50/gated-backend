@@ -11,6 +11,10 @@ import cyberneticServices from './cyberneticServices.js';
 import vehicleServices from './vehicleServices.js';
 import itemServices from './itemServices.js';
 import modificationServices from './modificationServices.js';
+import {
+  destructureInventory,
+  destructureLinkReference,
+} from '../utils/destructureItemLinks.js';
 
 const characterServices = {
   getCharacters: async (userId: number) => {
@@ -90,7 +94,13 @@ const characterServices = {
         },
       });
 
-      return character;
+      const charaterData = {
+        ...character,
+        characterInventory:
+          destructureInventory(character?.characterInventory) || null,
+      };
+
+      return charaterData;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch character');
@@ -159,7 +169,14 @@ const characterServices = {
     category: string,
   ) => {
     try {
-      const categories = ['weapon', 'armor', 'cybernetic', 'item'];
+      const categories = [
+        'weapon',
+        'armor',
+        'cybernetic',
+        'item',
+        'vehicle',
+        'drone',
+      ];
 
       if (!categories.includes(category)) {
         throw new Error(`Invalid category: ${category}`);
@@ -232,6 +249,30 @@ const characterServices = {
 
       if (category === 'item') {
         await prisma.item.update({
+          where: {
+            id: Number(itemId),
+            characterInventoryId: Number(inventoryId),
+          },
+          data: {
+            equipped: !item.equipped,
+          },
+        });
+      }
+
+      if (category === 'vehicle') {
+        await prisma.vehicle.update({
+          where: {
+            id: Number(itemId),
+            characterInventoryId: Number(inventoryId),
+          },
+          data: {
+            equipped: !item.equipped,
+          },
+        });
+      }
+
+      if (category === 'drone') {
+        await prisma.drone.update({
           where: {
             id: Number(itemId),
             characterInventoryId: Number(inventoryId),

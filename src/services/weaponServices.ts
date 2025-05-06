@@ -83,6 +83,7 @@ const weaponServices = {
         armorLinkId,
         cyberneticLinkId,
         vehicleLinkId,
+        droneLinkId,
         weaponIds,
         armorIds,
         cyberneticIds,

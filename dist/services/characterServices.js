@@ -17,6 +17,7 @@ import cyberneticServices from './cyberneticServices.js';
 import vehicleServices from './vehicleServices.js';
 import itemServices from './itemServices.js';
 import modificationServices from './modificationServices.js';
+import { destructureInventory, } from '../utils/destructureItemLinks.js';
 const characterServices = {
     getCharacters: async (userId) => {
         try {
@@ -91,7 +92,8 @@ const characterServices = {
                     },
                 },
             });
-            return character;
+            const charaterData = Object.assign(Object.assign({}, character), { characterInventory: destructureInventory(character === null || character === void 0 ? void 0 : character.characterInventory) || null });
+            return charaterData;
         }
         catch (error) {
             console.error(error);
@@ -154,7 +156,14 @@ const characterServices = {
     // },
     toggleEquipment: async (inventoryId, itemId, category) => {
         try {
-            const categories = ['weapon', 'armor', 'cybernetic', 'item'];
+            const categories = [
+                'weapon',
+                'armor',
+                'cybernetic',
+                'item',
+                'vehicle',
+                'drone',
+            ];
             if (!categories.includes(category)) {
                 throw new Error(`Invalid category: ${category}`);
             }
@@ -217,6 +226,28 @@ const characterServices = {
             }
             if (category === 'item') {
                 await prisma.item.update({
+                    where: {
+                        id: Number(itemId),
+                        characterInventoryId: Number(inventoryId),
+                    },
+                    data: {
+                        equipped: !item.equipped,
+                    },
+                });
+            }
+            if (category === 'vehicle') {
+                await prisma.vehicle.update({
+                    where: {
+                        id: Number(itemId),
+                        characterInventoryId: Number(inventoryId),
+                    },
+                    data: {
+                        equipped: !item.equipped,
+                    },
+                });
+            }
+            if (category === 'drone') {
+                await prisma.drone.update({
                     where: {
                         id: Number(itemId),
                         characterInventoryId: Number(inventoryId),

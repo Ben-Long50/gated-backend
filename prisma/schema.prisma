@@ -430,6 +430,7 @@ model Vehicle {
   description          String?
   stats                Json
   price                Int?
+  equipped             Boolean               @default(false)
   vehicleLinkReference VehicleLinkReference? @relation("PrimaryLink")
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory?   @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
@@ -458,6 +459,7 @@ model Drone {
   description          String?
   stats                Json
   price                Int?
+  equipped             Boolean              @default(false)
   droneLinkReference   DroneLinkReference?  @relation("PrimaryLink")
   characterCart        CharacterCart[]
   characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
@@ -486,6 +488,7 @@ model Modification {
   modificationType          String
   description               String?
   stats                     Json?
+  equipped                  Boolean                    @default(false)
   modificationLinkReference ModificationLinkReference? @relation("PrimaryLink")
   vehicleLink               VehicleLinkReference?      @relation(fields: [vehicleLinkId], references: [id], onDelete: Cascade)
   vehicleLinkId             Int?

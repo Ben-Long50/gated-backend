@@ -180,6 +180,14 @@ export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
     },
     orderBy: [{ name: 'asc' }, { grade: 'desc' }],
   },
+  drones: {
+    include: {
+      droneLinkReference: {
+        include: includeDroneLinkReference,
+      },
+    },
+    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+  },
   modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
   items: {
     include: {

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { CharacterInventory, Prisma } from '@prisma/client';
 
 type WeaponWithLink = Prisma.WeaponGetPayload<{
   include: {
@@ -155,4 +155,18 @@ export const destructureLinkReference = (item: ItemWithLinkReference) => {
     };
   }
   return;
+};
+
+export const destructureInventory = (inventory: CharacterInventory) => {
+  const destructuredInventory = Object.fromEntries(
+    Object.entries(inventory).map(([key, value]) => {
+      if (Array.isArray(value)) {
+        return [key, value.map((item) => destructureLinkReference(item))];
+      } else {
+        return [key, value];
+      }
+    }),
+  );
+
+  return destructuredInventory;
 };
