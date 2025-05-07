@@ -10,7 +10,7 @@ const weaponServices = {
       const weapons = await prisma.weapon.findMany({
         where: {
           characterInventoryId: null,
-          weaponLinkId: null,
+          // weaponLinkId: null,
           armorLinkId: null,
           cyberneticLinkId: null,
           vehicleLinkId: null,
