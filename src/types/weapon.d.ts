@@ -14,6 +14,7 @@ export interface Weapon {
   armorLinkId: number | null;
   cyberneticLinkId: number | null;
   vehicleLinkId: number | null;
+  droneLinkId: number | null;
   weaponIds?: number[];
   armorIds?: number[];
   cyberneticIds?: number[];

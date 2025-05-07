@@ -11,10 +11,7 @@ import cyberneticServices from './cyberneticServices.js';
 import vehicleServices from './vehicleServices.js';
 import itemServices from './itemServices.js';
 import modificationServices from './modificationServices.js';
-import {
-  destructureInventory,
-  destructureLinkReference,
-} from '../utils/destructureItemLinks.js';
+import { destructureInventory } from '../utils/destructureItemLinks.js';
 import droneServices from './droneServices.js';
 
 const characterServices = {
@@ -98,8 +95,9 @@ const characterServices = {
 
       const charaterData = {
         ...character,
-        characterInventory:
-          destructureInventory(character?.characterInventory) || null,
+        characterInventory: character?.characterInventory
+          ? destructureInventory(character.characterInventory)
+          : null,
       };
 
       return charaterData;

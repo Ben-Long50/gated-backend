@@ -17,7 +17,7 @@ import cyberneticServices from './cyberneticServices.js';
 import vehicleServices from './vehicleServices.js';
 import itemServices from './itemServices.js';
 import modificationServices from './modificationServices.js';
-import { destructureInventory, } from '../utils/destructureItemLinks.js';
+import { destructureInventory } from '../utils/destructureItemLinks.js';
 import droneServices from './droneServices.js';
 const characterServices = {
     getCharacters: async (userId) => {
@@ -94,7 +94,9 @@ const characterServices = {
                     },
                 },
             });
-            const charaterData = Object.assign(Object.assign({}, character), { characterInventory: destructureInventory(character === null || character === void 0 ? void 0 : character.characterInventory) || null });
+            const charaterData = Object.assign(Object.assign({}, character), { characterInventory: (character === null || character === void 0 ? void 0 : character.characterInventory)
+                    ? destructureInventory(character.characterInventory)
+                    : null });
             return charaterData;
         }
         catch (error) {
