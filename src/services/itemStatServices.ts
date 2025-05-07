@@ -27,13 +27,19 @@ const itemStatServices = {
 
       const statsObject = item.stats as Record<string, number>;
 
-      if (statsObject.currentPower + Number(value) < 0) {
-        throw new Error('Not enough power available');
+      let newPowerValue;
+
+      if (statsObject.currentPower + Number(value) > statsObject.power) {
+        newPowerValue = statsObject.power;
+      } else if (statsObject.currentPower + Number(value) < 0) {
+        newPowerValue = 0;
+      } else {
+        newPowerValue = statsObject.currentPower + Number(value);
       }
 
       const newStats = {
         ...statsObject,
-        currentPower: statsObject.currentPower + Number(value),
+        currentPower: newPowerValue,
       };
 
       await prisma.item.update({

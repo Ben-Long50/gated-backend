@@ -21,10 +21,17 @@ const itemStatServices = {
                 throw new Error('Item not found');
             }
             const statsObject = item.stats;
-            if (statsObject.currentPower + Number(value) < 0) {
-                throw new Error('Not enough power available');
+            let newPowerValue;
+            if (statsObject.currentPower + Number(value) > statsObject.power) {
+                newPowerValue = statsObject.power;
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: statsObject.currentPower + Number(value) });
+            else if (statsObject.currentPower + Number(value) < 0) {
+                newPowerValue = 0;
+            }
+            else {
+                newPowerValue = statsObject.currentPower + Number(value);
+            }
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: newPowerValue });
             await prisma.item.update({
                 where: {
                     id: Number(itemId),

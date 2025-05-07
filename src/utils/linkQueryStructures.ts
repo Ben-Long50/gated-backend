@@ -197,6 +197,7 @@ export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
     },
     orderBy: [{ name: 'asc' }, { grade: 'desc' }],
   },
+  actions: { orderBy: { name: 'asc' } },
 };
 
 export const equipLinked = {

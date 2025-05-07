@@ -21,10 +21,18 @@ const weaponStatServices = {
                 throw new Error('Weapon not found');
             }
             const statsObject = weapon.stats;
-            if (statsObject.currentAmmoCount + Number(value) < 0) {
-                throw new Error('Not enough ammo available to fire');
+            let newAmmoValue;
+            if (statsObject.currentAmmoCount + Number(value) >
+                statsObject.magCapacity) {
+                newAmmoValue = statsObject.magCapacity;
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.currentAmmoCount + Number(value) });
+            else if (statsObject.currentAmmoCount + Number(value) < 0) {
+                newAmmoValue = 0;
+            }
+            else {
+                newAmmoValue = statsObject.currentAmmoCount + Number(value);
+            }
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: newAmmoValue });
             await prisma.weapon.update({
                 where: {
                     id: Number(weaponId),

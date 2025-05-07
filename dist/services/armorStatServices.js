@@ -21,10 +21,17 @@ const armorStatServices = {
                 throw new Error('Armor not found');
             }
             const statsObject = armor.stats;
-            if (statsObject.currentPower + Number(value) < 0) {
-                throw new Error('Not enough power available');
+            let newPowerValue;
+            if (statsObject.currentPower + Number(value) > statsObject.power) {
+                newPowerValue = statsObject.power;
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: statsObject.currentPower + Number(value) });
+            else if (statsObject.currentPower + Number(value) < 0) {
+                newPowerValue = 0;
+            }
+            else {
+                newPowerValue = statsObject.currentPower + Number(value);
+            }
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: newPowerValue });
             await prisma.armor.update({
                 where: {
                     id: Number(armorId),
@@ -96,10 +103,17 @@ const armorStatServices = {
                 throw new Error('Armor not found');
             }
             const statsObject = armor.stats;
-            if (statsObject.currentBlock + Number(value) < 0) {
-                throw new Error('Not enough block points available');
+            let newBlockValue;
+            if (statsObject.currentBlock + Number(value) > statsObject.block) {
+                newBlockValue = statsObject.block;
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentBlock: statsObject.currentBlock + Number(value) });
+            else if (statsObject.currentBlock + Number(value) < 0) {
+                newBlockValue = 0;
+            }
+            else {
+                newBlockValue = statsObject.currentBlock + Number(value);
+            }
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentBlock: newBlockValue });
             await prisma.armor.update({
                 where: {
                     id: Number(armorId),

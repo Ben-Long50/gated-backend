@@ -214,7 +214,7 @@ const authentication = {
     }
 
     const drone = await prisma.drone.findUnique({
-      where: { id: Number(req.params.vehicleId) },
+      where: { id: Number(req.params.droneId) },
       select: {
         characterInventory: {
           select: {

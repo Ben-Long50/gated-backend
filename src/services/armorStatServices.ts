@@ -27,13 +27,19 @@ const armorStatServices = {
 
       const statsObject = armor.stats as Record<string, number>;
 
-      if (statsObject.currentPower + Number(value) < 0) {
-        throw new Error('Not enough power available');
+      let newPowerValue;
+
+      if (statsObject.currentPower + Number(value) > statsObject.power) {
+        newPowerValue = statsObject.power;
+      } else if (statsObject.currentPower + Number(value) < 0) {
+        newPowerValue = 0;
+      } else {
+        newPowerValue = statsObject.currentPower + Number(value);
       }
 
       const newStats = {
         ...statsObject,
-        currentPower: statsObject.currentPower + Number(value),
+        currentPower: newPowerValue,
       };
 
       await prisma.armor.update({
@@ -121,13 +127,19 @@ const armorStatServices = {
 
       const statsObject = armor.stats as Record<string, number>;
 
-      if (statsObject.currentBlock + Number(value) < 0) {
-        throw new Error('Not enough block points available');
+      let newBlockValue;
+
+      if (statsObject.currentBlock + Number(value) > statsObject.block) {
+        newBlockValue = statsObject.block;
+      } else if (statsObject.currentBlock + Number(value) < 0) {
+        newBlockValue = 0;
+      } else {
+        newBlockValue = statsObject.currentBlock + Number(value);
       }
 
       const newStats = {
         ...statsObject,
-        currentBlock: statsObject.currentBlock + Number(value),
+        currentBlock: newBlockValue,
       };
 
       await prisma.armor.update({

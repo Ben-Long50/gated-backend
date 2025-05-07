@@ -189,6 +189,7 @@ export const includeCharacterInventory = {
         },
         orderBy: [{ name: 'asc' }, { grade: 'desc' }],
     },
+    actions: { orderBy: { name: 'asc' } },
 };
 export const equipLinked = {
     weapons: {

@@ -15,16 +15,23 @@ const cyberneticStatServices = {
                 },
             });
             if (userId !== ((_b = (_a = cybernetic === null || cybernetic === void 0 ? void 0 : cybernetic.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
-                throw new Error('You can only perform this action on a weapon your character owns');
+                throw new Error('You can only perform this action on a cybernetic your character owns');
             }
             if (!cybernetic) {
-                throw new Error('Armor not found');
+                throw new Error('Cybernetic not found');
             }
             const statsObject = cybernetic.stats;
-            if (statsObject.currentPower + Number(value) < 0) {
-                throw new Error('Not enough power available');
+            let newPowerValue;
+            if (statsObject.currentPower + Number(value) > statsObject.power) {
+                newPowerValue = statsObject.power;
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: statsObject.currentPower + Number(value) });
+            else if (statsObject.currentPower + Number(value) < 0) {
+                newPowerValue = 0;
+            }
+            else {
+                newPowerValue = statsObject.currentPower + Number(value);
+            }
+            const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: newPowerValue });
             await prisma.cybernetic.update({
                 where: {
                     id: Number(cyberneticId),

@@ -160,7 +160,7 @@ export const destructureLinkReference = (item: ItemWithLinkReference) => {
 export const destructureInventory = (inventory: CharacterInventory) => {
   const destructuredInventory = Object.fromEntries(
     Object.entries(inventory).map(([key, value]) => {
-      if (Array.isArray(value)) {
+      if (Array.isArray(value) && key !== 'actions') {
         return [key, value.map((item) => destructureLinkReference(item))];
       } else {
         return [key, value];

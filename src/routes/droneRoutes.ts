@@ -1,6 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import droneController from '../controllers/droneController.js';
+import droneStatController from '../controllers/droneStatController.js';
 
 const router = express.Router();
 
@@ -17,6 +18,18 @@ router.post(
   authentication.authenticate,
   authentication.authenticateAdmin,
   droneController.createOrUpdateDrone,
+);
+
+router.patch(
+  '/drones/:droneId/stats/currentHull',
+  authentication.authenticate,
+  droneStatController.editDroneHull,
+);
+
+router.patch(
+  '/drones/:droneId/stats/currentPower',
+  authentication.authenticate,
+  droneStatController.editDronePower,
 );
 
 router.put(

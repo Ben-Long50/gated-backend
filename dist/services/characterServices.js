@@ -18,6 +18,7 @@ import vehicleServices from './vehicleServices.js';
 import itemServices from './itemServices.js';
 import modificationServices from './modificationServices.js';
 import { destructureInventory, } from '../utils/destructureItemLinks.js';
+import droneServices from './droneServices.js';
 const characterServices = {
     getCharacters: async (userId) => {
         try {
@@ -64,6 +65,7 @@ const characterServices = {
                             vehicles: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                             items: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            drones: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
                         },
                     },
                     characterInventory: {
@@ -117,43 +119,6 @@ const characterServices = {
             throw new Error('Failed to switch active character');
         }
     },
-    // getEquippedItems: async (characterId: string, inventoryId: string) => {
-    //   try {
-    //     const equipment = await prisma.characterInventory.findUnique({
-    //       where: { characterId: Number(characterId), id: Number(inventoryId) },
-    //       select: {
-    //         weapons: {
-    //           where: { equipped: true },
-    //           include: { keywords: { include: { keyword: true } } },
-    //           orderBy: { name: 'asc' },
-    //         },
-    //         armor: {
-    //           where: { equipped: true },
-    //           include: { keywords: { include: { keyword: true } } },
-    //           orderBy: { name: 'asc' },
-    //         },
-    //         cybernetics: {
-    //           where: { equipped: true },
-    //           include: {
-    //             keywords: { include: { keyword: true } },
-    //             actions: true,
-    //           },
-    //           orderBy: { name: 'asc' },
-    //         },
-    //         actions: true,
-    //         items: {
-    //           where: { equipped: true },
-    //           include: { actions: true },
-    //           orderBy: { name: 'asc' },
-    //         },
-    //       },
-    //     });
-    //     return equipment;
-    //   } catch (error) {
-    //     console.error(error);
-    //     throw new Error('Failed to fetch character equipment');
-    //   }
-    // },
     toggleEquipment: async (inventoryId, itemId, category) => {
         try {
             const categories = [
@@ -321,6 +286,7 @@ const characterServices = {
                 'vehicles',
                 'modifications',
                 'items',
+                'drones',
             ];
             if (!categories.includes(category)) {
                 throw new Error(`Invalid category: ${category}`);
@@ -371,6 +337,9 @@ const characterServices = {
             if (formData.vehicles.length > 0) {
                 vehicleServices.createCharacterVehicleCopy(inventoryId, formData.vehicles);
             }
+            if (formData.drones.length > 0) {
+                droneServices.createCharacterDroneCopy(inventoryId, formData.drones);
+            }
             if (formData.modifications.length > 0) {
                 modificationServices.createCharacterModificationCopy(inventoryId, formData.modifications);
             }
@@ -408,6 +377,9 @@ const characterServices = {
                         set: [],
                     },
                     items: {
+                        set: [],
+                    },
+                    drones: {
                         set: [],
                     },
                 },
