@@ -3,6 +3,7 @@ import characterServices from '../services/characterServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import cartServices from '../services/cartServices.js';
 
 const characterController = {
   getCharacters: async (req: Request, res: Response) => {
@@ -57,20 +58,6 @@ const characterController = {
     }
   },
 
-  // getEquippedItems: async (req: Request, res: Response) => {
-  //   try {
-  //     const equipment = await characterServices.getEquippedItems(
-  //       req.params.characterId,
-  //       req.params.inventoryId,
-  //     );
-  //     res.status(200).json(equipment);
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       res.status(500).json({ error: error.message });
-  //     }
-  //   }
-  // },
-
   toggleEquipment: async (req: Request, res: Response) => {
     try {
       await characterServices.toggleEquipment(
@@ -86,12 +73,60 @@ const characterController = {
 
   editCart: async (req: Request, res: Response) => {
     try {
-      await characterServices.editCart(
-        req.params.characterId,
-        req.params.cartId,
-        req.body.category,
-        req.body.itemId,
-      );
+      switch (req.body.category) {
+        case 'weapons':
+          await cartServices.editCartWeapon(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        case 'armor':
+          await cartServices.editCartArmor(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        case 'cybernetics':
+          await cartServices.editCartCybernetic(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        case 'vehicles':
+          await cartServices.editCartVehicle(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        case 'drones':
+          await cartServices.editCartDrone(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        case 'modifications':
+          await cartServices.editCartModification(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        case 'items':
+          await cartServices.editCartItem(
+            Number(req.params.cartId),
+            Number(req.body.itemId),
+            Number(req.body.value),
+          );
+          break;
+        default:
+          throw new Error('Incompatible category provided');
+      }
+
       res.status(200).json({ message: 'Successfully added item to cart' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -101,11 +136,10 @@ const characterController = {
   completePurchase: async (req: Request, res: Response) => {
     try {
       await characterServices.addToInventory(
-        req.params.characterId,
-        req.params.inventoryId,
-        req.body,
+        Number(req.params.characterId),
+        Number(req.params.inventoryId),
       );
-      await characterServices.clearCart(req.params.characterId);
+      await characterServices.clearCart(Number(req.params.characterId));
       res.status(200).json({ message: 'Purchase completed' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -114,7 +148,7 @@ const characterController = {
 
   clearCart: async (req: Request, res: Response) => {
     try {
-      await characterServices.clearCart(req.params.characterId);
+      await characterServices.clearCart(Number(req.params.characterId));
       res.status(200).json({ message: 'Cart cleared' });
     } catch (error) {}
   },

@@ -74,7 +74,7 @@ const modificationServices = {
                     },
                 });
             }
-            const { id, vehicleLinkId, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "vehicleLinkId", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
+            const { id, vehicleLinkId, droneLinkId, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "vehicleLinkId", "droneLinkId", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
             await enforceSingularLinking(id, undefined, undefined, undefined, actionIds, undefined);
             const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,

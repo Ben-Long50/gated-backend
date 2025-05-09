@@ -198,8 +198,12 @@ const cyberneticServices = {
   },
 
   createCharacterCyberneticCopy: async (
-    inventoryId: string,
-    cyberneticList: { cyberneticId: number; price: number; quantity: number }[],
+    inventoryId: number,
+    cyberneticList: {
+      cyberneticId: number;
+      price: number | null;
+      quantity: number;
+    }[],
   ) => {
     const cyberneticIds = cyberneticList?.map(
       (cybernetic) => cybernetic.cyberneticId,

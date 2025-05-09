@@ -177,16 +177,93 @@ model Character {
 }
 
 model CharacterCart {
-  id            Int            @id @default(autoincrement())
-  character     Character?     @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId   Int?           @unique
-  weapons       Weapon[]
-  armor         Armor[]
-  cybernetics   Cybernetic[]
-  vehicles      Vehicle[]
-  drones        Drone[]
-  modifications Modification[]
-  items         Item[]
+  id            Int                        @id @default(autoincrement())
+  character     Character?                 @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId   Int?                       @unique
+  weapons       CartWeaponRelation[]
+  armor         CartArmorRelation[]
+  cybernetics   CartCyberneticRelation[]
+  vehicles      CartVehicleRelation[]
+  drones        CartDroneRelation[]
+  modifications CartModificationRelation[]
+  items         CartItemRelation[]
+}
+
+model CartWeaponRelation {
+  id              Int            @id @default(autoincrement())
+  weapon          Weapon         @relation(fields: [weaponId], references: [id], onDelete: Cascade)
+  weaponId        Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, weaponId])
+}
+
+model CartArmorRelation {
+  id              Int            @id @default(autoincrement())
+  armor           Armor          @relation(fields: [armorId], references: [id], onDelete: Cascade)
+  armorId         Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, armorId])
+}
+
+model CartCyberneticRelation {
+  id              Int            @id @default(autoincrement())
+  cybernetic      Cybernetic     @relation(fields: [cyberneticId], references: [id], onDelete: Cascade)
+  cyberneticId    Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, cyberneticId])
+}
+
+model CartVehicleRelation {
+  id              Int            @id @default(autoincrement())
+  vehicle         Vehicle        @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicleId       Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, vehicleId])
+}
+
+model CartDroneRelation {
+  id              Int            @id @default(autoincrement())
+  drone           Drone          @relation(fields: [droneId], references: [id], onDelete: Cascade)
+  droneId         Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, droneId])
+}
+
+model CartModificationRelation {
+  id              Int            @id @default(autoincrement())
+  modification    Modification   @relation(fields: [modificationId], references: [id], onDelete: Cascade)
+  modificationId  Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, modificationId])
+}
+
+model CartItemRelation {
+  id              Int            @id @default(autoincrement())
+  item            Item           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId          Int
+  quantity        Int            @default(1)
+  CharacterCart   CharacterCart? @relation(fields: [characterCartId], references: [id])
+  characterCartId Int?
+
+  @@unique([characterCartId, itemId])
 }
 
 model CharacterInventory {
@@ -286,7 +363,6 @@ model Weapon {
   stats                 Json
   price                 Int?
   equipped              Boolean?                 @default(false)
-  characterCart         CharacterCart[]
   characterInventory    CharacterInventory?      @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId  Int?
   baseWeaponId          Int?
@@ -304,6 +380,7 @@ model Weapon {
   vehicleLinkId         Int?
   droneLink             DroneLinkReference?      @relation(fields: [droneLinkId], references: [id], onDelete: Cascade)
   droneLinkId           Int?
+  cartRelation          CartWeaponRelation[]
 }
 
 model WeaponLinkReference {
@@ -326,7 +403,6 @@ model Armor {
   stats                Json
   price                Int?
   equipped             Boolean?                 @default(false)
-  characterCart        CharacterCart[]
   characterInventory   CharacterInventory?      @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseArmorId          Int?
@@ -342,6 +418,7 @@ model Armor {
   cyberneticLinkId     Int?
   vehicleLink          VehicleLinkReference?    @relation(fields: [vehicleLinkId], references: [id], onDelete: Cascade)
   vehicleLinkId        Int?
+  cartRelation         CartArmorRelation[]
 }
 
 model ArmorLinkReference {
@@ -365,7 +442,6 @@ model Cybernetic {
   description             String
   price                   Int?
   equipped                Boolean?                 @default(false)
-  characterCart           CharacterCart[]
   characterInventory      CharacterInventory?      @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId    Int?
   baseCyberneticId        Int?
@@ -379,6 +455,7 @@ model Cybernetic {
   armorLinkId             Int?
   cyberneticLink          CyberneticLinkReference? @relation(fields: [cyberneticLinkId], references: [id], onDelete: Cascade)
   cyberneticLinkId        Int?
+  cartRelation            CartCyberneticRelation[]
 }
 
 model CyberneticLinkReference {
@@ -432,12 +509,12 @@ model Vehicle {
   price                Int?
   equipped             Boolean               @default(false)
   vehicleLinkReference VehicleLinkReference? @relation("PrimaryLink")
-  characterCart        CharacterCart[]
   characterInventory   CharacterInventory?   @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseVehicleId        Int?
   conditions           ConditionReference[]
   keywords             KeywordReference[]
+  cartRelation         CartVehicleRelation[]
 }
 
 model VehicleLinkReference {
@@ -461,12 +538,12 @@ model Drone {
   price                Int?
   equipped             Boolean              @default(false)
   droneLinkReference   DroneLinkReference?  @relation("PrimaryLink")
-  characterCart        CharacterCart[]
   characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseDroneId          Int?
   conditions           ConditionReference[]
   keywords             KeywordReference[]
+  cartRelation         CartDroneRelation[]
 }
 
 model DroneLinkReference {
@@ -494,11 +571,11 @@ model Modification {
   vehicleLinkId             Int?
   droneLink                 DroneLinkReference?        @relation(fields: [droneLinkId], references: [id], onDelete: Cascade)
   droneLinkId               Int?
-  characterCart             CharacterCart[]
   characterInventory        CharacterInventory?        @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId      Int?
   baseModificationId        Int?
   keywords                  KeywordReference[]
+  cartRelation              CartModificationRelation[]
 }
 
 model ModificationLinkReference {
@@ -519,7 +596,6 @@ model Item {
   category             ItemCategory
   description          String?
   stats                Json?
-  characterCart        CharacterCart[]
   characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseItemId           Int?
@@ -527,6 +603,7 @@ model Item {
   modifiers            Modifier[]
   keywords             KeywordReference[]
   itemLinkReference    ItemLinkReference?   @relation("PrimaryLink")
+  cartRelation         CartItemRelation[]
 }
 
 model ItemLinkReference {

@@ -200,7 +200,7 @@ const weaponServices = {
   },
 
   createCharacterWeaponCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     weaponList: { weaponId: number; price: number | null; quantity: number }[],
   ) => {
     const weaponIds = weaponList?.map((weapon) => weapon.weaponId);

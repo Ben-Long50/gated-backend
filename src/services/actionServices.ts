@@ -69,7 +69,7 @@ const actionServices = {
   },
 
   createCharacterActionCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     actionList: { actionId: number; quantity: number }[],
   ) => {
     const actionIds = actionList?.map((action) => action.actionId);

@@ -181,7 +181,7 @@ const armorServices = {
   },
 
   createCharacterArmorCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     armorList: { armorId: number; price: number | null; quantity: number }[],
   ) => {
     const armorIds = armorList?.map((armor) => armor.armorId);

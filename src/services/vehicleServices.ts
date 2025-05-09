@@ -190,7 +190,7 @@ const vehicleServices = {
   },
 
   createCharacterVehicleCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     vehicleList: {
       vehicleId: number;
       price: number | null;

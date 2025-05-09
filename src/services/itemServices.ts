@@ -154,7 +154,7 @@ const itemServices = {
   },
 
   createCharacterItemCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     itemList: { itemId: number; price: number | null; quantity: number }[],
   ) => {
     const itemIds = itemList?.map((item) => item.itemId);

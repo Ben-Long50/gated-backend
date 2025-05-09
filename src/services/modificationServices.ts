@@ -71,6 +71,7 @@ const modificationServices = {
       const {
         id,
         vehicleLinkId,
+        droneLinkId,
         actionIds,
         keywordIds,
         stats,
@@ -157,7 +158,7 @@ const modificationServices = {
   },
 
   createCharacterModificationCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     modificationList: {
       modificationId: number;
       price: number | null;

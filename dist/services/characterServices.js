@@ -59,13 +59,34 @@ const characterServices = {
                     perks: { include: { modifiers: { include: { action: true } } } },
                     characterCart: {
                         include: {
-                            weapons: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            armor: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            cybernetics: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            vehicles: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            items: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
-                            drones: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
+                            weapons: {
+                                include: { weapon: true },
+                                orderBy: { weapon: { name: 'asc' } },
+                            },
+                            armor: {
+                                include: { armor: true },
+                                orderBy: { armor: { name: 'asc' } },
+                            },
+                            cybernetics: {
+                                include: { cybernetic: true },
+                                orderBy: { cybernetic: { name: 'asc' } },
+                            },
+                            vehicles: {
+                                include: { vehicle: true },
+                                orderBy: { vehicle: { name: 'asc' } },
+                            },
+                            modifications: {
+                                include: { modification: true },
+                                orderBy: { modification: { name: 'asc' } },
+                            },
+                            items: {
+                                include: { item: true },
+                                orderBy: { item: { name: 'asc' } },
+                            },
+                            drones: {
+                                include: { drone: true },
+                                orderBy: { drone: { name: 'asc' } },
+                            },
                         },
                     },
                     characterInventory: {
@@ -279,74 +300,101 @@ const characterServices = {
             throw new Error('Failed to create character inventory');
         }
     },
-    editCart: async (characterId, cartId, category, itemId) => {
-        try {
-            const categories = [
-                'weapons',
-                'armor',
-                'cybernetics',
-                'vehicles',
-                'modifications',
-                'items',
-                'drones',
-            ];
-            if (!categories.includes(category)) {
-                throw new Error(`Invalid category: ${category}`);
-            }
-            const cart = await prisma.characterCart.findUnique({
-                where: { id: Number(cartId), characterId: Number(characterId) },
-                select: { [category]: { select: { id: true } } },
-            });
-            if (!cart) {
-                throw new Error('Cart not found');
-            }
-            const itemExists = cart[category].some((item) => item.id === Number(itemId));
-            const data = itemExists
-                ? { [category]: { disconnect: { id: Number(itemId) } } }
-                : { [category]: { connect: { id: Number(itemId) } } };
-            await prisma.characterCart.update({
-                where: { id: Number(cartId) },
-                data,
-            });
-        }
-        catch (error) {
-            console.error(error);
-            throw new Error('Failed to add item to cart');
-        }
-    },
-    addToInventory: async (characterId, inventoryId, formData) => {
+    addToInventory: async (characterId, inventoryId) => {
         var _a;
         try {
             const profits = ((_a = (await prisma.character.findUnique({
                 where: { id: Number(characterId) },
                 select: { profits: true },
             }))) === null || _a === void 0 ? void 0 : _a.profits) || 0;
-            const totalPrice = Object.values(formData)
-                .flatMap((category) => category.map((item) => item.price * item.quantity))
-                .reduce((sum, price) => sum + price, 0);
+            const cart = await prisma.characterCart.findUnique({
+                where: { characterId },
+                select: {
+                    weapons: {
+                        include: { weapon: { select: { id: true, price: true } } },
+                    },
+                    armor: { include: { armor: { select: { id: true, price: true } } } },
+                    cybernetics: {
+                        include: { cybernetic: { select: { id: true, price: true } } },
+                    },
+                    vehicles: {
+                        include: { vehicle: { select: { id: true, price: true } } },
+                    },
+                    drones: { include: { drone: { select: { id: true, price: true } } } },
+                    modifications: {
+                        include: { modification: { select: { id: true, price: true } } },
+                    },
+                    items: { include: { item: { select: { id: true, price: true } } } },
+                },
+            });
+            const weapons = (cart === null || cart === void 0 ? void 0 : cart.weapons.map((weapon) => ({
+                weaponId: weapon.weapon.id,
+                quantity: weapon.quantity,
+                price: weapon.weapon.price,
+            }))) || [];
+            const armor = (cart === null || cart === void 0 ? void 0 : cart.armor.map((armor) => ({
+                armorId: armor.armor.id,
+                quantity: armor.quantity,
+                price: armor.armor.price,
+            }))) || [];
+            const cybernetics = (cart === null || cart === void 0 ? void 0 : cart.cybernetics.map((cybernetic) => ({
+                cyberneticId: cybernetic.cybernetic.id,
+                quantity: cybernetic.quantity,
+                price: cybernetic.cybernetic.price,
+            }))) || [];
+            const vehicles = (cart === null || cart === void 0 ? void 0 : cart.vehicles.map((vehicle) => ({
+                vehicleId: vehicle.vehicle.id,
+                quantity: vehicle.quantity,
+                price: vehicle.vehicle.price,
+            }))) || [];
+            const drones = (cart === null || cart === void 0 ? void 0 : cart.drones.map((drone) => ({
+                droneId: drone.drone.id,
+                quantity: drone.quantity,
+                price: drone.drone.price,
+            }))) || [];
+            const modifications = (cart === null || cart === void 0 ? void 0 : cart.modifications.map((modification) => ({
+                modificationId: modification.modification.id,
+                quantity: modification.quantity,
+                price: modification.modification.price,
+            }))) || [];
+            const items = (cart === null || cart === void 0 ? void 0 : cart.items.map((item) => ({
+                itemId: item.item.id,
+                quantity: item.quantity,
+                price: item.item.price,
+            }))) || [];
+            // @ts-ignore
+            const totalPrice = Object.values(cart)
+                .flat()
+                .map((reference) => {
+                const targetObject = Object.values(reference).find((item) => typeof item === 'object');
+                return (targetObject === null || targetObject === void 0 ? void 0 : targetObject.price)
+                    ? reference.quantity * targetObject.price
+                    : 0;
+            })
+                .reduce((sum, item) => sum + item, 0);
             if (totalPrice > profits) {
                 throw new Error('You do not have enough profits to complete this purchase');
             }
-            if (formData.weapons.length > 0) {
-                weaponServices.createCharacterWeaponCopy(inventoryId, formData.weapons);
+            if (weapons.length > 0) {
+                weaponServices.createCharacterWeaponCopy(inventoryId, weapons);
             }
-            if (formData.armor.length > 0) {
-                armorServices.createCharacterArmorCopy(inventoryId, formData.armor);
+            if (armor.length > 0) {
+                armorServices.createCharacterArmorCopy(inventoryId, armor);
             }
-            if (formData.cybernetics.length > 0) {
-                cyberneticServices.createCharacterCyberneticCopy(inventoryId, formData.cybernetics);
+            if (cybernetics.length > 0) {
+                cyberneticServices.createCharacterCyberneticCopy(inventoryId, cybernetics);
             }
-            if (formData.vehicles.length > 0) {
-                vehicleServices.createCharacterVehicleCopy(inventoryId, formData.vehicles);
+            if (vehicles.length > 0) {
+                vehicleServices.createCharacterVehicleCopy(inventoryId, vehicles);
             }
-            if (formData.drones.length > 0) {
-                droneServices.createCharacterDroneCopy(inventoryId, formData.drones);
+            if (drones.length > 0) {
+                droneServices.createCharacterDroneCopy(inventoryId, drones);
             }
-            if (formData.modifications.length > 0) {
-                modificationServices.createCharacterModificationCopy(inventoryId, formData.modifications);
+            if (modifications.length > 0) {
+                modificationServices.createCharacterModificationCopy(inventoryId, modifications);
             }
-            if (formData.items.length > 0) {
-                itemServices.createCharacterItemCopy(inventoryId, formData.items);
+            if (items.length > 0) {
+                itemServices.createCharacterItemCopy(inventoryId, items);
             }
             await prisma.character.update({
                 where: { id: Number(characterId) },
@@ -355,7 +403,7 @@ const characterServices = {
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to items to inventory');
+            throw new Error('Failed to add items to inventory');
         }
     },
     clearCart: async (characterId) => {
@@ -364,25 +412,25 @@ const characterServices = {
                 where: { characterId: Number(characterId) },
                 data: {
                     weapons: {
-                        set: [],
+                        deleteMany: {},
                     },
                     armor: {
-                        set: [],
+                        deleteMany: {},
                     },
                     cybernetics: {
-                        set: [],
+                        deleteMany: {},
                     },
                     vehicles: {
-                        set: [],
-                    },
-                    modifications: {
-                        set: [],
-                    },
-                    items: {
-                        set: [],
+                        deleteMany: {},
                     },
                     drones: {
-                        set: [],
+                        deleteMany: {},
+                    },
+                    modifications: {
+                        deleteMany: {},
+                    },
+                    items: {
+                        deleteMany: {},
                     },
                 },
             });

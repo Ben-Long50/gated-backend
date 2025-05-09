@@ -10,6 +10,7 @@ export interface Modification {
   price: number | null;
   actionIds?: number[];
   vehicleLinkId: number | null;
+  droneLinkId: number | null;
   modificationLinkReferenceId?: number | null;
   characterInventoryId: number | null;
   baseModificationId: number | null;

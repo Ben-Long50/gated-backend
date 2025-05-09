@@ -7,7 +7,7 @@ import { LinkReferencePlaylaods } from '../types/linkReferencePayloads';
 
 export const createLinkedCopies = async (
   itemReference: LinkReferencePlaylaods,
-  inventoryId: string,
+  inventoryId: number,
   quantity: number,
 ) => {
   let weaponIds = [] as number[];

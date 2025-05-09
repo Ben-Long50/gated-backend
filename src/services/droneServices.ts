@@ -176,7 +176,7 @@ const droneServices = {
   },
 
   createCharacterDroneCopy: async (
-    inventoryId: string,
+    inventoryId: number,
     droneList: {
       droneId: number;
       price: number | null;
