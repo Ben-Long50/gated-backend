@@ -160,6 +160,7 @@ model Character {
   firstName          String
   lastName           String?
   playerCharacter    Boolean              @default(false)
+  preferences        Json?
   user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   active             Boolean              @default(false)
   perks              Perk[]               @relation("CharacterToPerk")

@@ -72,7 +72,7 @@ const userController = {
             .escape()
             .notEmpty()
             .withMessage('The email field cannot be empty')
-            .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
+            .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
             .withMessage('The email input must be in a valid email format')
             .custom(async (value) => {
             const user = await userServices.getUserByEmail(value);
@@ -143,7 +143,7 @@ const userController = {
         body('email', 'The email input must be in a valid email format')
             .trim()
             .escape()
-            .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
+            .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
             .custom(async (value, { req }) => {
             if (value !== req.user.email && req.user.facebookId) {
                 throw new Error('You cannot change your email when using an account linked to Facebook');
