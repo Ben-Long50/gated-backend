@@ -292,6 +292,7 @@ model Item {
 
   @@index([itemType])
   @@index([characterInventoryId])
+  @@index([itemType, characterInventoryId])
 }
 
 model ItemLinkReference {

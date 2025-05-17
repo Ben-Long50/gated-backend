@@ -32,7 +32,7 @@ const itemServices = {
                         orderBy: { keyword: { name: 'asc' } },
                     },
                 },
-                orderBy: { name: 'asc' },
+                orderBy: { id: 'asc' },
             });
             return items;
         }
