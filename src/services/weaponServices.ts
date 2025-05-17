@@ -9,6 +9,7 @@ const weaponServices = {
         where: {
           itemType: 'weapon',
           characterInventoryId: null,
+          itemLinkId: null,
         },
         include: {
           itemLinkReference: { include: { items: true, actions: true } },

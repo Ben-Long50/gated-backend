@@ -6,7 +6,11 @@ const armorServices = {
   getArmor: async () => {
     try {
       const armor = await prisma.item.findMany({
-        where: { itemType: 'armor', characterInventoryId: null },
+        where: {
+          itemType: 'armor',
+          characterInventoryId: null,
+          itemLinkId: null,
+        },
         include: {
           itemLinkReference: { include: { items: true, actions: true } },
           keywords: {

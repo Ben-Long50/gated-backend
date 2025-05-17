@@ -10,13 +10,16 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const armorServices = {
     getArmor: async () => {
         try {
             const armor = await prisma.item.findMany({
-                where: { itemType: 'armor', characterInventoryId: null },
+                where: {
+                    itemType: 'armor',
+                    characterInventoryId: null,
+                    itemLinkId: null,
+                },
                 include: {
                     itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {

@@ -10,8 +10,6 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-// import { WeaponStats } from '../types/weapon.js';
-// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const weaponServices = {
     getWeapons: async () => {
@@ -20,6 +18,7 @@ const weaponServices = {
                 where: {
                     itemType: 'weapon',
                     characterInventoryId: null,
+                    itemLinkId: null,
                 },
                 include: {
                     itemLinkReference: { include: { items: true, actions: true } },

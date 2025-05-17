@@ -10,8 +10,6 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-// import { CyberneticStats } from '../types/cybernetic.js';
-// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const cyberneticServices = {
     getCybernetics: async () => {
