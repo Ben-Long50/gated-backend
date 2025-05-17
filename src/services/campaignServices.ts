@@ -39,6 +39,11 @@ const campaignServices = {
           factions: { include: { affiliations: true } },
           characters: {
             include: {
+              campaign: {
+                select: {
+                  ownerId: true,
+                },
+              },
               perks: {
                 include: { modifiers: { include: { action: true } } },
               },

@@ -16,7 +16,13 @@ const characterServices = {
         where: {
           userId,
         },
+
         include: {
+          campaign: {
+            select: {
+              ownerId: true,
+            },
+          },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterInventory: {
             include: includeCharacterInventory,
@@ -45,7 +51,12 @@ const characterServices = {
         },
         include: {
           campaign: {
-            select: { characters: true, gangs: true, factions: true },
+            select: {
+              characters: true,
+              gangs: true,
+              factions: true,
+              ownerId: true,
+            },
           },
           affiliations: { include: { factions: true, characters: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
@@ -72,7 +83,11 @@ const characterServices = {
           id: Number(characterId),
         },
         include: {
-          campaign: { select: { name: true, id: true } },
+          campaign: {
+            select: {
+              ownerId: true,
+            },
+          },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterInventory: {
             include: includeCharacterInventory,
