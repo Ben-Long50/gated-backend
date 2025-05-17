@@ -1,6 +1,4 @@
 import prisma from '../config/database.js';
-// import { WeaponStats } from '../types/weapon.js';
-// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 import { Item } from '../types/item.js';
 

@@ -1,6 +1,5 @@
 import prisma from '../config/database.js';
 import { Item } from '../types/item.js';
-// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 
 const modificationServices = {
