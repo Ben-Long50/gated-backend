@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 import droneServices from '../services/droneServices.js';
 
 const droneController = {
@@ -10,9 +9,7 @@ const droneController = {
     try {
       const drones = await droneServices.getDrones();
 
-      const droneData = drones.map((drone) => destructureLinkReference(drone));
-
-      res.status(200).json(droneData);
+      res.status(200).json(drones);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -26,9 +23,7 @@ const droneController = {
         throw new Error('Failed to find drone');
       }
 
-      const droneData = destructureLinkReference(drone);
-
-      res.status(200).json(droneData);
+      res.status(200).json(drone);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

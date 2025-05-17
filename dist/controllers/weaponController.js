@@ -2,13 +2,11 @@ import weaponServices from '../services/weaponServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 const weaponController = {
     getWeapons: async (_req, res) => {
         try {
             const weapons = await weaponServices.getWeapons();
-            const weaponData = weapons.map((weapon) => destructureLinkReference(weapon));
-            res.status(200).json(weaponData);
+            res.status(200).json(weapons);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
@@ -17,8 +15,7 @@ const weaponController = {
     getWeaponById: async (req, res) => {
         try {
             const weapon = await weaponServices.getWeaponById(req.params.weaponId);
-            const weaponData = destructureLinkReference(weapon);
-            res.status(200).json(weaponData);
+            res.status(200).json(weapon);
         }
         catch (error) {
             res.status(500).json({ error: error.message });

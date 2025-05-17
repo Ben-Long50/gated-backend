@@ -2,13 +2,11 @@ import armorServices from '../services/armorServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 const armorController = {
     getArmor: async (_req, res) => {
         try {
             const armors = await armorServices.getArmor();
-            const armorData = armors.map((armor) => destructureLinkReference(armor));
-            res.status(200).json(armorData);
+            res.status(200).json(armors);
         }
         catch (error) {
             res.status(500).json({ error: error.message });
@@ -17,8 +15,7 @@ const armorController = {
     getArmorById: async (req, res) => {
         try {
             const armor = await armorServices.getArmorById(req.params.armorId);
-            const armorData = destructureLinkReference(armor);
-            res.status(200).json(armorData);
+            res.status(200).json(armor);
         }
         catch (error) {
             res.status(500).json({ error: error.message });

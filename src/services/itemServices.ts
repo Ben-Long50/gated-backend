@@ -1,17 +1,25 @@
 import prisma from '../config/database.js';
-import { Item, ItemStats } from '../types/item.js';
+import { Item, Stats } from '../types/item.js';
+import addVariableStats from '../utils/addVariableStats.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { ItemType } from '@prisma/client';
+import weaponServices from './weaponServices.js';
+import armorServices from './armorServices.js';
+import cyberneticServices from './cyberneticServices.js';
+import vehicleServices from './vehicleServices.js';
+import droneServices from './droneServices.js';
+import modificationServices from './modificationServices.js';
 
 const itemServices = {
   getItems: async () => {
     try {
+      const miscTypes = ['consumable', 'reusable'] as ItemType[];
+
       const items = await prisma.item.findMany({
-        where: { characterInventory: null },
+        where: { itemType: { in: miscTypes }, characterInventory: null },
         include: {
-          itemLinkReference: {
-            include: { actions: { orderBy: { name: 'asc' } } },
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -29,12 +37,12 @@ const itemServices = {
 
   getItemById: async (itemId: string) => {
     try {
+      const miscTypes = ['consumable', 'reusable'] as ItemType[];
+
       const item = await prisma.item.findUnique({
-        where: { id: Number(itemId) },
+        where: { id: Number(itemId), itemType: { in: miscTypes } },
         include: {
-          itemLinkReference: {
-            include: { actions: { orderBy: { name: 'asc' } } },
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -50,9 +58,11 @@ const itemServices = {
   },
 
   createOrUpdateItem: async (formData: Item) => {
+    const miscTypes = ['consumable', 'reusable'] as ItemType[];
+
     try {
       const item = await prisma.item.findUnique({
-        where: { id: formData.id },
+        where: { id: formData.id ?? 0, itemType: { in: miscTypes } },
         include: {
           keywords: { select: { id: true } },
         },
@@ -68,6 +78,8 @@ const itemServices = {
 
       const {
         id,
+        itemLinkId,
+        itemIds,
         actionIds,
         keywordIds,
         stats,
@@ -75,14 +87,7 @@ const itemServices = {
         ...data
       } = formData;
 
-      await enforceSingularLinking(
-        id,
-        undefined,
-        undefined,
-        undefined,
-        actionIds,
-        undefined,
-      );
+      await enforceSingularLinking(id, itemIds, actionIds);
 
       const keywordData =
         keywordIds?.map(
@@ -93,7 +98,7 @@ const itemServices = {
         ) || [];
 
       const newItem = await prisma.item.upsert({
-        where: { id: formData.id },
+        where: { id: id ?? 0, itemType: { in: miscTypes } },
         update: {
           ...data,
           stats: {
@@ -101,13 +106,19 @@ const itemServices = {
           },
           itemLinkReference: {
             upsert: {
-              where: { itemId: id },
+              where: { itemId: id ?? 0 },
               update: {
+                items: {
+                  set: itemIds?.map((id) => ({ id })),
+                },
                 actions: {
                   set: actionIds?.map((id) => ({ id })),
                 },
               },
               create: {
+                items: {
+                  connect: itemIds?.map((id) => ({ id })),
+                },
                 actions: {
                   connect: actionIds?.map((id) => ({ id })),
                 },
@@ -128,8 +139,12 @@ const itemServices = {
           stats: {
             ...stats,
           },
+          itemType: 'reusable',
           itemLinkReference: {
             create: {
+              items: {
+                connect: itemIds?.map((id) => ({ id })),
+              },
               actions: {
                 connect: actionIds?.map((id) => ({ id })),
               },
@@ -162,7 +177,7 @@ const itemServices = {
     const items = await prisma.item.findMany({
       where: { id: { in: itemIds } },
       include: {
-        itemLinkReference: { include: { actions: true } },
+        itemLinkReference: { include: { items: true, actions: true } },
         keywords: { include: { keyword: true } },
       },
     });
@@ -174,17 +189,11 @@ const itemServices = {
 
       if (!itemDetails) continue;
 
-      let stats = { ...(itemDetails.stats as ItemStats) };
+      const stats = itemDetails.stats
+        ? addVariableStats({ ...(itemDetails.stats as Stats) })
+        : null;
 
-      if (stats?.power && !stats?.currentPower) {
-        stats = { ...stats, currentPower: stats.power };
-      }
-
-      if (stats?.power && !stats?.currentPower) {
-        stats = { ...stats, currentPower: stats.power };
-      }
-
-      const { actionIds } = await createLinkedCopies(
+      const { itemIds, actionIds } = await createLinkedCopies(
         itemDetails.itemLinkReference,
         inventoryId,
         quantity,
@@ -201,6 +210,7 @@ const itemServices = {
       const itemData = {
         ...rest,
         stats,
+        itemIds,
         actionIds,
         keywordIds,
         id: 0,
@@ -210,7 +220,33 @@ const itemServices = {
 
       if (itemDetails) {
         for (let i = 0; i < quantity; i++) {
-          promises.push(itemServices.createOrUpdateItem(itemData));
+          switch (itemData.itemType) {
+            case 'weapon':
+              promises.push(weaponServices.createOrUpdateWeapon(itemData));
+              break;
+            case 'armor':
+              promises.push(armorServices.createOrUpdateArmor(itemData));
+              break;
+            case 'cybernetic':
+              promises.push(
+                cyberneticServices.createOrUpdateCybernetic(itemData),
+              );
+              break;
+            case 'vehicle':
+              promises.push(vehicleServices.createOrUpdateVehicle(itemData));
+              break;
+            case 'drone':
+              promises.push(droneServices.createOrUpdateDrone(itemData));
+              break;
+            case 'modification':
+              promises.push(
+                modificationServices.createOrUpdateModification(itemData),
+              );
+              break;
+            default:
+              promises.push(itemServices.createOrUpdateItem(itemData));
+              break;
+          }
         }
       }
     }
@@ -222,9 +258,12 @@ const itemServices = {
 
   deleteItem: async (itemId: string) => {
     try {
+      const miscTypes = ['consumable', 'reusable'] as ItemType[];
+
       await prisma.item.delete({
         where: {
           id: Number(itemId),
+          itemType: { in: miscTypes },
         },
       });
     } catch (error) {
@@ -235,9 +274,12 @@ const itemServices = {
 
   deleteItems: async (itemIds: number[]) => {
     try {
+      const miscTypes = ['consumable', 'reusable'] as ItemType[];
+
       await prisma.item.deleteMany({
         where: {
           id: { in: itemIds },
+          itemType: { in: miscTypes },
         },
       });
     } catch (error) {

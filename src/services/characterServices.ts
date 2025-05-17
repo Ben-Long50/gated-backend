@@ -2,17 +2,12 @@ import prisma from '../config/database.js';
 import { Character } from '../types/character.js';
 import {
   equipLinked,
+  includeCharacterCart,
   includeCharacterInventory,
   unequipLinked,
 } from '../utils/linkQueryStructures.js';
-import weaponServices from './weaponServices.js';
-import armorServices from './armorServices.js';
-import cyberneticServices from './cyberneticServices.js';
-import vehicleServices from './vehicleServices.js';
+import { ItemType } from '@prisma/client';
 import itemServices from './itemServices.js';
-import modificationServices from './modificationServices.js';
-import { destructureInventory } from '../utils/destructureItemLinks.js';
-import droneServices from './droneServices.js';
 
 const characterServices = {
   getCharacters: async (userId: number) => {
@@ -55,36 +50,7 @@ const characterServices = {
           affiliations: { include: { factions: true, characters: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterCart: {
-            include: {
-              weapons: {
-                include: { weapon: true },
-                orderBy: { weapon: { name: 'asc' } },
-              },
-              armor: {
-                include: { armor: true },
-                orderBy: { armor: { name: 'asc' } },
-              },
-              cybernetics: {
-                include: { cybernetic: true },
-                orderBy: { cybernetic: { name: 'asc' } },
-              },
-              vehicles: {
-                include: { vehicle: true },
-                orderBy: { vehicle: { name: 'asc' } },
-              },
-              modifications: {
-                include: { modification: true },
-                orderBy: { modification: { name: 'asc' } },
-              },
-              items: {
-                include: { item: true },
-                orderBy: { item: { name: 'asc' } },
-              },
-              drones: {
-                include: { drone: true },
-                orderBy: { drone: { name: 'asc' } },
-              },
-            },
+            include: includeCharacterCart,
           },
           characterInventory: {
             include: includeCharacterInventory,
@@ -114,14 +80,7 @@ const characterServices = {
         },
       });
 
-      const charaterData = {
-        ...character,
-        characterInventory: character?.characterInventory
-          ? destructureInventory(character.characterInventory)
-          : null,
-      };
-
-      return charaterData;
+      return character;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch character');
@@ -149,122 +108,31 @@ const characterServices = {
   toggleEquipment: async (
     inventoryId: string,
     itemId: string,
-    category: string,
+    category: ItemType,
   ) => {
     try {
-      const categories = [
-        'weapon',
-        'armor',
-        'cybernetic',
-        'item',
-        'vehicle',
-        'drone',
-      ];
-
-      if (!categories.includes(category)) {
-        throw new Error(`Invalid category: ${category}`);
-      }
-
-      const item =
-        // @ts-ignore
-        await prisma[category].findUnique({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          select: { id: true, equipped: true },
-        });
+      const item = await prisma.item.findUnique({
+        where: {
+          id: Number(itemId),
+          itemType: category,
+          characterInventoryId: Number(inventoryId),
+        },
+        select: { id: true, equipped: true },
+      });
 
       if (!item) {
         throw new Error('Item not found');
       }
 
-      if (category === 'cybernetic') {
-        await prisma.cybernetic.update({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          data: {
-            equipped: !item.equipped,
-          },
-        });
+      await prisma.item.update({
+        where: { id: item.id },
+        data: { equipped: item.equipped ? false : true },
+      });
 
-        await prisma.cyberneticLinkReference.update({
-          where: { cyberneticId: item.id },
-          data: item.equipped ? unequipLinked : equipLinked,
-        });
-      }
-
-      if (category === 'weapon') {
-        await prisma.weapon.update({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          data: {
-            equipped: !item.equipped,
-          },
-        });
-
-        await prisma.weaponLinkReference.update({
-          where: { weaponId: item.id },
-          data: item.equipped ? unequipLinked : equipLinked,
-        });
-      }
-
-      if (category === 'armor') {
-        await prisma.armor.update({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          data: {
-            equipped: !item.equipped,
-          },
-        });
-
-        await prisma.armorLinkReference.update({
-          where: { armorId: item.id },
-          data: item.equipped ? unequipLinked : equipLinked,
-        });
-      }
-
-      if (category === 'item') {
-        await prisma.item.update({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          data: {
-            equipped: !item.equipped,
-          },
-        });
-      }
-
-      if (category === 'vehicle') {
-        await prisma.vehicle.update({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          data: {
-            equipped: !item.equipped,
-          },
-        });
-      }
-
-      if (category === 'drone') {
-        await prisma.drone.update({
-          where: {
-            id: Number(itemId),
-            characterInventoryId: Number(inventoryId),
-          },
-          data: {
-            equipped: !item.equipped,
-          },
-        });
-      }
+      await prisma.itemLinkReference.update({
+        where: { itemId: item.id },
+        data: item.equipped ? unequipLinked : equipLinked,
+      });
     } catch (error) {
       console.error(error);
       throw new Error('Failed to toggle equipment');
@@ -332,7 +200,7 @@ const characterServices = {
       const profits =
         (
           await prisma.character.findUnique({
-            where: { id: Number(characterId) },
+            where: { id: characterId },
             select: { profits: true },
           })
         )?.profits || 0;
@@ -340,65 +208,13 @@ const characterServices = {
       const cart = await prisma.characterCart.findUnique({
         where: { characterId },
         select: {
-          weapons: {
-            include: { weapon: { select: { id: true, price: true } } },
+          items: {
+            include: {
+              item: { select: { id: true, price: true, itemType: true } },
+            },
           },
-          armor: { include: { armor: { select: { id: true, price: true } } } },
-          cybernetics: {
-            include: { cybernetic: { select: { id: true, price: true } } },
-          },
-          vehicles: {
-            include: { vehicle: { select: { id: true, price: true } } },
-          },
-          drones: { include: { drone: { select: { id: true, price: true } } } },
-          modifications: {
-            include: { modification: { select: { id: true, price: true } } },
-          },
-          items: { include: { item: { select: { id: true, price: true } } } },
         },
       });
-
-      const weapons =
-        cart?.weapons.map((weapon) => ({
-          weaponId: weapon.weapon.id,
-          quantity: weapon.quantity,
-          price: weapon.weapon.price,
-        })) || [];
-
-      const armor =
-        cart?.armor.map((armor) => ({
-          armorId: armor.armor.id,
-          quantity: armor.quantity,
-          price: armor.armor.price,
-        })) || [];
-
-      const cybernetics =
-        cart?.cybernetics.map((cybernetic) => ({
-          cyberneticId: cybernetic.cybernetic.id,
-          quantity: cybernetic.quantity,
-          price: cybernetic.cybernetic.price,
-        })) || [];
-
-      const vehicles =
-        cart?.vehicles.map((vehicle) => ({
-          vehicleId: vehicle.vehicle.id,
-          quantity: vehicle.quantity,
-          price: vehicle.vehicle.price,
-        })) || [];
-
-      const drones =
-        cart?.drones.map((drone) => ({
-          droneId: drone.drone.id,
-          quantity: drone.quantity,
-          price: drone.drone.price,
-        })) || [];
-
-      const modifications =
-        cart?.modifications.map((modification) => ({
-          modificationId: modification.modification.id,
-          quantity: modification.quantity,
-          price: modification.modification.price,
-        })) || [];
 
       const items =
         cart?.items.map((item) => ({
@@ -407,8 +223,7 @@ const characterServices = {
           price: item.item.price,
         })) || [];
 
-      // @ts-ignore
-      const totalPrice = Object.values(cart)
+      const totalPrice = cart?.items
         .flat()
         .map((reference) => {
           const targetObject = Object.values(reference).find(
@@ -420,36 +235,16 @@ const characterServices = {
         })
         .reduce((sum, item) => sum + item, 0);
 
+      if (!totalPrice) {
+        throw new Error('Failed to calculate total cart price');
+      }
+
       if (totalPrice > profits) {
         throw new Error(
           'You do not have enough profits to complete this purchase',
         );
       }
 
-      if (weapons.length > 0) {
-        weaponServices.createCharacterWeaponCopy(inventoryId, weapons);
-      }
-      if (armor.length > 0) {
-        armorServices.createCharacterArmorCopy(inventoryId, armor);
-      }
-      if (cybernetics.length > 0) {
-        cyberneticServices.createCharacterCyberneticCopy(
-          inventoryId,
-          cybernetics,
-        );
-      }
-      if (vehicles.length > 0) {
-        vehicleServices.createCharacterVehicleCopy(inventoryId, vehicles);
-      }
-      if (drones.length > 0) {
-        droneServices.createCharacterDroneCopy(inventoryId, drones);
-      }
-      if (modifications.length > 0) {
-        modificationServices.createCharacterModificationCopy(
-          inventoryId,
-          modifications,
-        );
-      }
       if (items.length > 0) {
         itemServices.createCharacterItemCopy(inventoryId, items);
       }
@@ -469,24 +264,6 @@ const characterServices = {
       await prisma.characterCart.update({
         where: { characterId: Number(characterId) },
         data: {
-          weapons: {
-            deleteMany: {},
-          },
-          armor: {
-            deleteMany: {},
-          },
-          cybernetics: {
-            deleteMany: {},
-          },
-          vehicles: {
-            deleteMany: {},
-          },
-          drones: {
-            deleteMany: {},
-          },
-          modifications: {
-            deleteMany: {},
-          },
           items: {
             deleteMany: {},
           },

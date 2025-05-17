@@ -3,9 +3,10 @@ const cyberneticStatServices = {
     editCyberneticPower: async (cyberneticId, value, userId) => {
         var _a, _b;
         try {
-            const cybernetic = await prisma.cybernetic.findUnique({
+            const cybernetic = await prisma.item.findUnique({
                 where: {
                     id: Number(cyberneticId),
+                    itemType: 'cybernetic',
                 },
                 select: {
                     stats: true,
@@ -32,9 +33,10 @@ const cyberneticStatServices = {
                 newPowerValue = statsObject.currentPower + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: newPowerValue });
-            await prisma.cybernetic.update({
+            await prisma.item.update({
                 where: {
                     id: Number(cyberneticId),
+                    itemType: 'cybernetic',
                 },
                 data: {
                     stats: newStats,
@@ -49,9 +51,10 @@ const cyberneticStatServices = {
     refreshCyberneticPower: async (cyberneticId, userId) => {
         var _a, _b;
         try {
-            const cybernetic = await prisma.cybernetic.findUnique({
+            const cybernetic = await prisma.item.findUnique({
                 where: {
                     id: Number(cyberneticId),
+                    itemType: 'cybernetic',
                 },
                 select: {
                     stats: true,
@@ -68,9 +71,10 @@ const cyberneticStatServices = {
             }
             const statsObject = cybernetic.stats;
             const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: statsObject.power });
-            await prisma.cybernetic.update({
+            await prisma.item.update({
                 where: {
                     id: Number(cyberneticId),
+                    itemType: 'cybernetic',
                 },
                 data: {
                     stats: newStats,

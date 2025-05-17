@@ -3,9 +3,10 @@ import prisma from '../config/database.js';
 const vehicleStatServices = {
   editVehicleHull: async (vehicleId: string, value: string, userId: number) => {
     try {
-      const vehicle = await prisma.vehicle.findUnique({
+      const vehicle = await prisma.item.findUnique({
         where: {
           id: Number(vehicleId),
+          itemType: 'vehicle',
         },
         select: {
           stats: true,
@@ -41,9 +42,10 @@ const vehicleStatServices = {
         currentHull: newHullValue,
       };
 
-      await prisma.vehicle.update({
+      await prisma.item.update({
         where: {
           id: Number(vehicleId),
+          itemType: 'vehicle',
         },
         data: {
           stats: newStats,
@@ -61,9 +63,10 @@ const vehicleStatServices = {
     userId: number,
   ) => {
     try {
-      const vehicle = await prisma.vehicle.findUnique({
+      const vehicle = await prisma.item.findUnique({
         where: {
           id: Number(vehicleId),
+          itemType: 'vehicle',
         },
         select: {
           stats: true,
@@ -99,9 +102,10 @@ const vehicleStatServices = {
         currentCargo: newCargoValue,
       };
 
-      await prisma.vehicle.update({
+      await prisma.item.update({
         where: {
           id: Number(vehicleId),
+          itemType: 'vehicle',
         },
         data: {
           stats: newStats,
@@ -115,9 +119,10 @@ const vehicleStatServices = {
 
   editVehiclePass: async (vehicleId: string, value: string, userId: number) => {
     try {
-      const vehicle = await prisma.vehicle.findUnique({
+      const vehicle = await prisma.item.findUnique({
         where: {
           id: Number(vehicleId),
+          itemType: 'vehicle',
         },
         select: {
           stats: true,
@@ -153,9 +158,10 @@ const vehicleStatServices = {
         currentPass: newPassValue,
       };
 
-      await prisma.vehicle.update({
+      await prisma.item.update({
         where: {
           id: Number(vehicleId),
+          itemType: 'vehicle',
         },
         data: {
           stats: newStats,

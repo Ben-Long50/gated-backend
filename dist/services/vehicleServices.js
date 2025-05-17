@@ -10,16 +10,15 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import { includeVehicleLinkReference } from '../utils/linkQueryStructures.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const vehicleServices = {
     getVehicles: async () => {
         try {
-            const vehicles = await prisma.vehicle.findMany({
-                where: { characterInventoryId: null },
+            const vehicles = await prisma.item.findMany({
+                where: { itemType: 'vehicle', characterInventoryId: null },
                 include: {
-                    vehicleLinkReference: { include: includeVehicleLinkReference },
+                    itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -36,12 +35,13 @@ const vehicleServices = {
     },
     getVehicleById: async (vehicleId) => {
         try {
-            const vehicle = await prisma.vehicle.findUnique({
+            const vehicle = await prisma.item.findUnique({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 include: {
-                    vehicleLinkReference: { include: includeVehicleLinkReference },
+                    itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -61,8 +61,8 @@ const vehicleServices = {
     createOrUpdateVehicle: async (formData) => {
         var _a;
         try {
-            const vehicle = await prisma.vehicle.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
+            const vehicle = await prisma.item.findUnique({
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: 'vehicle' },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -74,43 +74,31 @@ const vehicleServices = {
                     },
                 });
             }
-            const { id, weaponIds, armorIds, actionIds, modificationIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "weaponIds", "armorIds", "actionIds", "modificationIds", "keywordIds", "stats", "characterInventoryId"]);
-            await enforceSingularLinking(id, weaponIds, armorIds, undefined, actionIds, modificationIds);
+            const { id, itemLinkId, itemIds, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "itemLinkId", "itemIds", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
+            await enforceSingularLinking(id, itemIds, actionIds);
             const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
             }))) || [];
-            const newVehicle = await prisma.vehicle.upsert({
-                where: { id: id !== null && id !== void 0 ? id : 0 },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), vehicleLinkReference: {
+            const newVehicle = await prisma.item.upsert({
+                where: { id: id !== null && id !== void 0 ? id : 0, itemType: 'vehicle' },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemLinkReference: {
                         upsert: {
-                            where: { vehicleId: id !== null && id !== void 0 ? id : 0 },
+                            where: { itemId: id !== null && id !== void 0 ? id : 0 },
                             update: {
-                                weapons: {
-                                    set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
-                                },
-                                armors: {
-                                    set: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                items: {
+                                    set: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
                                 },
                                 actions: {
                                     set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                                 },
-                                modifications: {
-                                    set: modificationIds === null || modificationIds === void 0 ? void 0 : modificationIds.map((id) => ({ id })),
-                                },
                             },
                             create: {
-                                weapons: {
-                                    connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
-                                },
-                                armors: {
-                                    connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                                items: {
+                                    connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
                                 },
                                 actions: {
                                     connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
-                                },
-                                modifications: {
-                                    connect: modificationIds === null || modificationIds === void 0 ? void 0 : modificationIds.map((id) => ({ id })),
                                 },
                             },
                         },
@@ -121,19 +109,13 @@ const vehicleServices = {
                             },
                         }
                         : undefined }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), vehicleLinkReference: {
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'vehicle', itemLinkReference: {
                         create: {
-                            weapons: {
-                                connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
-                            },
-                            armors: {
-                                connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
+                            items: {
+                                connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
                             },
                             actions: {
                                 connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
-                            },
-                            modifications: {
-                                connect: modificationIds === null || modificationIds === void 0 ? void 0 : modificationIds.map((id) => ({ id })),
                             },
                         },
                     }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
@@ -154,62 +136,12 @@ const vehicleServices = {
             throw new Error(error.message || 'Failed to create or update vehicle');
         }
     },
-    createCharacterVehicleCopy: async (inventoryId, vehicleList) => {
-        var _a;
-        const vehicleIds = vehicleList === null || vehicleList === void 0 ? void 0 : vehicleList.map((vehicle) => vehicle.vehicleId);
-        const vehicles = await prisma.vehicle.findMany({
-            where: { id: { in: vehicleIds } },
-            include: {
-                vehicleLinkReference: { include: includeVehicleLinkReference },
-                keywords: { include: { keyword: true } },
-            },
-        });
-        const promises = [];
-        for (const { vehicleId, quantity } of vehicleList) {
-            const vehicleDetails = vehicles.find((vehicle) => vehicle.id === vehicleId);
-            if (!vehicleDetails)
-                continue;
-            let stats = Object.assign({}, vehicleDetails.stats);
-            if ((stats === null || stats === void 0 ? void 0 : stats.hull) && !(stats === null || stats === void 0 ? void 0 : stats.currentHull)) {
-                stats = Object.assign(Object.assign({}, stats), { currentHull: stats.hull });
-            }
-            if ((stats === null || stats === void 0 ? void 0 : stats.cargo) && !(stats === null || stats === void 0 ? void 0 : stats.currentCargo)) {
-                stats = Object.assign(Object.assign({}, stats), { currentCargo: 0 });
-            }
-            if ((stats === null || stats === void 0 ? void 0 : stats.hangar) && !(stats === null || stats === void 0 ? void 0 : stats.currentHangar)) {
-                stats = Object.assign(Object.assign({}, stats), { currentHangar: 0 });
-            }
-            if ((stats === null || stats === void 0 ? void 0 : stats.pass) && !(stats === null || stats === void 0 ? void 0 : stats.currentPass)) {
-                stats = Object.assign(Object.assign({}, stats), { currentPass: 0 });
-            }
-            if ((stats === null || stats === void 0 ? void 0 : stats.weapon) && !(stats === null || stats === void 0 ? void 0 : stats.currentWeapon)) {
-                stats = Object.assign(Object.assign({}, stats), { currentWeapon: (_a = vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.vehicleLinkReference) === null || _a === void 0 ? void 0 : _a.weapons.length });
-            }
-            const { weaponIds, armorIds, actionIds, modificationIds } = await createLinkedCopies(vehicleDetails.vehicleLinkReference, inventoryId, quantity);
-            const keywordIds = (vehicleDetails === null || vehicleDetails === void 0 ? void 0 : vehicleDetails.keywords.map((keyword) => ({
-                keywordId: keyword.keywordId,
-                value: keyword.value,
-            }))) || [];
-            const { keywords } = vehicleDetails, rest = __rest(vehicleDetails, ["keywords"]);
-            const vehicleData = Object.assign(Object.assign({}, rest), { stats,
-                weaponIds,
-                armorIds,
-                actionIds,
-                modificationIds,
-                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseVehicleId: vehicleDetails.id });
-            if (vehicleDetails) {
-                for (let i = 0; i < quantity; i++) {
-                    promises.push(vehicleServices.createOrUpdateVehicle(vehicleData));
-                }
-            }
-        }
-        await Promise.all(promises);
-    },
     deleteVehicle: async (vehicleId) => {
         try {
-            await prisma.vehicle.delete({
+            await prisma.item.delete({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
             });
         }

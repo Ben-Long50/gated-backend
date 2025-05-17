@@ -3,9 +3,10 @@ const vehicleStatServices = {
     editVehicleHull: async (vehicleId, value, userId) => {
         var _a, _b;
         try {
-            const vehicle = await prisma.vehicle.findUnique({
+            const vehicle = await prisma.item.findUnique({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 select: {
                     stats: true,
@@ -32,9 +33,10 @@ const vehicleStatServices = {
                 newHullValue = statsObject.currentHull + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentHull: newHullValue });
-            await prisma.vehicle.update({
+            await prisma.item.update({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 data: {
                     stats: newStats,
@@ -49,9 +51,10 @@ const vehicleStatServices = {
     editVehicleCargo: async (vehicleId, value, userId) => {
         var _a, _b;
         try {
-            const vehicle = await prisma.vehicle.findUnique({
+            const vehicle = await prisma.item.findUnique({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 select: {
                     stats: true,
@@ -78,9 +81,10 @@ const vehicleStatServices = {
                 newCargoValue = statsObject.currentCargo + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentCargo: newCargoValue });
-            await prisma.vehicle.update({
+            await prisma.item.update({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 data: {
                     stats: newStats,
@@ -95,9 +99,10 @@ const vehicleStatServices = {
     editVehiclePass: async (vehicleId, value, userId) => {
         var _a, _b;
         try {
-            const vehicle = await prisma.vehicle.findUnique({
+            const vehicle = await prisma.item.findUnique({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 select: {
                     stats: true,
@@ -124,9 +129,10 @@ const vehicleStatServices = {
                 newPassValue = statsObject.currentPass + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentPass: newPassValue });
-            await prisma.vehicle.update({
+            await prisma.item.update({
                 where: {
                     id: Number(vehicleId),
+                    itemType: 'vehicle',
                 },
                 data: {
                     stats: newStats,

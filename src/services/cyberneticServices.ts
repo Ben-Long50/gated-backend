@@ -1,19 +1,16 @@
 import prisma from '../config/database.js';
-import { Cybernetic, CyberneticStats } from '../types/cybernetic.js';
-import { CyberneticType } from '@prisma/client';
-import { includeCyberneticLinkReference } from '../utils/linkQueryStructures.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+// import { CyberneticStats } from '../types/cybernetic.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
+import { Item } from '../types/item.js';
 
 const cyberneticServices = {
   getCybernetics: async () => {
     try {
-      const cybernetics = await prisma.cybernetic.findMany({
-        where: { characterInventoryId: null },
+      const cybernetics = await prisma.item.findMany({
+        where: { characterInventoryId: null, itemType: 'cybernetic' },
         include: {
-          cyberneticLinkReference: {
-            include: includeCyberneticLinkReference,
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -31,14 +28,13 @@ const cyberneticServices = {
 
   getCyberneticById: async (cyberneticId: string) => {
     try {
-      const cybernetic = await prisma.cybernetic.findUnique({
+      const cybernetic = await prisma.item.findUnique({
         where: {
           id: Number(cyberneticId),
+          itemType: 'cybernetic',
         },
         include: {
-          cyberneticLinkReference: {
-            include: includeCyberneticLinkReference,
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -57,10 +53,10 @@ const cyberneticServices = {
     }
   },
 
-  createOrUpdateCybernetic: async (formData: Cybernetic) => {
+  createOrUpdateCybernetic: async (formData: Item) => {
     try {
-      const cybernetic = await prisma.cybernetic.findUnique({
-        where: { id: formData.id ?? 0 },
+      const cybernetic = await prisma.item.findUnique({
+        where: { id: formData.id ?? 0, itemType: 'cybernetic' },
         include: {
           keywords: { select: { id: true } },
         },
@@ -76,29 +72,16 @@ const cyberneticServices = {
 
       const {
         id,
-        weaponLinkId,
-        armorLinkId,
-        cyberneticLinkId,
-        weaponIds,
-        armorIds,
-        cyberneticIds,
+        itemLinkId,
+        itemIds,
         actionIds,
-        modifiers,
         keywordIds,
         stats,
-        cyberneticType,
         characterInventoryId,
         ...data
       } = formData;
 
-      await enforceSingularLinking(
-        id,
-        weaponIds,
-        armorIds,
-        cyberneticIds,
-        actionIds,
-        undefined,
-      );
+      await enforceSingularLinking(id, itemIds, actionIds);
 
       const keywordData =
         keywordIds?.map(
@@ -108,34 +91,27 @@ const cyberneticServices = {
           }),
         ) || [];
 
-      const newCybernetic = await prisma.cybernetic.upsert({
-        where: { id: id ?? 0 },
+      const newCybernetic = await prisma.item.upsert({
+        where: { id: id ?? 0, itemType: 'cybernetic' },
         update: {
           ...data,
-          cyberneticType: cyberneticType as CyberneticType,
           stats: {
             ...stats,
           },
-          cyberneticLinkReference: {
+          itemLinkReference: {
             upsert: {
-              where: { cyberneticId: id ?? 0 },
+              where: { itemId: id ?? 0 },
               update: {
-                weapons: {
-                  set: weaponIds?.map((id) => ({ id })),
-                },
-                armors: {
-                  set: armorIds?.map((id) => ({ id })),
+                items: {
+                  set: itemIds?.map((id) => ({ id })),
                 },
                 actions: {
                   set: actionIds?.map((id) => ({ id })),
                 },
               },
               create: {
-                weapons: {
-                  connect: weaponIds?.map((id) => ({ id })),
-                },
-                armors: {
-                  connect: armorIds?.map((id) => ({ id })),
+                items: {
+                  connect: itemIds?.map((id) => ({ id })),
                 },
                 actions: {
                   connect: actionIds?.map((id) => ({ id })),
@@ -154,17 +130,14 @@ const cyberneticServices = {
         },
         create: {
           ...data,
-          cyberneticType: cyberneticType as CyberneticType,
           stats: {
             ...stats,
           },
-          cyberneticLinkReference: {
+          itemType: 'cybernetic',
+          itemLinkReference: {
             create: {
-              weapons: {
-                connect: weaponIds?.map((id) => ({ id })),
-              },
-              armors: {
-                connect: armorIds?.map((id) => ({ id })),
+              items: {
+                connect: itemIds?.map((id) => ({ id })),
               },
               actions: {
                 connect: actionIds?.map((id) => ({ id })),
@@ -179,14 +152,6 @@ const cyberneticServices = {
                 },
               }
             : undefined,
-          // modifiers: {
-          //   createMany: {
-          //     data: modifiers?.map(({ type, ...modifier }) => ({
-          //       type: type.toLowerCase() as ModifierType,
-          //       ...modifier,
-          //     })),
-          //   },
-          // },
         },
       });
 
@@ -197,92 +162,12 @@ const cyberneticServices = {
     }
   },
 
-  createCharacterCyberneticCopy: async (
-    inventoryId: number,
-    cyberneticList: {
-      cyberneticId: number;
-      price: number | null;
-      quantity: number;
-    }[],
-  ) => {
-    const cyberneticIds = cyberneticList?.map(
-      (cybernetic) => cybernetic.cyberneticId,
-    );
-
-    const cybernetics = await prisma.cybernetic.findMany({
-      where: { id: { in: cyberneticIds } },
-      include: {
-        cyberneticLinkReference: { include: includeCyberneticLinkReference },
-        keywords: { include: { keyword: true } },
-      },
-    });
-
-    const promises = [];
-
-    for (const { cyberneticId, quantity } of cyberneticList) {
-      const cyberneticDetails = cybernetics.find(
-        (cybernetic) => cybernetic.id === cyberneticId,
-      );
-
-      if (!cyberneticDetails) continue;
-
-      let stats = {
-        ...(cyberneticDetails.stats as CyberneticStats),
-      };
-
-      if (stats?.power && !stats?.currentPower) {
-        stats = { ...stats, currentPower: stats.power };
-      }
-
-      const { weaponIds, armorIds, cyberneticIds, actionIds } =
-        await createLinkedCopies(
-          cyberneticDetails.cyberneticLinkReference,
-          inventoryId,
-          quantity,
-        );
-
-      const keywordIds =
-        cyberneticDetails?.keywords.map((keyword) => ({
-          keywordId: keyword.keywordId,
-          value: keyword.value,
-        })) || [];
-
-      const { keywords, ...rest } = cyberneticDetails;
-
-      const cyberneticData = {
-        ...rest,
-        stats,
-        weaponIds,
-        armorIds,
-        cyberneticIds,
-        actionIds,
-        keywordIds,
-        id: 0,
-        characterInventoryId: Number(inventoryId),
-        baseCyberneticId: cyberneticDetails.id,
-      };
-
-      if (cyberneticDetails) {
-        for (let i = 0; i < quantity; i++) {
-          promises.push(
-            cyberneticServices.createOrUpdateCybernetic(cyberneticData),
-          );
-        }
-      }
-    }
-
-    const newCybernetics = await Promise.all(promises);
-
-    return newCybernetics
-      .filter((cybernetic) => cybernetic !== undefined)
-      .map((cybernetic) => cybernetic.id);
-  },
-
   deleteCybernetic: async (cyberneticId: string) => {
     try {
-      await prisma.cybernetic.delete({
+      await prisma.item.delete({
         where: {
           id: Number(cyberneticId),
+          itemType: 'cybernetic',
         },
       });
     } catch (error) {

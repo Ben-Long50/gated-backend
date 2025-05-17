@@ -1,22 +1,19 @@
 import prisma from '../config/database.js';
-import { Weapon, WeaponStats } from '../types/weapon.js';
-import { includeWeaponLinkReference } from '../utils/linkQueryStructures.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+// import { WeaponStats } from '../types/weapon.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
+import { Item } from '../types/item.js';
 
 const weaponServices = {
   getWeapons: async () => {
     try {
-      const weapons = await prisma.weapon.findMany({
+      const weapons = await prisma.item.findMany({
         where: {
+          itemType: 'weapon',
           characterInventoryId: null,
-          // weaponLinkId: null,
-          armorLinkId: null,
-          cyberneticLinkId: null,
-          vehicleLinkId: null,
         },
         include: {
-          weaponLinkReference: { include: includeWeaponLinkReference },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -34,14 +31,13 @@ const weaponServices = {
 
   getWeaponById: async (weaponId: string) => {
     try {
-      const weapon = await prisma.weapon.findUnique({
+      const weapon = await prisma.item.findUnique({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         include: {
-          weaponLinkReference: {
-            include: includeWeaponLinkReference,
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -60,10 +56,10 @@ const weaponServices = {
     }
   },
 
-  createOrUpdateWeapon: async (formData: Weapon) => {
+  createOrUpdateWeapon: async (formData: Item) => {
     try {
-      const weapon = await prisma.weapon.findUnique({
-        where: { id: formData.id ?? 0 },
+      const weapon = await prisma.item.findUnique({
+        where: { id: formData.id ?? 0, itemType: 'weapon' },
         include: {
           keywords: { select: { id: true } },
         },
@@ -79,14 +75,8 @@ const weaponServices = {
 
       const {
         id,
-        weaponLinkId,
-        armorLinkId,
-        cyberneticLinkId,
-        vehicleLinkId,
-        droneLinkId,
-        weaponIds,
-        armorIds,
-        cyberneticIds,
+        itemLinkId,
+        itemIds,
         actionIds,
         keywordIds,
         stats,
@@ -94,14 +84,7 @@ const weaponServices = {
         ...data
       } = formData;
 
-      await enforceSingularLinking(
-        id,
-        weaponIds,
-        armorIds,
-        cyberneticIds,
-        actionIds,
-        undefined,
-      );
+      await enforceSingularLinking(id, itemIds, actionIds);
 
       const keywordData =
         keywordIds?.map(
@@ -111,39 +94,27 @@ const weaponServices = {
           }),
         ) || [];
 
-      const newWeapon = await prisma.weapon.upsert({
-        where: { id: id ?? 0 },
+      const newWeapon = await prisma.item.upsert({
+        where: { id: id ?? 0, itemType: 'weapon' },
         update: {
           ...data,
           stats: {
             ...stats,
           },
-          weaponLinkReference: {
+          itemLinkReference: {
             upsert: {
-              where: { weaponId: id ?? 0 },
+              where: { itemId: id ?? 0 },
               update: {
-                weapons: {
-                  set: weaponIds?.map((id) => ({ id })),
-                },
-                armors: {
-                  set: armorIds?.map((id) => ({ id })),
-                },
-                cybernetics: {
-                  set: cyberneticIds?.map((id) => ({ id })),
+                items: {
+                  set: itemIds?.map((id) => ({ id })),
                 },
                 actions: {
                   set: actionIds?.map((id) => ({ id })),
                 },
               },
               create: {
-                weapons: {
-                  connect: weaponIds?.map((id) => ({ id })),
-                },
-                armors: {
-                  connect: armorIds?.map((id) => ({ id })),
-                },
-                cybernetics: {
-                  connect: cyberneticIds?.map((id) => ({ id })),
+                items: {
+                  connect: itemIds?.map((id) => ({ id })),
                 },
                 actions: {
                   connect: actionIds?.map((id) => ({ id })),
@@ -165,16 +136,11 @@ const weaponServices = {
           stats: {
             ...stats,
           },
-          weaponLinkReference: {
+          itemType: 'weapon',
+          itemLinkReference: {
             create: {
-              weapons: {
-                connect: weaponIds?.map((id) => ({ id })),
-              },
-              armors: {
-                connect: armorIds?.map((id) => ({ id })),
-              },
-              cybernetics: {
-                connect: cyberneticIds?.map((id) => ({ id })),
+              items: {
+                connect: itemIds?.map((id) => ({ id })),
               },
               actions: {
                 connect: actionIds?.map((id) => ({ id })),
@@ -199,83 +165,12 @@ const weaponServices = {
     }
   },
 
-  createCharacterWeaponCopy: async (
-    inventoryId: number,
-    weaponList: { weaponId: number; price: number | null; quantity: number }[],
-  ) => {
-    const weaponIds = weaponList?.map((weapon) => weapon.weaponId);
-
-    const weapons = await prisma.weapon.findMany({
-      where: { id: { in: weaponIds } },
-      include: {
-        weaponLinkReference: { include: includeWeaponLinkReference },
-        keywords: { include: { keyword: true } },
-      },
-    });
-
-    const promises = [];
-
-    for (const { weaponId, quantity } of weaponList) {
-      const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
-
-      if (!weaponDetails) continue;
-
-      let stats = { ...(weaponDetails.stats as WeaponStats) };
-
-      if (stats?.magCount && !stats?.currentMagCount) {
-        stats = { ...stats, currentMagCount: stats.magCount - 1 };
-      }
-      if (stats?.magCapacity && !stats?.currentAmmoCount) {
-        stats = { ...stats, currentAmmoCount: stats.magCapacity };
-      }
-
-      const { weaponIds, armorIds, cyberneticIds, actionIds } =
-        await createLinkedCopies(
-          weaponDetails.weaponLinkReference,
-          inventoryId,
-          quantity,
-        );
-
-      const keywordIds =
-        weaponDetails?.keywords.map((keyword) => ({
-          keywordId: keyword.keywordId,
-          value: keyword.value,
-        })) || [];
-
-      const { keywords, ...rest } = weaponDetails;
-
-      const weaponData = {
-        ...rest,
-        stats,
-        weaponIds,
-        armorIds,
-        cyberneticIds,
-        actionIds,
-        keywordIds,
-        id: 0,
-        characterInventoryId: Number(inventoryId),
-        baseWeaponId: weaponDetails.id,
-      };
-
-      if (weaponDetails) {
-        for (let i = 0; i < quantity; i++) {
-          promises.push(weaponServices.createOrUpdateWeapon(weaponData));
-        }
-      }
-    }
-
-    const newWeapons = await Promise.all(promises);
-
-    return newWeapons
-      .filter((weapon) => weapon !== undefined)
-      .map((weapon) => weapon.id);
-  },
-
   deleteWeapon: async (weaponId: string) => {
     try {
-      await prisma.weapon.delete({
+      await prisma.item.delete({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
       });
     } catch (error) {
@@ -286,9 +181,10 @@ const weaponServices = {
 
   deleteWeapons: async (weaponIds: number[]) => {
     try {
-      await prisma.weapon.deleteMany({
+      await prisma.item.deleteMany({
         where: {
           id: { in: weaponIds },
+          itemType: 'weapon',
         },
       });
     } catch (error) {

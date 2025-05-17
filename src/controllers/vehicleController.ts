@@ -3,18 +3,13 @@ import vehicleServices from '../services/vehicleServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 
 const vehicleController = {
   getVehicles: async (_req: Request, res: Response) => {
     try {
       const vehicles = await vehicleServices.getVehicles();
 
-      const vehicleData = vehicles.map((vehicle) =>
-        destructureLinkReference(vehicle),
-      );
-
-      res.status(200).json(vehicleData);
+      res.status(200).json(vehicles);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -26,9 +21,7 @@ const vehicleController = {
         req.params.vehicleId,
       );
 
-      const vehicleData = destructureLinkReference(vehicle);
-
-      res.status(200).json(vehicleData);
+      res.status(200).json(vehicle);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

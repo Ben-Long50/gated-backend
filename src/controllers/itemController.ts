@@ -3,16 +3,13 @@ import itemServices from '../services/itemServices.js';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 
 const itemController = {
   getItems: async (_req: Request, res: Response) => {
     try {
       const items = await itemServices.getItems();
 
-      const itemData = items.map((item) => destructureLinkReference(item));
-
-      res.status(200).json(itemData);
+      res.status(200).json(items);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -26,9 +23,7 @@ const itemController = {
         throw new Error('Item not found');
       }
 
-      const itemData = destructureLinkReference(item);
-
-      res.status(200).json(itemData);
+      res.status(200).json(item);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

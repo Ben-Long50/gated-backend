@@ -3,9 +3,10 @@ const weaponStatServices = {
     editWeaponAmmo: async (weaponId, value, userId) => {
         var _a, _b;
         try {
-            const weapon = await prisma.weapon.findUnique({
+            const weapon = await prisma.item.findUnique({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 select: {
                     stats: true,
@@ -33,9 +34,10 @@ const weaponStatServices = {
                 newAmmoValue = statsObject.currentAmmoCount + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: newAmmoValue });
-            await prisma.weapon.update({
+            await prisma.item.update({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 data: {
                     stats: newStats,
@@ -50,9 +52,10 @@ const weaponStatServices = {
     reloadWeapon: async (weaponId, userId) => {
         var _a, _b;
         try {
-            const weapon = await prisma.weapon.findUnique({
+            const weapon = await prisma.item.findUnique({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 select: {
                     stats: true,
@@ -72,9 +75,10 @@ const weaponStatServices = {
                 throw new Error('Not enough ammo available to reload');
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.currentMagCount - 1 });
-            await prisma.weapon.update({
+            await prisma.item.update({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 data: {
                     stats: newStats,
@@ -89,9 +93,10 @@ const weaponStatServices = {
     refreshAmmo: async (weaponId, userId) => {
         var _a, _b;
         try {
-            const weapon = await prisma.weapon.findUnique({
+            const weapon = await prisma.item.findUnique({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 select: {
                     stats: true,
@@ -108,9 +113,10 @@ const weaponStatServices = {
             }
             const statsObject = weapon.stats;
             const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.magCount - 1 });
-            await prisma.weapon.update({
+            await prisma.item.update({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 data: {
                     stats: newStats,

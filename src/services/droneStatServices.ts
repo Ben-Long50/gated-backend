@@ -3,9 +3,10 @@ import prisma from '../config/database.js';
 const droneStatServices = {
   editDroneHull: async (droneId: string, value: string, userId: number) => {
     try {
-      const drone = await prisma.drone.findUnique({
+      const drone = await prisma.item.findUnique({
         where: {
           id: Number(droneId),
+          itemType: 'drone',
         },
         select: {
           stats: true,
@@ -41,9 +42,10 @@ const droneStatServices = {
         currentHull: newHullValue,
       };
 
-      await prisma.drone.update({
+      await prisma.item.update({
         where: {
           id: Number(droneId),
+          itemType: 'drone',
         },
         data: {
           stats: newStats,
@@ -57,9 +59,10 @@ const droneStatServices = {
 
   editDronePower: async (droneId: string, value: string, userId: number) => {
     try {
-      const drone = await prisma.drone.findUnique({
+      const drone = await prisma.item.findUnique({
         where: {
           id: Number(droneId),
+          itemType: 'drone',
         },
         select: {
           stats: true,
@@ -95,9 +98,10 @@ const droneStatServices = {
         currentPower: newPowerValue,
       };
 
-      await prisma.drone.update({
+      await prisma.item.update({
         where: {
           id: Number(droneId),
+          itemType: 'drone',
         },
         data: {
           stats: newStats,

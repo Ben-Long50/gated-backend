@@ -3,9 +3,10 @@ import prisma from '../config/database.js';
 const weaponStatServices = {
   editWeaponAmmo: async (weaponId: string, value: string, userId: number) => {
     try {
-      const weapon = await prisma.weapon.findUnique({
+      const weapon = await prisma.item.findUnique({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         select: {
           stats: true,
@@ -44,9 +45,10 @@ const weaponStatServices = {
         currentAmmoCount: newAmmoValue,
       };
 
-      await prisma.weapon.update({
+      await prisma.item.update({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         data: {
           stats: newStats,
@@ -60,9 +62,10 @@ const weaponStatServices = {
 
   reloadWeapon: async (weaponId: string, userId: number) => {
     try {
-      const weapon = await prisma.weapon.findUnique({
+      const weapon = await prisma.item.findUnique({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         select: {
           stats: true,
@@ -94,9 +97,10 @@ const weaponStatServices = {
         currentMagCount: statsObject.currentMagCount - 1,
       };
 
-      await prisma.weapon.update({
+      await prisma.item.update({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         data: {
           stats: newStats,
@@ -110,9 +114,10 @@ const weaponStatServices = {
 
   refreshAmmo: async (weaponId: string, userId: number) => {
     try {
-      const weapon = await prisma.weapon.findUnique({
+      const weapon = await prisma.item.findUnique({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         select: {
           stats: true,
@@ -140,9 +145,10 @@ const weaponStatServices = {
         currentMagCount: statsObject.magCount - 1,
       };
 
-      await prisma.weapon.update({
+      await prisma.item.update({
         where: {
           id: Number(weaponId),
+          itemType: 'weapon',
         },
         data: {
           stats: newStats,

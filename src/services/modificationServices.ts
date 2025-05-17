@@ -1,17 +1,15 @@
 import prisma from '../config/database.js';
-import { Modification, ModificationStats } from '../types/modification.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+import { Item } from '../types/item.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 
 const modificationServices = {
   getModifications: async () => {
     try {
-      const modificiations = await prisma.modification.findMany({
-        where: { characterInventoryId: null },
+      const modificiations = await prisma.item.findMany({
+        where: { itemType: 'modification', characterInventoryId: null },
         include: {
-          modificationLinkReference: {
-            include: { actions: { orderBy: { name: 'asc' } } },
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -29,14 +27,13 @@ const modificationServices = {
 
   getModificationById: async (modId: string) => {
     try {
-      const modification = await prisma.modification.findUnique({
+      const modification = await prisma.item.findUnique({
         where: {
           id: Number(modId),
+          itemType: 'modification',
         },
         include: {
-          modificationLinkReference: {
-            include: { actions: { orderBy: { name: 'asc' } } },
-          },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -51,10 +48,10 @@ const modificationServices = {
     }
   },
 
-  createOrUpdateModification: async (formData: Modification) => {
+  createOrUpdateModification: async (formData: Item) => {
     try {
-      const modification = await prisma.modification.findUnique({
-        where: { id: formData.id ?? 0 },
+      const modification = await prisma.item.findUnique({
+        where: { id: formData.id ?? 0, itemType: 'modification' },
         include: {
           keywords: { select: { id: true } },
         },
@@ -70,8 +67,8 @@ const modificationServices = {
 
       const {
         id,
-        vehicleLinkId,
-        droneLinkId,
+        itemLinkId,
+        itemIds,
         actionIds,
         keywordIds,
         stats,
@@ -79,14 +76,7 @@ const modificationServices = {
         ...data
       } = formData;
 
-      await enforceSingularLinking(
-        id,
-        undefined,
-        undefined,
-        undefined,
-        actionIds,
-        undefined,
-      );
+      await enforceSingularLinking(id, itemIds, actionIds);
 
       const keywordData =
         keywordIds?.map(
@@ -96,22 +86,28 @@ const modificationServices = {
           }),
         ) || [];
 
-      const newModification = await prisma.modification.upsert({
-        where: { id: id ?? 0 },
+      const newModification = await prisma.item.upsert({
+        where: { id: id ?? 0, itemType: 'modification' },
         update: {
           ...data,
           stats: {
             ...stats,
           },
-          modificationLinkReference: {
+          itemLinkReference: {
             upsert: {
-              where: { modificationId: id ?? 0 },
+              where: { itemId: id ?? 0 },
               update: {
+                items: {
+                  set: itemIds?.map((id) => ({ id })),
+                },
                 actions: {
                   set: actionIds?.map((id) => ({ id })),
                 },
               },
               create: {
+                items: {
+                  connect: itemIds?.map((id) => ({ id })),
+                },
                 actions: {
                   connect: actionIds?.map((id) => ({ id })),
                 },
@@ -132,8 +128,12 @@ const modificationServices = {
           stats: {
             ...stats,
           },
-          modificationLinkReference: {
+          itemType: 'modification',
+          itemLinkReference: {
             create: {
+              items: {
+                connect: itemIds?.map((id) => ({ id })),
+              },
               actions: {
                 connect: actionIds?.map((id) => ({ id })),
               },
@@ -157,82 +157,12 @@ const modificationServices = {
     }
   },
 
-  createCharacterModificationCopy: async (
-    inventoryId: number,
-    modificationList: {
-      modificationId: number;
-      price: number | null;
-      quantity: number;
-    }[],
-  ) => {
-    const modificationIds = modificationList?.map(
-      (modification) => modification.modificationId,
-    );
-
-    const modifications = await prisma.modification.findMany({
-      where: { id: { in: modificationIds } },
-      include: {
-        modificationLinkReference: { include: { actions: true } },
-        keywords: { include: { keyword: true } },
-      },
-    });
-
-    const promises = [];
-
-    for (const { modificationId, quantity } of modificationList) {
-      const modificationDetails = modifications.find(
-        (modification) => modification.id === modificationId,
-      );
-
-      if (!modificationDetails) continue;
-
-      let stats = { ...(modificationDetails.stats as ModificationStats) };
-
-      const { actionIds } = await createLinkedCopies(
-        modificationDetails.modificationLinkReference,
-        inventoryId,
-        quantity,
-      );
-
-      const keywordIds =
-        modificationDetails?.keywords.map((keyword) => ({
-          keywordId: keyword.keywordId,
-          value: keyword.value,
-        })) || [];
-
-      const { keywords, ...rest } = modificationDetails;
-
-      const modificationData = {
-        ...rest,
-        stats,
-        actionIds,
-        keywordIds,
-        id: 0,
-        characterInventoryId: Number(inventoryId),
-        baseModificationId: modificationDetails.id,
-      };
-
-      if (modificationDetails) {
-        for (let i = 0; i < quantity; i++) {
-          promises.push(
-            modificationServices.createOrUpdateModification(modificationData),
-          );
-        }
-      }
-    }
-
-    const newModifications = await Promise.all(promises);
-
-    return newModifications
-      .filter((modification) => modification !== undefined)
-      .map((modification) => modification.id);
-  },
-
   deleteModification: async (modificationId: string) => {
     try {
-      await prisma.modification.delete({
+      await prisma.item.delete({
         where: {
           id: Number(modificationId),
+          itemType: 'modification',
         },
       });
     } catch (error) {

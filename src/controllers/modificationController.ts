@@ -3,18 +3,13 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
 import modificationServices from '../services/modificationServices.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 
 const modificationController = {
   getModifications: async (_req: Request, res: Response) => {
     try {
       const modifications = await modificationServices.getModifications();
 
-      const modificationData = modifications.map((modification) =>
-        destructureLinkReference(modification),
-      );
-
-      res.status(200).json(modificationData);
+      res.status(200).json(modifications);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -30,9 +25,7 @@ const modificationController = {
         throw new Error('Modification not found');
       }
 
-      const modificationData = destructureLinkReference(modification);
-
-      res.status(200).json(modificationData);
+      res.status(200).json(modification);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

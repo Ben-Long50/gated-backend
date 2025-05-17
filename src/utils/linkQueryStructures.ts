@@ -148,76 +148,41 @@ export const includeDroneLinkReference: Prisma.DroneLinkReferenceInclude = {
 };
 
 export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
-  weapons: {
-    include: {
-      weaponLinkReference: { include: includeWeaponLinkReference },
-      keywords: { include: { keyword: true } },
-    },
-    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-  },
-  armor: {
-    include: {
-      armorLinkReference: { include: includeArmorLinkReference },
-      keywords: { include: { keyword: true } },
-    },
-    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-  },
-  cybernetics: {
-    include: {
-      cyberneticLinkReference: {
-        include: includeCyberneticLinkReference,
-      },
-      keywords: { include: { keyword: true } },
-      modifiers: { include: { action: true } },
-    },
-    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-  },
-  vehicles: {
-    include: {
-      vehicleLinkReference: {
-        include: includeVehicleLinkReference,
-      },
-    },
-    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-  },
-  drones: {
-    include: {
-      droneLinkReference: {
-        include: includeDroneLinkReference,
-      },
-    },
-    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
-  },
-  modifications: { orderBy: [{ name: 'asc' }, { grade: 'desc' }] },
   items: {
     include: {
-      itemLinkReference: { include: { actions: { orderBy: { name: 'asc' } } } },
+      itemLinkReference: {
+        include: {
+          items: { orderBy: { name: 'asc' } },
+          actions: { orderBy: { name: 'asc' } },
+        },
+      },
       keywords: { include: { keyword: true } },
-      modifiers: { include: { action: true } },
     },
     orderBy: [{ name: 'asc' }, { grade: 'desc' }],
   },
   actions: { orderBy: { name: 'asc' } },
 };
 
+export const includeCharacterCart: Prisma.CharacterCartInclude = {
+  items: {
+    include: {
+      item: {
+        include: {
+          itemLinkReference: {
+            include: {
+              items: { orderBy: { name: 'asc' } },
+              actions: { orderBy: { name: 'asc' } },
+            },
+          },
+        },
+      },
+    },
+    orderBy: { item: { name: 'asc' } },
+  },
+};
+
 export const equipLinked = {
-  weapons: {
-    updateMany: {
-      where: {},
-      data: {
-        equipped: true,
-      },
-    },
-  },
-  armors: {
-    updateMany: {
-      where: {},
-      data: {
-        equipped: true,
-      },
-    },
-  },
-  cybernetics: {
+  items: {
     updateMany: {
       where: {},
       data: {
@@ -236,23 +201,7 @@ export const equipLinked = {
 };
 
 export const unequipLinked = {
-  weapons: {
-    updateMany: {
-      where: {},
-      data: {
-        equipped: false,
-      },
-    },
-  },
-  armors: {
-    updateMany: {
-      where: {},
-      data: {
-        equipped: false,
-      },
-    },
-  },
-  cybernetics: {
+  items: {
     updateMany: {
       where: {},
       data: {

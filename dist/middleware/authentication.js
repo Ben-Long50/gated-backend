@@ -72,8 +72,8 @@ const authentication = {
             res.status(401).json({ error: 'No user found' });
             return;
         }
-        const weapon = await prisma.weapon.findUnique({
-            where: { id: Number(req.params.weaponId) },
+        const weapon = await prisma.item.findUnique({
+            where: { id: Number(req.params.weaponId), itemType: 'weapon' },
             select: {
                 characterInventory: {
                     select: {
@@ -97,8 +97,8 @@ const authentication = {
             res.status(401).json({ error: 'No user found' });
             return;
         }
-        const armor = await prisma.armor.findUnique({
-            where: { id: Number(req.params.armorId) },
+        const armor = await prisma.item.findUnique({
+            where: { id: Number(req.params.armorId), itemType: 'armor' },
             select: {
                 characterInventory: {
                     select: {
@@ -122,8 +122,8 @@ const authentication = {
             res.status(401).json({ error: 'No user found' });
             return;
         }
-        const cybernetic = await prisma.cybernetic.findUnique({
-            where: { id: Number(req.params.cyberneticId) },
+        const cybernetic = await prisma.item.findUnique({
+            where: { id: Number(req.params.cyberneticId), itemType: 'cybernetic' },
             select: {
                 characterInventory: {
                     select: {
@@ -147,8 +147,8 @@ const authentication = {
             res.status(401).json({ error: 'No user found' });
             return;
         }
-        const vehicle = await prisma.vehicle.findUnique({
-            where: { id: Number(req.params.vehicleId) },
+        const vehicle = await prisma.item.findUnique({
+            where: { id: Number(req.params.vehicleId), itemType: 'vehicle' },
             select: {
                 characterInventory: {
                     select: {
@@ -172,8 +172,8 @@ const authentication = {
             res.status(401).json({ error: 'No user found' });
             return;
         }
-        const drone = await prisma.drone.findUnique({
-            where: { id: Number(req.params.droneId) },
+        const drone = await prisma.item.findUnique({
+            where: { id: Number(req.params.droneId), itemType: 'drone' },
             select: {
                 characterInventory: {
                     select: {

@@ -3,18 +3,13 @@ import cyberneticServices from '../services/cyberneticServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import { destructureLinkReference } from '../utils/destructureItemLinks.js';
 
 const cyberneticController = {
   getCybernetics: async (_req: Request, res: Response) => {
     try {
       const cybernetics = await cyberneticServices.getCybernetics();
 
-      const cyberneticData = cybernetics.map((cybernetic) =>
-        destructureLinkReference(cybernetic),
-      );
-
-      res.status(200).json(cyberneticData);
+      res.status(200).json(cybernetics);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -26,9 +21,7 @@ const cyberneticController = {
         req.params.cyberneticId,
       );
 
-      const cyberneticData = destructureLinkReference(cybernetic);
-
-      res.status(200).json(cyberneticData);
+      res.status(200).json(cybernetic);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

@@ -3,9 +3,10 @@ import prisma from '../config/database.js';
 const armorStatServices = {
   editArmorPower: async (armorId: string, value: string, userId: number) => {
     try {
-      const armor = await prisma.armor.findUnique({
+      const armor = await prisma.item.findUnique({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         select: {
           stats: true,
@@ -42,9 +43,10 @@ const armorStatServices = {
         currentPower: newPowerValue,
       };
 
-      await prisma.armor.update({
+      await prisma.item.update({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         data: {
           stats: newStats,
@@ -58,9 +60,10 @@ const armorStatServices = {
 
   refreshArmorPower: async (armorId: string, userId: number) => {
     try {
-      const armor = await prisma.armor.findUnique({
+      const armor = await prisma.item.findUnique({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         select: {
           stats: true,
@@ -87,9 +90,10 @@ const armorStatServices = {
         currentPower: statsObject.power,
       };
 
-      await prisma.armor.update({
+      await prisma.item.update({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         data: {
           stats: newStats,
@@ -103,9 +107,10 @@ const armorStatServices = {
 
   editArmorBlock: async (armorId: string, value: string, userId: number) => {
     try {
-      const armor = await prisma.armor.findUnique({
+      const armor = await prisma.item.findUnique({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         select: {
           stats: true,
@@ -142,9 +147,10 @@ const armorStatServices = {
         currentBlock: newBlockValue,
       };
 
-      await prisma.armor.update({
+      await prisma.item.update({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         data: {
           stats: newStats,
@@ -158,9 +164,10 @@ const armorStatServices = {
 
   refreshArmorBlock: async (armorId: string, userId: number) => {
     try {
-      const armor = await prisma.armor.findUnique({
+      const armor = await prisma.item.findUnique({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         select: {
           stats: true,
@@ -187,9 +194,10 @@ const armorStatServices = {
         currentBlock: statsObject.block,
       };
 
-      await prisma.armor.update({
+      await prisma.item.update({
         where: {
           id: Number(armorId),
+          itemType: 'armor',
         },
         data: {
           stats: newStats,

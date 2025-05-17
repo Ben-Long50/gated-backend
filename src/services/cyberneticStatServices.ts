@@ -7,9 +7,10 @@ const cyberneticStatServices = {
     userId: number,
   ) => {
     try {
-      const cybernetic = await prisma.cybernetic.findUnique({
+      const cybernetic = await prisma.item.findUnique({
         where: {
           id: Number(cyberneticId),
+          itemType: 'cybernetic',
         },
         select: {
           stats: true,
@@ -46,9 +47,10 @@ const cyberneticStatServices = {
         currentPower: newPowerValue,
       };
 
-      await prisma.cybernetic.update({
+      await prisma.item.update({
         where: {
           id: Number(cyberneticId),
+          itemType: 'cybernetic',
         },
         data: {
           stats: newStats,
@@ -62,9 +64,11 @@ const cyberneticStatServices = {
 
   refreshCyberneticPower: async (cyberneticId: string, userId: number) => {
     try {
-      const cybernetic = await prisma.cybernetic.findUnique({
+      const cybernetic = await prisma.item.findUnique({
         where: {
           id: Number(cyberneticId),
+
+          itemType: 'cybernetic',
         },
         select: {
           stats: true,
@@ -91,9 +95,10 @@ const cyberneticStatServices = {
         currentPower: statsObject.power,
       };
 
-      await prisma.cybernetic.update({
+      await prisma.item.update({
         where: {
           id: Number(cyberneticId),
+          itemType: 'cybernetic',
         },
         data: {
           stats: newStats,

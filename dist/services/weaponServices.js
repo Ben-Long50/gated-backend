@@ -10,22 +10,19 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import { includeWeaponLinkReference } from '../utils/linkQueryStructures.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+// import { WeaponStats } from '../types/weapon.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const weaponServices = {
     getWeapons: async () => {
         try {
-            const weapons = await prisma.weapon.findMany({
+            const weapons = await prisma.item.findMany({
                 where: {
+                    itemType: 'weapon',
                     characterInventoryId: null,
-                    // weaponLinkId: null,
-                    armorLinkId: null,
-                    cyberneticLinkId: null,
-                    vehicleLinkId: null,
                 },
                 include: {
-                    weaponLinkReference: { include: includeWeaponLinkReference },
+                    itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -42,14 +39,13 @@ const weaponServices = {
     },
     getWeaponById: async (weaponId) => {
         try {
-            const weapon = await prisma.weapon.findUnique({
+            const weapon = await prisma.item.findUnique({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
                 include: {
-                    weaponLinkReference: {
-                        include: includeWeaponLinkReference,
-                    },
+                    itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -69,8 +65,8 @@ const weaponServices = {
     createOrUpdateWeapon: async (formData) => {
         var _a;
         try {
-            const weapon = await prisma.weapon.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
+            const weapon = await prisma.item.findUnique({
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: 'weapon' },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -82,40 +78,28 @@ const weaponServices = {
                     },
                 });
             }
-            const { id, weaponLinkId, armorLinkId, cyberneticLinkId, vehicleLinkId, droneLinkId, weaponIds, armorIds, cyberneticIds, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "weaponLinkId", "armorLinkId", "cyberneticLinkId", "vehicleLinkId", "droneLinkId", "weaponIds", "armorIds", "cyberneticIds", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
-            await enforceSingularLinking(id, weaponIds, armorIds, cyberneticIds, actionIds, undefined);
+            const { id, itemLinkId, itemIds, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "itemLinkId", "itemIds", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
+            await enforceSingularLinking(id, itemIds, actionIds);
             const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
             }))) || [];
-            const newWeapon = await prisma.weapon.upsert({
-                where: { id: id !== null && id !== void 0 ? id : 0 },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), weaponLinkReference: {
+            const newWeapon = await prisma.item.upsert({
+                where: { id: id !== null && id !== void 0 ? id : 0, itemType: 'weapon' },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemLinkReference: {
                         upsert: {
-                            where: { weaponId: id !== null && id !== void 0 ? id : 0 },
+                            where: { itemId: id !== null && id !== void 0 ? id : 0 },
                             update: {
-                                weapons: {
-                                    set: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
-                                },
-                                armors: {
-                                    set: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
-                                },
-                                cybernetics: {
-                                    set: cyberneticIds === null || cyberneticIds === void 0 ? void 0 : cyberneticIds.map((id) => ({ id })),
+                                items: {
+                                    set: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
                                 },
                                 actions: {
                                     set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                                 },
                             },
                             create: {
-                                weapons: {
-                                    connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
-                                },
-                                armors: {
-                                    connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
-                                },
-                                cybernetics: {
-                                    connect: cyberneticIds === null || cyberneticIds === void 0 ? void 0 : cyberneticIds.map((id) => ({ id })),
+                                items: {
+                                    connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
                                 },
                                 actions: {
                                     connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
@@ -129,16 +113,10 @@ const weaponServices = {
                             },
                         }
                         : undefined }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), weaponLinkReference: {
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'weapon', itemLinkReference: {
                         create: {
-                            weapons: {
-                                connect: weaponIds === null || weaponIds === void 0 ? void 0 : weaponIds.map((id) => ({ id })),
-                            },
-                            armors: {
-                                connect: armorIds === null || armorIds === void 0 ? void 0 : armorIds.map((id) => ({ id })),
-                            },
-                            cybernetics: {
-                                connect: cyberneticIds === null || cyberneticIds === void 0 ? void 0 : cyberneticIds.map((id) => ({ id })),
+                            items: {
+                                connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
                             },
                             actions: {
                                 connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
@@ -159,55 +137,12 @@ const weaponServices = {
             throw new Error(error.message || 'Failed to create or update weapon');
         }
     },
-    createCharacterWeaponCopy: async (inventoryId, weaponList) => {
-        const weaponIds = weaponList === null || weaponList === void 0 ? void 0 : weaponList.map((weapon) => weapon.weaponId);
-        const weapons = await prisma.weapon.findMany({
-            where: { id: { in: weaponIds } },
-            include: {
-                weaponLinkReference: { include: includeWeaponLinkReference },
-                keywords: { include: { keyword: true } },
-            },
-        });
-        const promises = [];
-        for (const { weaponId, quantity } of weaponList) {
-            const weaponDetails = weapons.find((weapon) => weapon.id === weaponId);
-            if (!weaponDetails)
-                continue;
-            let stats = Object.assign({}, weaponDetails.stats);
-            if ((stats === null || stats === void 0 ? void 0 : stats.magCount) && !(stats === null || stats === void 0 ? void 0 : stats.currentMagCount)) {
-                stats = Object.assign(Object.assign({}, stats), { currentMagCount: stats.magCount - 1 });
-            }
-            if ((stats === null || stats === void 0 ? void 0 : stats.magCapacity) && !(stats === null || stats === void 0 ? void 0 : stats.currentAmmoCount)) {
-                stats = Object.assign(Object.assign({}, stats), { currentAmmoCount: stats.magCapacity });
-            }
-            const { weaponIds, armorIds, cyberneticIds, actionIds } = await createLinkedCopies(weaponDetails.weaponLinkReference, inventoryId, quantity);
-            const keywordIds = (weaponDetails === null || weaponDetails === void 0 ? void 0 : weaponDetails.keywords.map((keyword) => ({
-                keywordId: keyword.keywordId,
-                value: keyword.value,
-            }))) || [];
-            const { keywords } = weaponDetails, rest = __rest(weaponDetails, ["keywords"]);
-            const weaponData = Object.assign(Object.assign({}, rest), { stats,
-                weaponIds,
-                armorIds,
-                cyberneticIds,
-                actionIds,
-                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseWeaponId: weaponDetails.id });
-            if (weaponDetails) {
-                for (let i = 0; i < quantity; i++) {
-                    promises.push(weaponServices.createOrUpdateWeapon(weaponData));
-                }
-            }
-        }
-        const newWeapons = await Promise.all(promises);
-        return newWeapons
-            .filter((weapon) => weapon !== undefined)
-            .map((weapon) => weapon.id);
-    },
     deleteWeapon: async (weaponId) => {
         try {
-            await prisma.weapon.delete({
+            await prisma.item.delete({
                 where: {
                     id: Number(weaponId),
+                    itemType: 'weapon',
                 },
             });
         }
@@ -218,9 +153,10 @@ const weaponServices = {
     },
     deleteWeapons: async (weaponIds) => {
         try {
-            await prisma.weapon.deleteMany({
+            await prisma.item.deleteMany({
                 where: {
                     id: { in: weaponIds },
+                    itemType: 'weapon',
                 },
             });
         }

@@ -73,59 +73,11 @@ const characterController = {
 
   editCart: async (req: Request, res: Response) => {
     try {
-      switch (req.body.category) {
-        case 'weapons':
-          await cartServices.editCartWeapon(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        case 'armor':
-          await cartServices.editCartArmor(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        case 'cybernetics':
-          await cartServices.editCartCybernetic(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        case 'vehicles':
-          await cartServices.editCartVehicle(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        case 'drones':
-          await cartServices.editCartDrone(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        case 'modifications':
-          await cartServices.editCartModification(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        case 'items':
-          await cartServices.editCartItem(
-            Number(req.params.cartId),
-            Number(req.body.itemId),
-            Number(req.body.value),
-          );
-          break;
-        default:
-          throw new Error('Incompatible category provided');
-      }
+      await cartServices.editCartItem(
+        Number(req.params.cartId),
+        Number(req.body.itemId),
+        Number(req.body.value),
+      );
 
       res.status(200).json({ message: 'Successfully added item to cart' });
     } catch (error: any) {

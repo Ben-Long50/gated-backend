@@ -10,17 +10,15 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 const modificationServices = {
     getModifications: async () => {
         try {
-            const modificiations = await prisma.modification.findMany({
-                where: { characterInventoryId: null },
+            const modificiations = await prisma.item.findMany({
+                where: { itemType: 'modification', characterInventoryId: null },
                 include: {
-                    modificationLinkReference: {
-                        include: { actions: { orderBy: { name: 'asc' } } },
-                    },
+                    itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -37,14 +35,13 @@ const modificationServices = {
     },
     getModificationById: async (modId) => {
         try {
-            const modification = await prisma.modification.findUnique({
+            const modification = await prisma.item.findUnique({
                 where: {
                     id: Number(modId),
+                    itemType: 'modification',
                 },
                 include: {
-                    modificationLinkReference: {
-                        include: { actions: { orderBy: { name: 'asc' } } },
-                    },
+                    itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -61,8 +58,8 @@ const modificationServices = {
     createOrUpdateModification: async (formData) => {
         var _a;
         try {
-            const modification = await prisma.modification.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
+            const modification = await prisma.item.findUnique({
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: 'modification' },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -74,23 +71,29 @@ const modificationServices = {
                     },
                 });
             }
-            const { id, vehicleLinkId, droneLinkId, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "vehicleLinkId", "droneLinkId", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
-            await enforceSingularLinking(id, undefined, undefined, undefined, actionIds, undefined);
+            const { id, itemLinkId, itemIds, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "itemLinkId", "itemIds", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
+            await enforceSingularLinking(id, itemIds, actionIds);
             const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
             }))) || [];
-            const newModification = await prisma.modification.upsert({
-                where: { id: id !== null && id !== void 0 ? id : 0 },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), modificationLinkReference: {
+            const newModification = await prisma.item.upsert({
+                where: { id: id !== null && id !== void 0 ? id : 0, itemType: 'modification' },
+                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemLinkReference: {
                         upsert: {
-                            where: { modificationId: id !== null && id !== void 0 ? id : 0 },
+                            where: { itemId: id !== null && id !== void 0 ? id : 0 },
                             update: {
+                                items: {
+                                    set: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
+                                },
                                 actions: {
                                     set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                                 },
                             },
                             create: {
+                                items: {
+                                    connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
+                                },
                                 actions: {
                                     connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                                 },
@@ -103,8 +106,11 @@ const modificationServices = {
                             },
                         }
                         : undefined }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), modificationLinkReference: {
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'modification', itemLinkReference: {
                         create: {
+                            items: {
+                                connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
+                            },
                             actions: {
                                 connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                             },
@@ -124,46 +130,12 @@ const modificationServices = {
             throw new Error('Failed to create or update modification');
         }
     },
-    createCharacterModificationCopy: async (inventoryId, modificationList) => {
-        const modificationIds = modificationList === null || modificationList === void 0 ? void 0 : modificationList.map((modification) => modification.modificationId);
-        const modifications = await prisma.modification.findMany({
-            where: { id: { in: modificationIds } },
-            include: {
-                modificationLinkReference: { include: { actions: true } },
-                keywords: { include: { keyword: true } },
-            },
-        });
-        const promises = [];
-        for (const { modificationId, quantity } of modificationList) {
-            const modificationDetails = modifications.find((modification) => modification.id === modificationId);
-            if (!modificationDetails)
-                continue;
-            let stats = Object.assign({}, modificationDetails.stats);
-            const { actionIds } = await createLinkedCopies(modificationDetails.modificationLinkReference, inventoryId, quantity);
-            const keywordIds = (modificationDetails === null || modificationDetails === void 0 ? void 0 : modificationDetails.keywords.map((keyword) => ({
-                keywordId: keyword.keywordId,
-                value: keyword.value,
-            }))) || [];
-            const { keywords } = modificationDetails, rest = __rest(modificationDetails, ["keywords"]);
-            const modificationData = Object.assign(Object.assign({}, rest), { stats,
-                actionIds,
-                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseModificationId: modificationDetails.id });
-            if (modificationDetails) {
-                for (let i = 0; i < quantity; i++) {
-                    promises.push(modificationServices.createOrUpdateModification(modificationData));
-                }
-            }
-        }
-        const newModifications = await Promise.all(promises);
-        return newModifications
-            .filter((modification) => modification !== undefined)
-            .map((modification) => modification.id);
-    },
     deleteModification: async (modificationId) => {
         try {
-            await prisma.modification.delete({
+            await prisma.item.delete({
                 where: {
                     id: Number(modificationId),
+                    itemType: 'modification',
                 },
             });
         }

@@ -1,16 +1,15 @@
 import prisma from '../config/database.js';
-import { includeDroneLinkReference } from '../utils/linkQueryStructures.js';
-import { createLinkedCopies } from '../utils/createLinkedCopies.js';
+// import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
-import { Drone, DroneStats } from '../types/drone.js';
+import { Item } from '../types/item.js';
 
 const droneServices = {
   getDrones: async () => {
     try {
-      const drones = await prisma.drone.findMany({
-        where: { characterInventoryId: null },
+      const drones = await prisma.item.findMany({
+        where: { itemType: 'drone', characterInventoryId: null },
         include: {
-          droneLinkReference: { include: includeDroneLinkReference },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -28,12 +27,13 @@ const droneServices = {
 
   getDroneById: async (droneId: string) => {
     try {
-      const drone = await prisma.drone.findUnique({
+      const drone = await prisma.item.findUnique({
         where: {
           id: Number(droneId),
+          itemType: 'drone',
         },
         include: {
-          droneLinkReference: { include: includeDroneLinkReference },
+          itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
             include: { keyword: true },
             orderBy: { keyword: { name: 'asc' } },
@@ -48,10 +48,10 @@ const droneServices = {
     }
   },
 
-  createOrUpdateDrone: async (formData: Drone) => {
+  createOrUpdateDrone: async (formData: Item) => {
     try {
-      const drone = await prisma.drone.findUnique({
-        where: { id: formData.id ?? 0 },
+      const drone = await prisma.item.findUnique({
+        where: { id: formData.id ?? 0, itemType: 'drone' },
         include: {
           keywords: { select: { id: true } },
         },
@@ -67,23 +67,16 @@ const droneServices = {
 
       const {
         id,
-        weaponIds,
+        itemLinkId,
+        itemIds,
         actionIds,
-        modificationIds,
         keywordIds,
         stats,
         characterInventoryId,
         ...data
       } = formData;
 
-      await enforceSingularLinking(
-        id,
-        weaponIds,
-        undefined,
-        undefined,
-        actionIds,
-        modificationIds,
-      );
+      await enforceSingularLinking(id, itemIds, actionIds);
 
       const keywordData =
         keywordIds?.map(
@@ -93,36 +86,30 @@ const droneServices = {
           }),
         ) || [];
 
-      const newDrone = await prisma.drone.upsert({
-        where: { id: id ?? 0 },
+      const newDrone = await prisma.item.upsert({
+        where: { id: id ?? 0, itemType: 'drone' },
         update: {
           ...data,
           stats: {
             ...stats,
           },
-          droneLinkReference: {
+          itemLinkReference: {
             upsert: {
-              where: { droneId: id ?? 0 },
+              where: { itemId: id ?? 0 },
               update: {
-                weapons: {
-                  set: weaponIds?.map((id) => ({ id })),
+                items: {
+                  set: itemIds?.map((id) => ({ id })),
                 },
                 actions: {
                   set: actionIds?.map((id) => ({ id })),
                 },
-                modifications: {
-                  set: modificationIds?.map((id) => ({ id })),
-                },
               },
               create: {
-                weapons: {
-                  connect: weaponIds?.map((id) => ({ id })),
+                items: {
+                  connect: itemIds?.map((id) => ({ id })),
                 },
                 actions: {
                   connect: actionIds?.map((id) => ({ id })),
-                },
-                modifications: {
-                  connect: modificationIds?.map((id) => ({ id })),
                 },
               },
             },
@@ -141,16 +128,14 @@ const droneServices = {
           stats: {
             ...stats,
           },
-          droneLinkReference: {
+          itemType: 'drone',
+          itemLinkReference: {
             create: {
-              weapons: {
-                connect: weaponIds?.map((id) => ({ id })),
+              items: {
+                connect: itemIds?.map((id) => ({ id })),
               },
               actions: {
                 connect: actionIds?.map((id) => ({ id })),
-              },
-              modifications: {
-                connect: modificationIds?.map((id) => ({ id })),
               },
             },
           },
@@ -175,84 +160,12 @@ const droneServices = {
     }
   },
 
-  createCharacterDroneCopy: async (
-    inventoryId: number,
-    droneList: {
-      droneId: number;
-      price: number | null;
-      quantity: number;
-    }[],
-  ) => {
-    const droneIds = droneList?.map((drone) => drone.droneId);
-
-    const drones = await prisma.drone.findMany({
-      where: { id: { in: droneIds } },
-      include: {
-        droneLinkReference: { include: includeDroneLinkReference },
-        keywords: { include: { keyword: true } },
-      },
-    });
-
-    const promises = [];
-
-    for (const { droneId, quantity } of droneList) {
-      const droneDetails = drones.find((drone) => drone.id === droneId);
-
-      if (!droneDetails) continue;
-
-      let stats = {
-        ...(droneDetails.stats as DroneStats),
-      };
-
-      if (stats?.health && !stats?.currentHealth) {
-        stats = { ...stats, currentHealth: stats.health };
-      }
-      if (stats?.power && !stats?.currentPower) {
-        stats = { ...stats, currentPower: stats.power };
-      }
-
-      const { weaponIds, actionIds, modificationIds } =
-        await createLinkedCopies(
-          droneDetails.droneLinkReference,
-          inventoryId,
-          quantity,
-        );
-
-      const keywordIds =
-        droneDetails?.keywords.map((keyword) => ({
-          keywordId: keyword.keywordId,
-          value: keyword.value,
-        })) || [];
-
-      const { keywords, ...rest } = droneDetails;
-
-      const droneData = {
-        ...rest,
-        stats,
-        weaponIds,
-        actionIds,
-        modificationIds,
-        keywordIds,
-        id: 0,
-        characterInventoryId: Number(inventoryId),
-        baseDroneId: droneDetails.id,
-      };
-
-      if (droneDetails) {
-        for (let i = 0; i < quantity; i++) {
-          promises.push(droneServices.createOrUpdateDrone(droneData));
-        }
-      }
-    }
-
-    await Promise.all(promises);
-  },
-
   deleteDrone: async (droneId: string) => {
     try {
-      await prisma.drone.delete({
+      await prisma.item.delete({
         where: {
           id: Number(droneId),
+          itemType: 'drone',
         },
       });
     } catch (error) {

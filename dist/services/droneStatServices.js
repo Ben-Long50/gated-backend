@@ -3,9 +3,10 @@ const droneStatServices = {
     editDroneHull: async (droneId, value, userId) => {
         var _a, _b;
         try {
-            const drone = await prisma.drone.findUnique({
+            const drone = await prisma.item.findUnique({
                 where: {
                     id: Number(droneId),
+                    itemType: 'drone',
                 },
                 select: {
                     stats: true,
@@ -32,9 +33,10 @@ const droneStatServices = {
                 newHullValue = statsObject.currentHull + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentHull: newHullValue });
-            await prisma.drone.update({
+            await prisma.item.update({
                 where: {
                     id: Number(droneId),
+                    itemType: 'drone',
                 },
                 data: {
                     stats: newStats,
@@ -49,9 +51,10 @@ const droneStatServices = {
     editDronePower: async (droneId, value, userId) => {
         var _a, _b;
         try {
-            const drone = await prisma.drone.findUnique({
+            const drone = await prisma.item.findUnique({
                 where: {
                     id: Number(droneId),
+                    itemType: 'drone',
                 },
                 select: {
                     stats: true,
@@ -78,9 +81,10 @@ const droneStatServices = {
                 newPowerValue = statsObject.currentPower + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: newPowerValue });
-            await prisma.drone.update({
+            await prisma.item.update({
                 where: {
                     id: Number(droneId),
+                    itemType: 'drone',
                 },
                 data: {
                     stats: newStats,

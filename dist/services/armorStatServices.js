@@ -3,9 +3,10 @@ const armorStatServices = {
     editArmorPower: async (armorId, value, userId) => {
         var _a, _b;
         try {
-            const armor = await prisma.armor.findUnique({
+            const armor = await prisma.item.findUnique({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 select: {
                     stats: true,
@@ -32,9 +33,10 @@ const armorStatServices = {
                 newPowerValue = statsObject.currentPower + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: newPowerValue });
-            await prisma.armor.update({
+            await prisma.item.update({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 data: {
                     stats: newStats,
@@ -49,9 +51,10 @@ const armorStatServices = {
     refreshArmorPower: async (armorId, userId) => {
         var _a, _b;
         try {
-            const armor = await prisma.armor.findUnique({
+            const armor = await prisma.item.findUnique({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 select: {
                     stats: true,
@@ -68,9 +71,10 @@ const armorStatServices = {
             }
             const statsObject = armor.stats;
             const newStats = Object.assign(Object.assign({}, statsObject), { currentPower: statsObject.power });
-            await prisma.armor.update({
+            await prisma.item.update({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 data: {
                     stats: newStats,
@@ -85,9 +89,10 @@ const armorStatServices = {
     editArmorBlock: async (armorId, value, userId) => {
         var _a, _b;
         try {
-            const armor = await prisma.armor.findUnique({
+            const armor = await prisma.item.findUnique({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 select: {
                     stats: true,
@@ -114,9 +119,10 @@ const armorStatServices = {
                 newBlockValue = statsObject.currentBlock + Number(value);
             }
             const newStats = Object.assign(Object.assign({}, statsObject), { currentBlock: newBlockValue });
-            await prisma.armor.update({
+            await prisma.item.update({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 data: {
                     stats: newStats,
@@ -131,9 +137,10 @@ const armorStatServices = {
     refreshArmorBlock: async (armorId, userId) => {
         var _a, _b;
         try {
-            const armor = await prisma.armor.findUnique({
+            const armor = await prisma.item.findUnique({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 select: {
                     stats: true,
@@ -150,9 +157,10 @@ const armorStatServices = {
             }
             const statsObject = armor.stats;
             const newStats = Object.assign(Object.assign({}, statsObject), { currentBlock: statsObject.block });
-            await prisma.armor.update({
+            await prisma.item.update({
                 where: {
                     id: Number(armorId),
+                    itemType: 'armor',
                 },
                 data: {
                     stats: newStats,
