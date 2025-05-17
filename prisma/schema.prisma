@@ -306,7 +306,7 @@ model ItemLinkReference {
 enum ItemType {
   weapon
   armor
-  cybernetic
+  augmentation
   mutation
   vehicle
   drone

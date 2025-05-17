@@ -123,7 +123,7 @@ const authentication = {
             return;
         }
         const cybernetic = await prisma.item.findUnique({
-            where: { id: Number(req.params.cyberneticId), itemType: 'cybernetic' },
+            where: { id: Number(req.params.cyberneticId), itemType: 'augmentation' },
             select: {
                 characterInventory: {
                     select: {

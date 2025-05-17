@@ -173,7 +173,7 @@ const itemServices = {
                         case 'armor':
                             promises.push(armorServices.createOrUpdateArmor(itemData));
                             break;
-                        case 'cybernetic':
+                        case 'augmentation':
                             promises.push(cyberneticServices.createOrUpdateCybernetic(itemData));
                             break;
                         case 'vehicle':

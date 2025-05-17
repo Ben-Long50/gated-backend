@@ -15,7 +15,7 @@ const cyberneticServices = {
     getCybernetics: async () => {
         try {
             const cybernetics = await prisma.item.findMany({
-                where: { characterInventoryId: null, itemType: 'cybernetic' },
+                where: { characterInventoryId: null, itemType: 'augmentation' },
                 include: {
                     itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
@@ -37,7 +37,7 @@ const cyberneticServices = {
             const cybernetic = await prisma.item.findUnique({
                 where: {
                     id: Number(cyberneticId),
-                    itemType: 'cybernetic',
+                    itemType: 'augmentation',
                 },
                 include: {
                     itemLinkReference: { include: { items: true, actions: true } },
@@ -61,7 +61,7 @@ const cyberneticServices = {
         var _a;
         try {
             const cybernetic = await prisma.item.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: 'cybernetic' },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: 'augmentation' },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -80,7 +80,7 @@ const cyberneticServices = {
                 value: keyword.value,
             }))) || [];
             const newCybernetic = await prisma.item.upsert({
-                where: { id: id !== null && id !== void 0 ? id : 0, itemType: 'cybernetic' },
+                where: { id: id !== null && id !== void 0 ? id : 0, itemType: 'augmentation' },
                 update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemLinkReference: {
                         upsert: {
                             where: { itemId: id !== null && id !== void 0 ? id : 0 },
@@ -108,7 +108,7 @@ const cyberneticServices = {
                             },
                         }
                         : undefined }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'cybernetic', itemLinkReference: {
+                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'augmentation', itemLinkReference: {
                         create: {
                             items: {
                                 connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
@@ -137,7 +137,7 @@ const cyberneticServices = {
             await prisma.item.delete({
                 where: {
                     id: Number(cyberneticId),
-                    itemType: 'cybernetic',
+                    itemType: 'augmentation',
                 },
             });
         }

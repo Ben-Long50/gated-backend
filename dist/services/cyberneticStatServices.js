@@ -6,7 +6,7 @@ const cyberneticStatServices = {
             const cybernetic = await prisma.item.findUnique({
                 where: {
                     id: Number(cyberneticId),
-                    itemType: 'cybernetic',
+                    itemType: 'augmentation',
                 },
                 select: {
                     stats: true,
@@ -36,7 +36,7 @@ const cyberneticStatServices = {
             await prisma.item.update({
                 where: {
                     id: Number(cyberneticId),
-                    itemType: 'cybernetic',
+                    itemType: 'augmentation',
                 },
                 data: {
                     stats: newStats,
@@ -54,7 +54,7 @@ const cyberneticStatServices = {
             const cybernetic = await prisma.item.findUnique({
                 where: {
                     id: Number(cyberneticId),
-                    itemType: 'cybernetic',
+                    itemType: 'augmentation',
                 },
                 select: {
                     stats: true,
@@ -74,7 +74,7 @@ const cyberneticStatServices = {
             await prisma.item.update({
                 where: {
                     id: Number(cyberneticId),
-                    itemType: 'cybernetic',
+                    itemType: 'augmentation',
                 },
                 data: {
                     stats: newStats,

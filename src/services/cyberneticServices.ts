@@ -6,7 +6,7 @@ const cyberneticServices = {
   getCybernetics: async () => {
     try {
       const cybernetics = await prisma.item.findMany({
-        where: { characterInventoryId: null, itemType: 'cybernetic' },
+        where: { characterInventoryId: null, itemType: 'augmentation' },
         include: {
           itemLinkReference: { include: { items: true, actions: true } },
           keywords: {
@@ -29,7 +29,7 @@ const cyberneticServices = {
       const cybernetic = await prisma.item.findUnique({
         where: {
           id: Number(cyberneticId),
-          itemType: 'cybernetic',
+          itemType: 'augmentation',
         },
         include: {
           itemLinkReference: { include: { items: true, actions: true } },
@@ -54,7 +54,7 @@ const cyberneticServices = {
   createOrUpdateCybernetic: async (formData: Item) => {
     try {
       const cybernetic = await prisma.item.findUnique({
-        where: { id: formData.id ?? 0, itemType: 'cybernetic' },
+        where: { id: formData.id ?? 0, itemType: 'augmentation' },
         include: {
           keywords: { select: { id: true } },
         },
@@ -90,7 +90,7 @@ const cyberneticServices = {
         ) || [];
 
       const newCybernetic = await prisma.item.upsert({
-        where: { id: id ?? 0, itemType: 'cybernetic' },
+        where: { id: id ?? 0, itemType: 'augmentation' },
         update: {
           ...data,
           stats: {
@@ -131,7 +131,7 @@ const cyberneticServices = {
           stats: {
             ...stats,
           },
-          itemType: 'cybernetic',
+          itemType: 'augmentation',
           itemLinkReference: {
             create: {
               items: {
@@ -165,7 +165,7 @@ const cyberneticServices = {
       await prisma.item.delete({
         where: {
           id: Number(cyberneticId),
-          itemType: 'cybernetic',
+          itemType: 'augmentation',
         },
       });
     } catch (error) {
