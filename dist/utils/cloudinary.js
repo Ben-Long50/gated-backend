@@ -22,6 +22,7 @@ export const uploadToCloudinary = async (req, res, next) => {
             req.body.picture = JSON.stringify({
                 imageUrl: result.secure_url,
                 publicId: result.public_id,
+                position: JSON.parse(req.body.position),
             });
         }
         catch (error) {
@@ -31,6 +32,14 @@ export const uploadToCloudinary = async (req, res, next) => {
                 message: 'Error uploading to Cloudinary',
             });
         }
+    }
+    if (!req.file && req.body.picture) {
+        const pictureInfo = JSON.parse(req.body.picture);
+        req.body.picture = JSON.stringify({
+            imageUrl: pictureInfo.imageUrl,
+            publicId: pictureInfo.publicId,
+            position: JSON.parse(req.body.position),
+        });
     }
     next();
 };

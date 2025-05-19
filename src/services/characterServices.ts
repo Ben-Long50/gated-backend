@@ -20,6 +20,7 @@ const characterServices = {
         include: {
           campaign: {
             select: {
+              name: true,
               ownerId: true,
             },
           },
@@ -52,6 +53,7 @@ const characterServices = {
         include: {
           campaign: {
             select: {
+              name: true,
               characters: true,
               gangs: true,
               factions: true,
@@ -85,6 +87,7 @@ const characterServices = {
         include: {
           campaign: {
             select: {
+              name: true,
               ownerId: true,
             },
           },
@@ -296,22 +299,22 @@ const characterServices = {
     characterId: number,
   ) => {
     try {
-      const { perks, stats, ...data } = {
+      const data = {
         ...formData,
       };
+
+      if (formData.perks) {
+        //@ts-ignore
+        data.perks = { set: formData.perks.map((perk) => ({ id: perk })) };
+      }
 
       const updatedCharacter = await prisma.character.update({
         where: {
           userId,
           id: Number(characterId),
         },
-        data: {
-          ...data,
-          stats: {
-            ...stats,
-          },
-          perks: { set: perks?.map((id: number) => ({ id })) || [] },
-        },
+        //@ts-ignore
+        data,
       });
 
       return updatedCharacter;

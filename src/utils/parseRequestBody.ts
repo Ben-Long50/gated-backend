@@ -16,7 +16,9 @@ const parseRequestBody = (requestBody: any) => {
       .filter(([_, value]) => value !== null && value !== undefined),
   );
 
-  return parsedBody;
+  const { position, ...data } = parsedBody;
+
+  return data;
 };
 
 export default parseRequestBody;
