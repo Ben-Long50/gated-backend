@@ -278,6 +278,7 @@ model Item {
   picture              Json?
   description          String?
   stats                Json?
+  modifiedStats        Json?
   price                Int?
   equipped             Boolean?             @default(false)
   characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)

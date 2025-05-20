@@ -58,11 +58,11 @@ const itemServices = {
   },
 
   createOrUpdateItem: async (formData: Item) => {
-    const miscTypes = ['consumable', 'reusable'] as ItemType[];
+    // const miscTypes = ['consumable', 'reusable'] as ItemType[];
 
     try {
       const item = await prisma.item.findUnique({
-        where: { id: formData.id ?? 0, itemType: { in: miscTypes } },
+        where: { id: formData.id ?? 0 },
         include: {
           keywords: { select: { id: true } },
         },
@@ -98,12 +98,10 @@ const itemServices = {
         ) || [];
 
       const newItem = await prisma.item.upsert({
-        where: { id: id ?? 0, itemType: { in: miscTypes } },
+        where: { id: id ?? 0 },
         update: {
           ...data,
-          stats: {
-            ...stats,
-          },
+          ...(stats ? { stats } : {}),
           itemLinkReference: {
             upsert: {
               where: { itemId: id ?? 0 },
@@ -136,9 +134,7 @@ const itemServices = {
         },
         create: {
           ...data,
-          stats: {
-            ...stats,
-          },
+          ...(stats ? { stats } : {}),
           itemType: 'reusable',
           itemLinkReference: {
             create: {
@@ -263,7 +259,6 @@ const itemServices = {
       await prisma.item.delete({
         where: {
           id: Number(itemId),
-          itemType: { in: miscTypes },
         },
       });
     } catch (error) {

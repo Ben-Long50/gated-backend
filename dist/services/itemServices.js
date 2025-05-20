@@ -62,11 +62,11 @@ const itemServices = {
         }
     },
     createOrUpdateItem: async (formData) => {
+        // const miscTypes = ['consumable', 'reusable'] as ItemType[];
         var _a;
-        const miscTypes = ['consumable', 'reusable'];
         try {
             const item = await prisma.item.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: { in: miscTypes } },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
                 include: {
                     keywords: { select: { id: true } },
                 },
@@ -85,8 +85,8 @@ const itemServices = {
                 value: keyword.value,
             }))) || [];
             const newItem = await prisma.item.upsert({
-                where: { id: id !== null && id !== void 0 ? id : 0, itemType: { in: miscTypes } },
-                update: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemLinkReference: {
+                where: { id: id !== null && id !== void 0 ? id : 0 },
+                update: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemLinkReference: {
                         upsert: {
                             where: { itemId: id !== null && id !== void 0 ? id : 0 },
                             update: {
@@ -113,7 +113,7 @@ const itemServices = {
                             },
                         }
                         : undefined }),
-                create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'reusable', itemLinkReference: {
+                create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemType: 'reusable', itemLinkReference: {
                         create: {
                             items: {
                                 connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
@@ -201,7 +201,6 @@ const itemServices = {
             await prisma.item.delete({
                 where: {
                     id: Number(itemId),
-                    itemType: { in: miscTypes },
                 },
             });
         }
