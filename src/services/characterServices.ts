@@ -294,7 +294,7 @@ const characterServices = {
   },
 
   updateCharacter: async (
-    formData: Character,
+    formData: Partial<Character>,
     userId: number,
     characterId: number,
   ) => {

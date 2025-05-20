@@ -45,7 +45,7 @@ router.post(
 );
 
 router.put(
-  '/items/:itemId',
+  '/characters/:characterId/items/:itemId/modify',
   authentication.authenticate,
   authentication.authenticateItemModification,
   itemController.modifyItem,

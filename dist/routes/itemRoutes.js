@@ -10,6 +10,6 @@ router.patch('/items/:itemId/stats/currentStacks', authentication.authenticate, 
 router.patch('/items/:itemId/stats/refreshPower', authentication.authenticate, itemStatController.refreshItemPower);
 router.patch('/items/:itemId/stats/refreshStacks', authentication.authenticate, itemStatController.refreshItemStacks);
 router.post('/items', authentication.authenticate, authentication.authenticateAdmin, itemController.createOrUpdateItem);
-router.put('/items/:itemId', authentication.authenticate, authentication.authenticateItemModification, itemController.modifyItem);
+router.put('/characters/:characterId/items/:itemId/modify', authentication.authenticate, authentication.authenticateItemModification, itemController.modifyItem);
 router.delete('/items/:itemId', authentication.authenticate, authentication.authenticateAdmin, itemController.deleteItem);
 export default router;

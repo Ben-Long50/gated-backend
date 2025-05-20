@@ -197,7 +197,7 @@ const itemServices = {
     },
     deleteItem: async (itemId) => {
         try {
-            const miscTypes = ['consumable', 'reusable'];
+            // const miscTypes = ['consumable', 'reusable'] as ItemType[];
             await prisma.item.delete({
                 where: {
                     id: Number(itemId),

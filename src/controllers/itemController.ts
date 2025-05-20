@@ -3,6 +3,7 @@ import itemServices from '../services/itemServices.js';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import characterServices from '../services/characterServices.js';
 
 const itemController = {
   getItems: async (_req: Request, res: Response) => {
@@ -54,9 +55,40 @@ const itemController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
+        if (!req.user) {
+          throw new Error('You must be signed in to complete this action');
+        }
+
         const parsedBody = parseRequestBody(req.body);
 
-        await itemServices.createOrUpdateItem(parsedBody);
+        const character = await characterServices.getCharacterById(
+          req.params.characterId,
+        );
+
+        if (!character) {
+          throw new Error(
+            'This item must be associated with an existing character to modify it',
+          );
+        }
+
+        if (character.profits < parsedBody.upgradePrice) {
+          throw new Error(
+            'You do not have enough profits to purchase the chosen upgrades',
+          );
+        }
+        console.log(character.profits);
+
+        const { upgradePrice, ...itemInfo } = parsedBody;
+
+        await characterServices.updateCharacter(
+          {
+            profits: character.profits - upgradePrice,
+          },
+          req.user.id,
+          character.id,
+        );
+
+        await itemServices.createOrUpdateItem(itemInfo);
         res.status(200).json({ message: 'Successfully modified item' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });
