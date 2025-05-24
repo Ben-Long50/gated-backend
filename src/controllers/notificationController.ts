@@ -20,6 +20,23 @@ const notificationController = {
     }
   },
 
+  markNotificationsRead: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ error: 'You must be signed in to use this function' });
+        return;
+      }
+
+      await notificationServices.markNotificationsRead(req.user.id);
+
+      res.status(200).json({ message: 'Notifications marked read' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   // createNotification: async (req: Request, res: Response) => {
   //   try {
   //     if (!req.user) {

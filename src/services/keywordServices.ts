@@ -1,5 +1,6 @@
 import { KeywordType } from '@prisma/client';
 import prisma from '../config/database.js';
+import { Keyword } from '../types/keyword.js';
 
 const keywordServices = {
   getKeywords: async () => {
@@ -31,21 +32,19 @@ const keywordServices = {
     name: string;
     description: string;
     keywordType: KeywordType;
+    gpCost: number;
   }) => {
+    const { keywordId, ...data } = Object.fromEntries(
+      Object.entries(formData).filter(([_, value]) => Boolean(value)),
+    ) as unknown as Keyword;
+
     try {
       const newKeyword = await prisma.keyword.upsert({
-        where: { id: Number(formData.keywordId) || 0 },
-        update: {
-          name: formData.name,
-          description: formData.description,
-          keywordType: formData.keywordType,
-        },
-        create: {
-          name: formData.name,
-          description: formData.description,
-          keywordType: formData.keywordType,
-        },
+        where: { id: Number(keywordId) || 0 },
+        update: data,
+        create: data,
       });
+
       return newKeyword;
     } catch (error) {
       console.error(error);

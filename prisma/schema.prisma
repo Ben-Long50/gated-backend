@@ -144,6 +144,7 @@ model Gang {
 
 model Character {
   id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now())
   userId             Int
   level              Int                  @default(1)
   profits            Int                  @default(10)
@@ -243,6 +244,7 @@ model Keyword {
   keywordType      KeywordType
   name             String
   description      String
+  gpCost           Int                @default(10)
   KeywordReference KeywordReference[]
   Condition        Condition?         @relation(fields: [conditionId], references: [id])
   conditionId      Int?
@@ -270,6 +272,7 @@ model Action {
 
 model Item {
   id                   Int                  @id @default(autoincrement())
+  updatedAt            DateTime             @default(now())
   name                 String
   itemType             ItemType
   itemSubtype          String?
@@ -283,6 +286,7 @@ model Item {
   equipped             Boolean?             @default(false)
   characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseItem             Item?                @relation("BaseRelation", fields: [baseItemId], references: [id])
   baseItemId           Int?
   conditions           ConditionReference[]
   keywords             KeywordReference[]
@@ -290,6 +294,7 @@ model Item {
   itemLink             ItemLinkReference?   @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
   itemLinkId           Int?
   cartRelation         CartItemRelation[]
+  derivedItems         Item[]               @relation("BaseRelation")
 
   @@index([itemType])
   @@index([characterInventoryId])

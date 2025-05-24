@@ -17,6 +17,12 @@ router.get(
 //   notificationController.createNotification,
 // );
 
+router.put(
+  '/notifications/read',
+  authentication.authenticate,
+  notificationController.markNotificationsRead,
+);
+
 router.delete(
   '/notifications/:notificationId',
   authentication.authenticate,
