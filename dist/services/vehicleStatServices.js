@@ -1,27 +1,28 @@
 import prisma from '../config/database.js';
-const vehicleStatServices = {
-    editVehicleHull: async (vehicleId, value, userId) => {
+import getStatsObject from '../utils/getStatsObject.js';
+const itemStatServices = {
+    editItemHull: async (itemId, value, userId) => {
         var _a, _b;
         try {
-            const vehicle = await prisma.item.findUnique({
+            const item = await prisma.item.findUnique({
                 where: {
-                    id: Number(vehicleId),
-                    itemType: 'vehicle',
+                    id: Number(itemId),
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },
                 },
             });
-            if (userId !== ((_b = (_a = vehicle === null || vehicle === void 0 ? void 0 : vehicle.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
-                throw new Error('You can only perform this action on a vehicle your character owns');
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a item your character owns');
             }
-            if (!vehicle) {
-                throw new Error('Vehicle not found');
+            if (!item) {
+                throw new Error('Item not found');
             }
-            const statsObject = vehicle.stats;
+            const statsObject = getStatsObject(item);
             let newHullValue;
             if (statsObject.currentHull + Number(value) > statsObject.hull) {
                 newHullValue = statsObject.hull;
@@ -32,11 +33,11 @@ const vehicleStatServices = {
             else {
                 newHullValue = statsObject.currentHull + Number(value);
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentHull: newHullValue });
+            const newStats = typeof item.stats === 'object'
+                ? Object.assign(Object.assign({}, item.stats), { currentHull: newHullValue }) : {};
             await prisma.item.update({
                 where: {
-                    id: Number(vehicleId),
-                    itemType: 'vehicle',
+                    id: Number(itemId),
                 },
                 data: {
                     stats: newStats,
@@ -45,31 +46,31 @@ const vehicleStatServices = {
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to update vehicle hull');
+            throw new Error('Failed to update item hull');
         }
     },
-    editVehicleCargo: async (vehicleId, value, userId) => {
+    editItemCargo: async (itemId, value, userId) => {
         var _a, _b;
         try {
-            const vehicle = await prisma.item.findUnique({
+            const item = await prisma.item.findUnique({
                 where: {
-                    id: Number(vehicleId),
-                    itemType: 'vehicle',
+                    id: Number(itemId),
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },
                 },
             });
-            if (userId !== ((_b = (_a = vehicle === null || vehicle === void 0 ? void 0 : vehicle.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
-                throw new Error('You can only perform this action on a vehicle your character owns');
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a item your character owns');
             }
-            if (!vehicle) {
-                throw new Error('Vehicle not found');
+            if (!item) {
+                throw new Error('Item not found');
             }
-            const statsObject = vehicle.stats;
+            const statsObject = getStatsObject(item);
             let newCargoValue;
             if (statsObject.currentCargo + Number(value) > statsObject.cargo) {
                 newCargoValue = statsObject.cargo;
@@ -80,11 +81,11 @@ const vehicleStatServices = {
             else {
                 newCargoValue = statsObject.currentCargo + Number(value);
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentCargo: newCargoValue });
+            const newStats = typeof item.stats === 'object'
+                ? Object.assign(Object.assign({}, item.stats), { currentCargo: newCargoValue }) : {};
             await prisma.item.update({
                 where: {
-                    id: Number(vehicleId),
-                    itemType: 'vehicle',
+                    id: Number(itemId),
                 },
                 data: {
                     stats: newStats,
@@ -93,31 +94,31 @@ const vehicleStatServices = {
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to update vehicle cargo');
+            throw new Error('Failed to update item cargo');
         }
     },
-    editVehiclePass: async (vehicleId, value, userId) => {
+    editItemPass: async (itemId, value, userId) => {
         var _a, _b;
         try {
-            const vehicle = await prisma.item.findUnique({
+            const item = await prisma.item.findUnique({
                 where: {
-                    id: Number(vehicleId),
-                    itemType: 'vehicle',
+                    id: Number(itemId),
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },
                 },
             });
-            if (userId !== ((_b = (_a = vehicle === null || vehicle === void 0 ? void 0 : vehicle.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
-                throw new Error('You can only perform this action on a vehicle your character owns');
+            if (userId !== ((_b = (_a = item === null || item === void 0 ? void 0 : item.characterInventory) === null || _a === void 0 ? void 0 : _a.character) === null || _b === void 0 ? void 0 : _b.userId)) {
+                throw new Error('You can only perform this action on a item your character owns');
             }
-            if (!vehicle) {
-                throw new Error('Vehicle not found');
+            if (!item) {
+                throw new Error('Item not found');
             }
-            const statsObject = vehicle.stats;
+            const statsObject = getStatsObject(item);
             let newPassValue;
             if (statsObject.currentPass + Number(value) > statsObject.pass) {
                 newPassValue = statsObject.pass;
@@ -128,11 +129,11 @@ const vehicleStatServices = {
             else {
                 newPassValue = statsObject.currentPass + Number(value);
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentPass: newPassValue });
+            const newStats = typeof item.stats === 'object'
+                ? Object.assign(Object.assign({}, item.stats), { currentPass: newPassValue }) : {};
             await prisma.item.update({
                 where: {
-                    id: Number(vehicleId),
-                    itemType: 'vehicle',
+                    id: Number(itemId),
                 },
                 data: {
                     stats: newStats,
@@ -141,8 +142,8 @@ const vehicleStatServices = {
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to update vehicle passengers');
+            throw new Error('Failed to update item passengers');
         }
     },
 };
-export default vehicleStatServices;
+export default itemStatServices;

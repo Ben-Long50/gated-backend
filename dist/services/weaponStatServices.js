@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import getStatsObject from '../utils/getStatsObject.js';
 const weaponStatServices = {
     editWeaponAmmo: async (weaponId, value, userId) => {
         var _a, _b;
@@ -10,6 +11,7 @@ const weaponStatServices = {
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },
@@ -21,7 +23,7 @@ const weaponStatServices = {
             if (!weapon) {
                 throw new Error('Weapon not found');
             }
-            const statsObject = weapon.stats;
+            const statsObject = getStatsObject(weapon);
             let newAmmoValue;
             if (statsObject.currentAmmoCount + Number(value) >
                 statsObject.magCapacity) {
@@ -33,7 +35,8 @@ const weaponStatServices = {
             else {
                 newAmmoValue = statsObject.currentAmmoCount + Number(value);
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: newAmmoValue });
+            const newStats = typeof weapon.stats === 'object'
+                ? Object.assign(Object.assign({}, weapon.stats), { currentAmmoCount: newAmmoValue }) : {};
             await prisma.item.update({
                 where: {
                     id: Number(weaponId),
@@ -59,6 +62,7 @@ const weaponStatServices = {
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },
@@ -70,11 +74,12 @@ const weaponStatServices = {
             if (!weapon) {
                 throw new Error('Weapon not found');
             }
-            const statsObject = weapon.stats;
+            const statsObject = getStatsObject(weapon);
             if (statsObject.currentMagCount === 0) {
                 throw new Error('Not enough ammo available to reload');
             }
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.currentMagCount - 1 });
+            const newStats = typeof weapon.stats === 'object'
+                ? Object.assign(Object.assign({}, weapon.stats), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.currentMagCount - 1 }) : {};
             await prisma.item.update({
                 where: {
                     id: Number(weaponId),
@@ -100,6 +105,7 @@ const weaponStatServices = {
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },
@@ -111,8 +117,9 @@ const weaponStatServices = {
             if (!weapon) {
                 throw new Error('Weapon not found');
             }
-            const statsObject = weapon.stats;
-            const newStats = Object.assign(Object.assign({}, statsObject), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.magCount - 1 });
+            const statsObject = getStatsObject(weapon);
+            const newStats = typeof weapon.stats === 'object'
+                ? Object.assign(Object.assign({}, weapon.stats), { currentAmmoCount: statsObject.magCapacity, currentMagCount: statsObject.magCount - 1 }) : {};
             await prisma.item.update({
                 where: {
                     id: Number(weaponId),

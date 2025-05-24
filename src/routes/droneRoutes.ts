@@ -1,7 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import droneController from '../controllers/droneController.js';
-import droneStatController from '../controllers/droneStatController.js';
+import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
@@ -21,15 +21,15 @@ router.post(
 );
 
 router.patch(
-  '/drones/:droneId/stats/currentHull',
+  '/drones/:itemId/stats/currentHull',
   authentication.authenticate,
-  droneStatController.editDroneHull,
+  itemStatController.editItemHull,
 );
 
 router.patch(
-  '/drones/:droneId/stats/currentPower',
+  '/drones/:itemId/stats/currentPower',
   authentication.authenticate,
-  droneStatController.editDronePower,
+  itemStatController.editItemPower,
 );
 
 router.put(

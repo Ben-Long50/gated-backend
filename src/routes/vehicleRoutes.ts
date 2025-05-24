@@ -1,7 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import vehicleController from '../controllers/vehicleController.js';
-import vehicleStatController from '../controllers/vehicleStatController.js';
+import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
@@ -18,21 +18,21 @@ router.get(
 );
 
 router.patch(
-  '/vehicles/:vehicleId/stats/currentHull',
+  '/vehicles/:itemId/stats/currentHull',
   authentication.authenticate,
-  vehicleStatController.editVehicleHull,
+  itemStatController.editItemHull,
 );
 
 router.patch(
-  '/vehicles/:vehicleId/stats/currentCargo',
+  '/vehicles/:itemId/stats/currentCargo',
   authentication.authenticate,
-  vehicleStatController.editVehicleCargo,
+  itemStatController.editItemCargo,
 );
 
 router.patch(
-  '/vehicles/:vehicleId/stats/currentPass',
+  '/vehicles/:itemId/stats/currentPass',
   authentication.authenticate,
-  vehicleStatController.editVehiclePass,
+  itemStatController.editItemPass,
 );
 
 router.post(

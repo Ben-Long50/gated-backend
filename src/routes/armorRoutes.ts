@@ -1,7 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import armorController from '../controllers/armorController.js';
-import armorStatController from '../controllers/armorStatController.js';
+import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
@@ -14,27 +14,27 @@ router.get(
 );
 
 router.patch(
-  '/armor/:armorId/stats/currentPower',
+  '/armor/:itemId/stats/currentPower',
   authentication.authenticate,
-  armorStatController.editArmorPower,
+  itemStatController.editItemPower,
 );
 
 router.patch(
-  '/armor/:armorId/stats/currentBlock',
+  '/armor/:itemId/stats/currentBlock',
   authentication.authenticate,
-  armorStatController.editArmorBlock,
+  itemStatController.editItemBlock,
 );
 
 router.patch(
-  '/armor/:armorId/stats/refreshPower',
+  '/armor/:itemId/stats/refreshPower',
   authentication.authenticate,
-  armorStatController.refreshArmorPower,
+  itemStatController.refreshItemPower,
 );
 
 router.patch(
-  '/armor/:armorId/stats/refreshBlock',
+  '/armor/:itemId/stats/refreshBlock',
   authentication.authenticate,
-  armorStatController.refreshArmorBlock,
+  itemStatController.refreshItemBlock,
 );
 
 router.post(

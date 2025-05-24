@@ -1,11 +1,11 @@
-import vehicleStatServices from '../services/vehicleStatServices.js';
-const vehicleStatController = {
-    editVehicleHull: async (req, res) => {
+import itemStatServices from '../services/itemStatServices.js';
+const itemStatController = {
+    editItemHull: async (req, res) => {
         try {
             if (!req.user) {
                 throw new Error('You must be logged in to perform this action');
             }
-            await vehicleStatServices.editVehicleHull(req.params.vehicleId, req.body.value, req.user.id);
+            await itemStatServices.editItemHull(req.params.itemId, req.body.value, req.user.id);
             res
                 .status(200)
                 .json({ message: `Changed current hull by ${req.body.value}` });
@@ -14,12 +14,12 @@ const vehicleStatController = {
             res.status(500).json({ error: error.message });
         }
     },
-    editVehicleCargo: async (req, res) => {
+    editItemCargo: async (req, res) => {
         try {
             if (!req.user) {
                 throw new Error('You must be logged in to perform this action');
             }
-            await vehicleStatServices.editVehicleCargo(req.params.vehicleId, req.body.value, req.user.id);
+            await itemStatServices.editItemCargo(req.params.itemId, req.body.value, req.user.id);
             res
                 .status(200)
                 .json({ message: `Changed current cargo count by ${req.body.value}` });
@@ -28,12 +28,12 @@ const vehicleStatController = {
             res.status(500).json({ error: error.message });
         }
     },
-    editVehiclePass: async (req, res) => {
+    editItemPass: async (req, res) => {
         try {
             if (!req.user) {
                 throw new Error('You must be logged in to perform this action');
             }
-            await vehicleStatServices.editVehiclePass(req.params.vehicleId, req.body.value, req.user.id);
+            await itemStatServices.editItemPass(req.params.itemId, req.body.value, req.user.id);
             res.status(200).json({
                 message: `Changed current passenger count by ${req.body.value}`,
             });
@@ -43,4 +43,4 @@ const vehicleStatController = {
         }
     },
 };
-export default vehicleStatController;
+export default itemStatController;

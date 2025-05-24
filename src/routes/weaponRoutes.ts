@@ -1,7 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import weaponController from '../controllers/weaponController.js';
-import weaponStatController from '../controllers/weaponStatController.js';
+import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
@@ -18,21 +18,21 @@ router.get(
 );
 
 router.patch(
-  '/weapons/:weaponId/stats/currentAmmoCount',
+  '/weapons/:itemId/stats/currentAmmoCount',
   authentication.authenticate,
-  weaponStatController.editWeaponAmmo,
+  itemStatController.editItemAmmo,
 );
 
 router.patch(
-  '/weapons/:weaponId/stats/currentMagCount',
+  '/weapons/:itemId/stats/currentMagCount',
   authentication.authenticate,
-  weaponStatController.reloadWeapon,
+  itemStatController.reloadItem,
 );
 
 router.patch(
-  '/weapons/:weaponId/stats/refreshAmmo',
+  '/weapons/:itemId/stats/refreshAmmo',
   authentication.authenticate,
-  weaponStatController.refreshAmmo,
+  itemStatController.refreshAmmo,
 );
 
 router.post(

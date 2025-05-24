@@ -10,6 +10,7 @@ const droneStatServices = {
                 },
                 select: {
                     stats: true,
+                    modifiedStats: true,
                     characterInventory: {
                         include: { character: { select: { userId: true } } },
                     },

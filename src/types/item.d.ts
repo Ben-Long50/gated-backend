@@ -9,6 +9,7 @@ interface Item {
   picture: Picture;
   description: string | null;
   stats: Stats;
+  // modifiedStats?: Stats;
   price: number | null;
   actionIds?: number[];
   itemIds?: number[];

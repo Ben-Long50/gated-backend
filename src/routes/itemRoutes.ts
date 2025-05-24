@@ -20,21 +20,9 @@ router.patch(
 );
 
 router.patch(
-  '/items/:itemId/stats/currentStacks',
-  authentication.authenticate,
-  itemStatController.editItemStacks,
-);
-
-router.patch(
   '/items/:itemId/stats/refreshPower',
   authentication.authenticate,
   itemStatController.refreshItemPower,
-);
-
-router.patch(
-  '/items/:itemId/stats/refreshStacks',
-  authentication.authenticate,
-  itemStatController.refreshItemStacks,
 );
 
 router.post(

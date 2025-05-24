@@ -1,7 +1,7 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import cyberneticController from '../controllers/cyberneticController.js';
-import cyberneticStatController from '../controllers/cyberneticStatController.js';
+import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
@@ -18,15 +18,15 @@ router.get(
 );
 
 router.patch(
-  '/cybernetics/:cyberneticId/stats/currentPower',
+  '/cybernetics/:itemId/stats/currentPower',
   authentication.authenticate,
-  cyberneticStatController.editCyberneticPower,
+  itemStatController.editItemPower,
 );
 
 router.patch(
-  '/cybernetics/:cyberneticId/stats/refreshPower',
+  '/cybernetics/:itemId/stats/refreshPower',
   authentication.authenticate,
-  cyberneticStatController.refreshCyberneticPower,
+  itemStatController.refreshItemPower,
 );
 
 router.post(

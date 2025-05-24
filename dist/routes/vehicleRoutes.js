@@ -1,13 +1,13 @@
 import express from 'express';
 import authentication from '../middleware/authentication.js';
 import vehicleController from '../controllers/vehicleController.js';
-import vehicleStatController from '../controllers/vehicleStatController.js';
+import itemStatController from '../controllers/itemStatController.js';
 const router = express.Router();
 router.get('/vehicles', authentication.authenticate, vehicleController.getVehicles);
 router.get('/vehicles/:vehicleId', authentication.authenticate, vehicleController.getVehicleById);
-router.patch('/vehicles/:vehicleId/stats/currentHull', authentication.authenticate, vehicleStatController.editVehicleHull);
-router.patch('/vehicles/:vehicleId/stats/currentCargo', authentication.authenticate, vehicleStatController.editVehicleCargo);
-router.patch('/vehicles/:vehicleId/stats/currentPass', authentication.authenticate, vehicleStatController.editVehiclePass);
+router.patch('/vehicles/:itemId/stats/currentHull', authentication.authenticate, itemStatController.editItemHull);
+router.patch('/vehicles/:itemId/stats/currentCargo', authentication.authenticate, itemStatController.editItemCargo);
+router.patch('/vehicles/:itemId/stats/currentPass', authentication.authenticate, itemStatController.editItemPass);
 router.post('/vehicles', authentication.authenticate, authentication.authenticateAdmin, vehicleController.createOrUpdateVehicle);
 router.put('/vehicles/:vehicleId', authentication.authenticate, authentication.authenticateVehicleModification, vehicleController.modifyVehicle);
 router.delete('/vehicles/:vehicleId', authentication.authenticate, authentication.authenticateAdmin, vehicleController.deleteVehicle);
