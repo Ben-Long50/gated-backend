@@ -98,13 +98,7 @@ const droneServices = {
                                 },
                             },
                         },
-                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
-                        ? {
-                            connect: {
-                                id: characterInventoryId,
-                            },
-                        }
-                        : undefined }),
+                    }, keywords: { createMany: { data: keywordData } }, characterInventoryId }),
                 create: Object.assign(Object.assign({}, data), { stats: Object.assign({}, stats), itemType: 'drone', itemLinkReference: {
                         create: {
                             items: {
@@ -114,13 +108,7 @@ const droneServices = {
                                 connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                             },
                         },
-                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
-                        ? {
-                            connect: {
-                                id: characterInventoryId,
-                            },
-                        }
-                        : undefined }),
+                    }, keywords: { createMany: { data: keywordData } }, characterInventoryId }),
             });
             return newDrone;
         }

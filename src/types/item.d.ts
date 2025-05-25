@@ -1,4 +1,4 @@
-import { $Enums } from '@prisma/client';
+import { $Enums, CharacterInventory } from '@prisma/client';
 
 interface Item {
   id: number;

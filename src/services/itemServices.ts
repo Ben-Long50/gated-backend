@@ -124,13 +124,7 @@ const itemServices = {
             },
           },
           keywords: { createMany: { data: keywordData } },
-          characterInventory: characterInventoryId
-            ? {
-                connect: {
-                  id: characterInventoryId,
-                },
-              }
-            : undefined,
+          characterInventoryId,
         },
         create: {
           ...data,
@@ -147,13 +141,7 @@ const itemServices = {
             },
           },
           keywords: { createMany: { data: keywordData } },
-          characterInventory: characterInventoryId
-            ? {
-                connect: {
-                  id: characterInventoryId,
-                },
-              }
-            : undefined,
+          characterInventoryId,
         },
       });
 

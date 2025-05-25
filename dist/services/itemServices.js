@@ -106,13 +106,7 @@ const itemServices = {
                                 },
                             },
                         },
-                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
-                        ? {
-                            connect: {
-                                id: characterInventoryId,
-                            },
-                        }
-                        : undefined }),
+                    }, keywords: { createMany: { data: keywordData } }, characterInventoryId }),
                 create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemType: 'reusable', itemLinkReference: {
                         create: {
                             items: {
@@ -122,13 +116,7 @@ const itemServices = {
                                 connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                             },
                         },
-                    }, keywords: { createMany: { data: keywordData } }, characterInventory: characterInventoryId
-                        ? {
-                            connect: {
-                                id: characterInventoryId,
-                            },
-                        }
-                        : undefined }),
+                    }, keywords: { createMany: { data: keywordData } }, characterInventoryId }),
             });
             return newItem;
         }

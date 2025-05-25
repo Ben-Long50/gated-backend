@@ -118,13 +118,7 @@ const vehicleServices = {
             },
           },
           keywords: { createMany: { data: keywordData } },
-          characterInventory: characterInventoryId
-            ? {
-                connect: {
-                  id: characterInventoryId,
-                },
-              }
-            : undefined,
+          characterInventoryId,
         },
         create: {
           ...data,
@@ -143,13 +137,7 @@ const vehicleServices = {
             },
           },
           keywords: { createMany: { data: keywordData } },
-          characterInventory: characterInventoryId
-            ? {
-                connect: {
-                  id: characterInventoryId,
-                },
-              }
-            : undefined,
+          characterInventoryId,
         },
       });
 
