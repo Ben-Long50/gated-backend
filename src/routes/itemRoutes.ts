@@ -17,18 +17,6 @@ router.get(
   itemController.getItemById,
 );
 
-router.patch(
-  '/items/:category/:itemId/stats/currentPower',
-  authentication.authenticate,
-  itemStatController.editItemPower,
-);
-
-router.patch(
-  '/items/:category/:itemId/stats/refreshPower',
-  authentication.authenticate,
-  itemStatController.refreshItemPower,
-);
-
 router.post(
   '/items/:category',
   authentication.authenticate,
@@ -41,6 +29,66 @@ router.put(
   authentication.authenticate,
   authentication.authenticateItemModification,
   itemController.modifyItem,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentAmmoCount',
+  authentication.authenticate,
+  itemStatController.editItemAmmo,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentMagCount',
+  authentication.authenticate,
+  itemStatController.reloadItem,
+);
+
+router.patch(
+  '/items/:itemId/stats/refreshAmmo',
+  authentication.authenticate,
+  itemStatController.refreshAmmo,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentBlock',
+  authentication.authenticate,
+  itemStatController.editItemBlock,
+);
+
+router.patch(
+  '/items/:itemId/stats/refreshBlock',
+  authentication.authenticate,
+  itemStatController.refreshItemBlock,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentPower',
+  authentication.authenticate,
+  itemStatController.editItemPower,
+);
+
+router.patch(
+  '/items/:itemId/stats/refreshPower',
+  authentication.authenticate,
+  itemStatController.refreshItemPower,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentHull',
+  authentication.authenticate,
+  itemStatController.editItemHull,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentCargo',
+  authentication.authenticate,
+  itemStatController.editItemCargo,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentPass',
+  authentication.authenticate,
+  itemStatController.editItemPass,
 );
 
 router.delete(
