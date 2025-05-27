@@ -44,7 +44,8 @@ const itemController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await itemServices.createOrUpdateItem(parsedBody, parsedBody.category);
+                const category = req.params.category.slice(0, -1);
+                await itemServices.createOrUpdateItem(parsedBody, category);
                 res.status(200).json({
                     message: parsedBody.id
                         ? 'Successfully updated item'
