@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import vehicleServices from '../services/vehicleServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import itemServices from '../services/itemServices.js';
 
 const vehicleController = {
   getVehicles: async (_req: Request, res: Response) => {
     try {
-      const vehicles = await vehicleServices.getVehicles();
+      const vehicles = await itemServices.getItems(['vehicle']);
 
       res.status(200).json(vehicles);
     } catch (error: any) {
@@ -17,8 +17,9 @@ const vehicleController = {
 
   getVehicleById: async (req: Request, res: Response) => {
     try {
-      const vehicle = await vehicleServices.getVehicleById(
-        req.params.vehicleId,
+      const vehicle = await itemServices.getItemById(
+        'vehicle',
+        Number(req.params.vehicleId),
       );
 
       res.status(200).json(vehicle);
@@ -34,7 +35,7 @@ const vehicleController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await vehicleServices.createOrUpdateVehicle(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, 'vehicle');
         res.status(200).json({
           message: req.body.vehicleId
             ? 'Successfully updated vehicle'
@@ -55,7 +56,7 @@ const vehicleController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await vehicleServices.createOrUpdateVehicle(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, 'vehicle');
         res.status(200).json({ message: 'Successfully modified vehicle' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -65,7 +66,7 @@ const vehicleController = {
 
   deleteVehicle: async (req: Request, res: Response) => {
     try {
-      await vehicleServices.deleteVehicle(req.params.vehicleId);
+      await itemServices.deleteItem(Number(req.params.vehicleId));
       res.status(200).json({ message: 'Successfully deleted vehicle' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

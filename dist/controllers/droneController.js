@@ -1,11 +1,11 @@
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import droneServices from '../services/droneServices.js';
+import itemServices from '../services/itemServices.js';
 const droneController = {
     getDrones: async (_req, res) => {
         try {
-            const drones = await droneServices.getDrones();
+            const drones = await itemServices.getItems(['drone']);
             res.status(200).json(drones);
         }
         catch (error) {
@@ -14,7 +14,7 @@ const droneController = {
     },
     getDroneById: async (req, res) => {
         try {
-            const drone = await droneServices.getDroneById(req.params.droneId);
+            const drone = await itemServices.getItemById('drone', Number(req.params.droneId));
             if (!drone) {
                 throw new Error('Failed to find drone');
             }
@@ -30,7 +30,7 @@ const droneController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await droneServices.createOrUpdateDrone(parsedBody);
+                await itemServices.createOrUpdateItem(parsedBody, 'drone');
                 res.status(200).json({
                     message: req.body.droneId
                         ? 'Successfully updated drone'
@@ -50,7 +50,7 @@ const droneController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await droneServices.createOrUpdateDrone(parsedBody);
+                await itemServices.createOrUpdateItem(parsedBody, 'drone');
                 res.status(200).json({ message: 'Successfully modified drone' });
             }
             catch (error) {
@@ -60,7 +60,7 @@ const droneController = {
     ],
     deleteDrone: async (req, res) => {
         try {
-            await droneServices.deleteDrone(req.params.droneId);
+            await itemServices.deleteItem(Number(req.params.droneId));
             res.status(200).json({ message: 'Successfully deleted drone' });
         }
         catch (error) {

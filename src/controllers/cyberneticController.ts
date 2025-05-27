@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
-import cyberneticServices from '../services/cyberneticServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import itemServices from '../services/itemServices.js';
 
 const cyberneticController = {
   getCybernetics: async (_req: Request, res: Response) => {
     try {
-      const cybernetics = await cyberneticServices.getCybernetics();
+      const augmentations = await itemServices.getItems(['augmentation']);
 
-      res.status(200).json(cybernetics);
+      res.status(200).json(augmentations);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -17,11 +17,12 @@ const cyberneticController = {
 
   getCyberneticById: async (req: Request, res: Response) => {
     try {
-      const cybernetic = await cyberneticServices.getCyberneticById(
-        req.params.cyberneticId,
+      const augmentation = await itemServices.getItemById(
+        'augmentation',
+        Number(req.params.cyberneticId),
       );
 
-      res.status(200).json(cybernetic);
+      res.status(200).json(augmentation);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -34,11 +35,11 @@ const cyberneticController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await cyberneticServices.createOrUpdateCybernetic(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, 'augmentation');
         res.status(200).json({
           message: req.body.cyberneticId
-            ? 'Successfully updated cybernetic'
-            : 'Successfully created cybernetic',
+            ? 'Successfully updated augmentation'
+            : 'Successfully created augmentation',
         });
       } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -53,8 +54,8 @@ const cyberneticController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await cyberneticServices.createOrUpdateCybernetic(parsedBody);
-        res.status(200).json({ message: 'Successfully modified cybernetic' });
+        await itemServices.createOrUpdateItem(parsedBody, 'augmentation');
+        res.status(200).json({ message: 'Successfully modified augmentation' });
       } catch (error) {
         if (error instanceof Error) {
           res.status(500).json({ error: error.message });
@@ -65,8 +66,8 @@ const cyberneticController = {
 
   deleteCybernetic: async (req: Request, res: Response) => {
     try {
-      await cyberneticServices.deleteCybernetic(req.params.cyberneticId);
-      res.status(200).json({ message: 'Successfully deleted cybernetic' });
+      await itemServices.deleteItem(Number(req.params.cyberneticId));
+      res.status(200).json({ message: 'Successfully deleted augmentation' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

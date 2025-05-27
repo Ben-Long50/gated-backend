@@ -3,7 +3,12 @@ export const includeCharacterInventory = {
         include: {
             itemLinkReference: {
                 include: {
-                    items: { orderBy: { name: 'asc' } },
+                    items: {
+                        include: {
+                            baseItem: { select: { id: true, name: true, updatedAt: true } },
+                        },
+                        orderBy: { name: 'asc' },
+                    },
                     actions: { orderBy: { name: 'asc' } },
                 },
             },

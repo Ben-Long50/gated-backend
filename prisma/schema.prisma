@@ -220,12 +220,14 @@ model ConditionReference {
 }
 
 model KeywordReference {
-  id        Int     @id @default(autoincrement())
-  value     Int?
-  keyword   Keyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
-  keywordId Int
-  item      Item?   @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  itemId    Int?
+  id             Int     @id @default(autoincrement())
+  value          Int?
+  keyword        Keyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  keywordId      Int
+  item           Item?   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId         Int?
+  modifiedItem   Item?   @relation("ModifiedKeywords", fields: [modifiedItemId], references: [id], onDelete: Cascade)
+  modifiedItemId Int?
 
   @@unique([keywordId, itemId])
 }
@@ -290,6 +292,7 @@ model Item {
   baseItemId           Int?
   conditions           ConditionReference[]
   keywords             KeywordReference[]
+  modifiedKeywords     KeywordReference[]   @relation("ModifiedKeywords")
   itemLinkReference    ItemLinkReference?   @relation("PrimaryLink")
   itemLink             ItemLinkReference?   @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
   itemLinkId           Int?

@@ -1,11 +1,11 @@
-import weaponServices from '../services/weaponServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import itemServices from '../services/itemServices.js';
 const weaponController = {
     getWeapons: async (_req, res) => {
         try {
-            const weapons = await weaponServices.getWeapons();
+            const weapons = await itemServices.getItems(['weapon']);
             res.status(200).json(weapons);
         }
         catch (error) {
@@ -14,7 +14,7 @@ const weaponController = {
     },
     getWeaponById: async (req, res) => {
         try {
-            const weapon = await weaponServices.getWeaponById(req.params.weaponId);
+            const weapon = await itemServices.getItemById('weapon', Number(req.params.weaponId));
             res.status(200).json(weapon);
         }
         catch (error) {
@@ -27,7 +27,7 @@ const weaponController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await weaponServices.createOrUpdateWeapon(parsedBody);
+                await itemServices.createOrUpdateItem(parsedBody, 'weapon');
                 res.status(200).json({
                     message: req.body.weaponId
                         ? 'Successfully updated weapon'
@@ -45,7 +45,7 @@ const weaponController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await weaponServices.createOrUpdateWeapon(parsedBody);
+                await itemServices.createOrUpdateItem(parsedBody, 'weapon');
                 res.status(200).json({ message: 'Successfully modified weapon' });
             }
             catch (error) {
@@ -57,7 +57,7 @@ const weaponController = {
     ],
     deleteWeapon: async (req, res) => {
         try {
-            await weaponServices.deleteWeapon(req.params.weaponId);
+            await itemServices.deleteItem(Number(req.params.weaponId));
             res.status(200).json({ message: 'Successfully deleted weapon' });
         }
         catch (error) {

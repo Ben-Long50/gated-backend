@@ -5,40 +5,40 @@ import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
-router.get('/armor', authentication.authenticate, armorController.getArmor);
+router.get('/armors', authentication.authenticate, armorController.getArmor);
 
 router.get(
-  '/armor/:armorId',
+  '/armors/:armorId',
   authentication.authenticate,
   armorController.getArmorById,
 );
 
 router.patch(
-  '/armor/:itemId/stats/currentPower',
+  '/armors/:itemId/stats/currentPower',
   authentication.authenticate,
   itemStatController.editItemPower,
 );
 
 router.patch(
-  '/armor/:itemId/stats/currentBlock',
+  '/armors/:itemId/stats/currentBlock',
   authentication.authenticate,
   itemStatController.editItemBlock,
 );
 
 router.patch(
-  '/armor/:itemId/stats/refreshPower',
+  '/armors/:itemId/stats/refreshPower',
   authentication.authenticate,
   itemStatController.refreshItemPower,
 );
 
 router.patch(
-  '/armor/:itemId/stats/refreshBlock',
+  '/armors/:itemId/stats/refreshBlock',
   authentication.authenticate,
   itemStatController.refreshItemBlock,
 );
 
 router.post(
-  '/armor',
+  '/armors',
   authentication.authenticate,
   authentication.authenticateAdmin,
   armorController.createOrUpdateArmor,

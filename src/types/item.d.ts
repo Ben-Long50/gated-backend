@@ -18,6 +18,7 @@ interface Item {
   itemLinkId: number | null;
   baseItemId: number | null;
   keywordIds?: { keywordId: number; value: number | null }[];
+  modifiedKeywordIds?: { keywordId: number; value: number | null }[];
   // modifiers: Modifier[];
 }
 

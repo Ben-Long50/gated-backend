@@ -1,11 +1,11 @@
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import modificationServices from '../services/modificationServices.js';
+import itemServices from '../services/itemServices.js';
 const modificationController = {
     getModifications: async (_req, res) => {
         try {
-            const modifications = await modificationServices.getModifications();
+            const modifications = await itemServices.getItems(['modification']);
             res.status(200).json(modifications);
         }
         catch (error) {
@@ -14,7 +14,7 @@ const modificationController = {
     },
     getModificationById: async (req, res) => {
         try {
-            const modification = await modificationServices.getModificationById(req.params.modId);
+            const modification = await itemServices.getItemById('modification', Number(req.params.modId));
             if (!modification) {
                 throw new Error('Modification not found');
             }
@@ -30,7 +30,7 @@ const modificationController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await modificationServices.createOrUpdateModification(parsedBody);
+                await itemServices.createOrUpdateItem(parsedBody, 'modification');
                 res.status(200).json({
                     message: parsedBody.id
                         ? 'Successfully updated modification'
@@ -44,7 +44,7 @@ const modificationController = {
     ],
     deleteModification: async (req, res) => {
         try {
-            await modificationServices.deleteModification(req.params.modId);
+            await itemServices.deleteItem(Number(req.params.modId));
             res
                 .status(200)
                 .json({ message: 'Successfully deleted vehicle modification' });

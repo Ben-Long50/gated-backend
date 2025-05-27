@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import armorServices from '../services/armorServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import itemServices from '../services/itemServices.js';
 
 const armorController = {
   getArmor: async (_req: Request, res: Response) => {
     try {
-      const armors = await armorServices.getArmor();
+      const armors = await itemServices.getItems(['armor']);
 
       res.status(200).json(armors);
     } catch (error: any) {
@@ -17,7 +17,10 @@ const armorController = {
 
   getArmorById: async (req: Request, res: Response) => {
     try {
-      const armor = await armorServices.getArmorById(req.params.armorId);
+      const armor = await itemServices.getItemById(
+        'armor',
+        Number(req.params.armorId),
+      );
 
       res.status(200).json(armor);
     } catch (error: any) {
@@ -32,7 +35,7 @@ const armorController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await armorServices.createOrUpdateArmor(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, 'armor');
         res.status(200).json({
           message: req.body.armorId
             ? 'Successfully updated armor'
@@ -51,7 +54,7 @@ const armorController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await armorServices.createOrUpdateArmor(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, 'armor');
         res.status(200).json({ message: 'Successfully modified armor' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -61,7 +64,7 @@ const armorController = {
 
   deleteArmor: async (req: Request, res: Response) => {
     try {
-      await armorServices.deleteArmor(req.params.armorId);
+      await itemServices.deleteItem(Number(req.params.armorId));
       res.status(200).json({ message: 'Successfully deleted armor' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

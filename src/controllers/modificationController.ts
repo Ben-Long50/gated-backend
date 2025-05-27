@@ -2,12 +2,12 @@ import { Request, Response } from 'express';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
-import modificationServices from '../services/modificationServices.js';
+import itemServices from '../services/itemServices.js';
 
 const modificationController = {
   getModifications: async (_req: Request, res: Response) => {
     try {
-      const modifications = await modificationServices.getModifications();
+      const modifications = await itemServices.getItems(['modification']);
 
       res.status(200).json(modifications);
     } catch (error: any) {
@@ -17,8 +17,9 @@ const modificationController = {
 
   getModificationById: async (req: Request, res: Response) => {
     try {
-      const modification = await modificationServices.getModificationById(
-        req.params.modId,
+      const modification = await itemServices.getItemById(
+        'modification',
+        Number(req.params.modId),
       );
 
       if (!modification) {
@@ -38,7 +39,7 @@ const modificationController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await modificationServices.createOrUpdateModification(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, 'modification');
 
         res.status(200).json({
           message: parsedBody.id
@@ -53,7 +54,7 @@ const modificationController = {
 
   deleteModification: async (req: Request, res: Response) => {
     try {
-      await modificationServices.deleteModification(req.params.modId);
+      await itemServices.deleteItem(Number(req.params.modId));
       res
         .status(200)
         .json({ message: 'Successfully deleted vehicle modification' });

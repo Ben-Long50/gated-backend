@@ -4,11 +4,14 @@ import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
 import characterServices from '../services/characterServices.js';
+import { ItemType } from '@prisma/client';
 
 const itemController = {
-  getItems: async (_req: Request, res: Response) => {
+  getItems: async (req: Request, res: Response) => {
     try {
-      const items = await itemServices.getItems();
+      const category = req.params.category.slice(0, -1) as ItemType;
+
+      const items = await itemServices.getItems([category]);
 
       res.status(200).json(items);
     } catch (error: any) {
@@ -18,7 +21,12 @@ const itemController = {
 
   getItemById: async (req: Request, res: Response) => {
     try {
-      const item = await itemServices.getItemById(req.params.itemId);
+      const category = req.params.category.slice(0, -1) as ItemType;
+
+      const item = await itemServices.getItemById(
+        category,
+        Number(req.params.itemId),
+      );
 
       if (!item) {
         throw new Error('Item not found');
@@ -37,7 +45,7 @@ const itemController = {
       try {
         const parsedBody = parseRequestBody(req.body);
 
-        await itemServices.createOrUpdateItem(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, parsedBody.category);
 
         res.status(200).json({
           message: parsedBody.id
@@ -76,7 +84,6 @@ const itemController = {
             'You do not have enough profits to purchase the chosen upgrades',
           );
         }
-        console.log(character.profits);
 
         const { upgradePrice, ...itemInfo } = parsedBody;
 
@@ -88,7 +95,7 @@ const itemController = {
           character.id,
         );
 
-        await itemServices.createOrUpdateItem(itemInfo);
+        await itemServices.createOrUpdateItem(itemInfo, itemInfo.itemType);
         res.status(200).json({ message: 'Successfully modified item' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });
@@ -98,7 +105,7 @@ const itemController = {
 
   deleteItem: async (req: Request, res: Response) => {
     try {
-      await itemServices.deleteItem(req.params.itemId);
+      await itemServices.deleteItem(Number(req.params.itemId));
       res.status(200).json({ message: 'Successfully deleted item' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

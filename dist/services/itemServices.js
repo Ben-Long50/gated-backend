@@ -13,21 +13,20 @@ import prisma from '../config/database.js';
 import addVariableStats from '../utils/addVariableStats.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 import { createLinkedCopies } from '../utils/createLinkedCopies.js';
-import weaponServices from './weaponServices.js';
-import armorServices from './armorServices.js';
-import cyberneticServices from './cyberneticServices.js';
-import vehicleServices from './vehicleServices.js';
-import droneServices from './droneServices.js';
-import modificationServices from './modificationServices.js';
 const itemServices = {
-    getItems: async () => {
+    getItems: async (category) => {
         try {
-            const miscTypes = ['consumable', 'reusable'];
             const items = await prisma.item.findMany({
-                where: { itemType: { in: miscTypes }, characterInventory: null },
+                where: category
+                    ? { characterInventory: null, itemType: { in: category } }
+                    : { characterInventory: null },
                 include: {
                     itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                    modifiedKeywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
                     },
@@ -41,14 +40,18 @@ const itemServices = {
             throw new Error('Failed to fetch items');
         }
     },
-    getItemById: async (itemId) => {
+    getItemById: async (category, itemId) => {
         try {
-            const miscTypes = ['consumable', 'reusable'];
             const item = await prisma.item.findUnique({
-                where: { id: Number(itemId), itemType: { in: miscTypes } },
+                where: { id: itemId, itemType: category },
                 include: {
+                    baseItem: true,
                     itemLinkReference: { include: { items: true, actions: true } },
                     keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                    modifiedKeywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
                     },
@@ -61,14 +64,14 @@ const itemServices = {
             throw new Error('Failed to fetch item');
         }
     },
-    createOrUpdateItem: async (formData) => {
-        // const miscTypes = ['consumable', 'reusable'] as ItemType[];
+    createOrUpdateItem: async (formData, category) => {
         var _a;
         try {
             const item = await prisma.item.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: category },
                 include: {
                     keywords: { select: { id: true } },
+                    modifiedKeywords: { select: { id: true } },
                 },
             });
             if (item && item.keywords) {
@@ -78,15 +81,26 @@ const itemServices = {
                     },
                 });
             }
-            const { id, itemLinkId, itemIds, actionIds, keywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "itemLinkId", "itemIds", "actionIds", "keywordIds", "stats", "characterInventoryId"]);
+            if (item && item.modifiedKeywords) {
+                await prisma.keywordReference.deleteMany({
+                    where: {
+                        id: { in: item.keywords.map((keyword) => keyword.id) },
+                    },
+                });
+            }
+            const { id, itemLinkId, itemIds, actionIds, keywordIds, modifiedKeywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "itemLinkId", "itemIds", "actionIds", "keywordIds", "modifiedKeywordIds", "stats", "characterInventoryId"]);
             await enforceSingularLinking(id, itemIds, actionIds);
             const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,
             }))) || [];
+            const modifiedKeywordData = (modifiedKeywordIds === null || modifiedKeywordIds === void 0 ? void 0 : modifiedKeywordIds.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
             const newItem = await prisma.item.upsert({
                 where: { id: id !== null && id !== void 0 ? id : 0 },
-                update: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemLinkReference: {
+                update: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { updatedAt: new Date(), itemType: category, itemLinkReference: {
                         upsert: {
                             where: { itemId: id !== null && id !== void 0 ? id : 0 },
                             update: {
@@ -106,8 +120,8 @@ const itemServices = {
                                 },
                             },
                         },
-                    }, keywords: { createMany: { data: keywordData } }, characterInventoryId }),
-                create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemType: 'reusable', itemLinkReference: {
+                    }, keywords: { createMany: { data: keywordData } }, modifiedKeywords: { createMany: { data: modifiedKeywordData } }, characterInventoryId }),
+                create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemType: category, itemLinkReference: {
                         create: {
                             items: {
                                 connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
@@ -116,7 +130,7 @@ const itemServices = {
                                 connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
                             },
                         },
-                    }, keywords: { createMany: { data: keywordData } }, characterInventoryId }),
+                    }, keywords: { createMany: { data: keywordData } }, modifiedKeywords: { createMany: { data: modifiedKeywordData } }, characterInventoryId }),
             });
             return newItem;
         }
@@ -154,29 +168,7 @@ const itemServices = {
                 keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseItemId: itemDetails.id });
             if (itemDetails) {
                 for (let i = 0; i < quantity; i++) {
-                    switch (itemData.itemType) {
-                        case 'weapon':
-                            promises.push(weaponServices.createOrUpdateWeapon(itemData));
-                            break;
-                        case 'armor':
-                            promises.push(armorServices.createOrUpdateArmor(itemData));
-                            break;
-                        case 'augmentation':
-                            promises.push(cyberneticServices.createOrUpdateCybernetic(itemData));
-                            break;
-                        case 'vehicle':
-                            promises.push(vehicleServices.createOrUpdateVehicle(itemData));
-                            break;
-                        case 'drone':
-                            promises.push(droneServices.createOrUpdateDrone(itemData));
-                            break;
-                        case 'modification':
-                            promises.push(modificationServices.createOrUpdateModification(itemData));
-                            break;
-                        default:
-                            promises.push(itemServices.createOrUpdateItem(itemData));
-                            break;
-                    }
+                    promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemType));
                 }
             }
         }
@@ -185,7 +177,6 @@ const itemServices = {
     },
     deleteItem: async (itemId) => {
         try {
-            // const miscTypes = ['consumable', 'reusable'] as ItemType[];
             await prisma.item.delete({
                 where: {
                     id: Number(itemId),
@@ -197,14 +188,17 @@ const itemServices = {
             throw new Error('Failed to delete item');
         }
     },
-    deleteItems: async (itemIds) => {
+    deleteItems: async (itemIds, category) => {
         try {
-            const miscTypes = ['consumable', 'reusable'];
             await prisma.item.deleteMany({
-                where: {
-                    id: { in: itemIds },
-                    itemType: { in: miscTypes },
-                },
+                where: category
+                    ? {
+                        id: { in: itemIds },
+                        itemType: { in: category },
+                    }
+                    : {
+                        itemType: category,
+                    },
             });
         }
         catch (error) {

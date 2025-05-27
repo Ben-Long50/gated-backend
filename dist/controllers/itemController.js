@@ -15,9 +15,10 @@ import { uploadToCloudinary } from '../utils/cloudinary.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
 import characterServices from '../services/characterServices.js';
 const itemController = {
-    getItems: async (_req, res) => {
+    getItems: async (req, res) => {
         try {
-            const items = await itemServices.getItems();
+            const category = req.params.category.slice(0, -1);
+            const items = await itemServices.getItems([category]);
             res.status(200).json(items);
         }
         catch (error) {
@@ -26,7 +27,8 @@ const itemController = {
     },
     getItemById: async (req, res) => {
         try {
-            const item = await itemServices.getItemById(req.params.itemId);
+            const category = req.params.category.slice(0, -1);
+            const item = await itemServices.getItemById(category, Number(req.params.itemId));
             if (!item) {
                 throw new Error('Item not found');
             }
@@ -42,7 +44,7 @@ const itemController = {
         async (req, res) => {
             try {
                 const parsedBody = parseRequestBody(req.body);
-                await itemServices.createOrUpdateItem(parsedBody);
+                await itemServices.createOrUpdateItem(parsedBody, parsedBody.category);
                 res.status(200).json({
                     message: parsedBody.id
                         ? 'Successfully updated item'
@@ -70,12 +72,11 @@ const itemController = {
                 if (character.profits < parsedBody.upgradePrice) {
                     throw new Error('You do not have enough profits to purchase the chosen upgrades');
                 }
-                console.log(character.profits);
                 const { upgradePrice } = parsedBody, itemInfo = __rest(parsedBody, ["upgradePrice"]);
                 await characterServices.updateCharacter({
                     profits: character.profits - upgradePrice,
                 }, req.user.id, character.id);
-                await itemServices.createOrUpdateItem(itemInfo);
+                await itemServices.createOrUpdateItem(itemInfo, itemInfo.itemType);
                 res.status(200).json({ message: 'Successfully modified item' });
             }
             catch (error) {
@@ -85,7 +86,7 @@ const itemController = {
     ],
     deleteItem: async (req, res) => {
         try {
-            await itemServices.deleteItem(req.params.itemId);
+            await itemServices.deleteItem(Number(req.params.itemId));
             res.status(200).json({ message: 'Successfully deleted item' });
         }
         catch (error) {
