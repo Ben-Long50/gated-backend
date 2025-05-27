@@ -66,6 +66,7 @@ const itemController = {
                     throw new Error('You must be signed in to complete this action');
                 }
                 const parsedBody = parseRequestBody(req.body);
+                const category = req.params.category.slice(0, -1);
                 const character = await characterServices.getCharacterById(req.params.characterId);
                 if (!character) {
                     throw new Error('This item must be associated with an existing character to modify it');
@@ -77,7 +78,7 @@ const itemController = {
                 await characterServices.updateCharacter({
                     profits: character.profits - upgradePrice,
                 }, req.user.id, character.id);
-                await itemServices.createOrUpdateItem(itemInfo, itemInfo.itemType);
+                await itemServices.createOrUpdateItem(itemInfo, category);
                 res.status(200).json({ message: 'Successfully modified item' });
             }
             catch (error) {

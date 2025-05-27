@@ -25,6 +25,13 @@ router.post(
 );
 
 router.put(
+  '/items/:category/:itemId/update',
+  authentication.authenticate,
+  authentication.authenticateItemModification,
+  itemController.createOrUpdateItem,
+);
+
+router.put(
   '/characters/:characterId/items/:category/:itemId/modify',
   authentication.authenticate,
   authentication.authenticateItemModification,

@@ -19,7 +19,6 @@ interface Item {
   baseItemId: number | null;
   keywordIds?: { keywordId: number; value: number | null }[];
   modifiedKeywordIds?: { keywordId: number; value: number | null }[];
-  // modifiers: Modifier[];
 }
 
 type Stats = {

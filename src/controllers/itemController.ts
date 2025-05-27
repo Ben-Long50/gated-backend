@@ -69,6 +69,7 @@ const itemController = {
         }
 
         const parsedBody = parseRequestBody(req.body);
+        const category = req.params.category.slice(0, -1) as ItemType;
 
         const character = await characterServices.getCharacterById(
           req.params.characterId,
@@ -96,7 +97,7 @@ const itemController = {
           character.id,
         );
 
-        await itemServices.createOrUpdateItem(itemInfo, itemInfo.itemType);
+        await itemServices.createOrUpdateItem(itemInfo, category);
         res.status(200).json({ message: 'Successfully modified item' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });
