@@ -105,6 +105,23 @@ const itemController = {
     },
   ],
 
+  createItemConditions: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        throw new Error('Could not find authenticated user');
+      }
+
+      await itemServices.createItemConditions(
+        Number(req.params.itemId),
+        req.body,
+      );
+
+      res.status(200).json({ message: 'Successfully created item conditions' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   deleteItem: async (req: Request, res: Response) => {
     try {
       await itemServices.deleteItem(Number(req.params.itemId));

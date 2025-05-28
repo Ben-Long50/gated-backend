@@ -24,6 +24,12 @@ router.post(
   itemController.createOrUpdateItem,
 );
 
+router.post(
+  '/items/:category/:itemId/conditions',
+  authentication.authenticate,
+  itemController.createItemConditions,
+);
+
 router.put(
   '/items/:category/:itemId/update',
   authentication.authenticate,

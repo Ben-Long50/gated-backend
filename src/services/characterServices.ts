@@ -340,8 +340,6 @@ const characterServices = {
         },
       });
 
-      console.log(character);
-
       if (!character) {
         throw new Error('Failed to find character');
       }
@@ -363,7 +361,7 @@ const characterServices = {
       await prisma.character.update({
         where: {
           userId: userId,
-          id: Number(characterId),
+          id: characterId,
         },
         data: {
           conditions: { createMany: { data: conditionData } },
@@ -371,7 +369,7 @@ const characterServices = {
       });
     } catch (error) {
       console.error(error);
-      throw new Error('Failed to create conditions');
+      throw new Error('Failed to create character conditions');
     }
   },
 

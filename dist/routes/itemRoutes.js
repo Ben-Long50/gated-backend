@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/items/:category', authentication.authenticate, itemController.getItems);
 router.get('/items/:category/:itemId', authentication.authenticate, itemController.getItemById);
 router.post('/items/:category', authentication.authenticate, authentication.authenticateAdmin, itemController.createOrUpdateItem);
+router.post('/items/:category/:itemId/conditions', authentication.authenticate, itemController.createItemConditions);
 router.put('/items/:category/:itemId/update', authentication.authenticate, authentication.authenticateItemModification, itemController.createOrUpdateItem);
 router.put('/characters/:characterId/items/:category/:itemId/modify', authentication.authenticate, authentication.authenticateItemModification, itemController.modifyItem);
 router.patch('/items/:itemId/stats/currentAmmoCount', authentication.authenticate, itemStatController.editItemAmmo);

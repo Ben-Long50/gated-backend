@@ -44,6 +44,7 @@ const campaignServices = {
                   ownerId: true,
                 },
               },
+              conditions: { include: { condition: true } },
               perks: {
                 include: { modifiers: { include: { action: true } } },
               },

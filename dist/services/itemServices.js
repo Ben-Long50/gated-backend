@@ -175,6 +175,42 @@ const itemServices = {
         const newItems = await Promise.all(promises);
         return newItems.filter((item) => item !== undefined).map((item) => item.id);
     },
+    createItemConditions: async (itemId, formData) => {
+        try {
+            const item = await prisma.item.findUnique({
+                where: { id: itemId },
+                include: {
+                    conditions: { select: { id: true } },
+                },
+            });
+            if (!item) {
+                throw new Error('Failed to find character');
+            }
+            if (item && item.conditions) {
+                await prisma.itemConditionReference.deleteMany({
+                    where: {
+                        id: { in: item.conditions.map((condition) => condition.id) },
+                    },
+                });
+            }
+            const conditionData = (formData === null || formData === void 0 ? void 0 : formData.map((condition) => ({
+                conditionId: condition.conditionId,
+                stacks: condition.stacks ? condition.stacks : null,
+            }))) || [];
+            await prisma.item.update({
+                where: {
+                    id: itemId,
+                },
+                data: {
+                    conditions: { createMany: { data: conditionData } },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create item conditions');
+        }
+    },
     deleteItem: async (itemId) => {
         try {
             await prisma.item.delete({
