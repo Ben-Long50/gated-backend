@@ -78,6 +78,12 @@ router.post(
   affiliationController.createCharacterAffiliation,
 );
 
+router.post(
+  '/characters/:characterId/conditions',
+  authentication.authenticate,
+  characterController.createCharacterConditions,
+);
+
 router.put(
   '/characters/:characterId',
   authentication.authenticate,

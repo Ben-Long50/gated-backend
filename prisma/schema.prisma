@@ -143,12 +143,12 @@ model Gang {
 }
 
 model Character {
-  id                 Int                  @id @default(autoincrement())
-  createdAt          DateTime             @default(now())
+  id                 Int                           @id @default(autoincrement())
+  createdAt          DateTime                      @default(now())
   userId             Int
-  level              Int                  @default(1)
-  profits            Int                  @default(10)
-  stats              Json                 @default("{}")
+  level              Int                           @default(1)
+  profits            Int                           @default(10)
+  stats              Json                          @default("{}")
   picture            Json?
   height             Int
   weight             Int
@@ -160,18 +160,18 @@ model Character {
   attributes         Json
   firstName          String
   lastName           String?
-  playerCharacter    Boolean              @default(false)
+  playerCharacter    Boolean                       @default(false)
   preferences        Json?
-  user               User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  active             Boolean              @default(false)
-  perks              Perk[]               @relation("CharacterToPerk")
-  campaign           Campaign?            @relation(fields: [campaignId], references: [id])
+  user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  active             Boolean                       @default(false)
+  perks              Perk[]                        @relation("CharacterToPerk")
+  campaign           Campaign?                     @relation(fields: [campaignId], references: [id])
   campaignId         Int?
   sessions           Session[]
   scenes             Scene[]
-  gang               Gang?                @relation(fields: [gangId], references: [id])
+  gang               Gang?                         @relation(fields: [gangId], references: [id])
   gangId             Int?
-  conditions         ConditionReference[]
+  conditions         CharacterConditionReference[]
   characterCart      CharacterCart?
   characterInventory CharacterInventory?
   Note               Note[]
@@ -206,19 +206,6 @@ model CharacterInventory {
   items       Item[]
 }
 
-model ConditionReference {
-  id          Int        @id @default(autoincrement())
-  stacks      Int?
-  condition   Condition  @relation(fields: [conditionId], references: [id], onDelete: Cascade)
-  conditionId Int
-  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
-  characterId Int?
-  item        Item?      @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  itemId      Int?
-
-  @@unique([conditionId, characterId])
-}
-
 model KeywordReference {
   id             Int     @id @default(autoincrement())
   value          Int?
@@ -233,12 +220,35 @@ model KeywordReference {
 }
 
 model Condition {
-  id                 Int                  @id @default(autoincrement())
-  name               String
-  conditionType      ConditionType
-  description        String
-  keywords           Keyword[]
-  ConditionReference ConditionReference[]
+  id                           Int                           @id @default(autoincrement())
+  name                         String
+  conditionType                ConditionType
+  description                  String
+  keywords                     Keyword[]
+  characterConditionReferences CharacterConditionReference[]
+  itemConditionReferences      ItemConditionReference[]
+}
+
+model CharacterConditionReference {
+  id          Int       @id @default(autoincrement())
+  stacks      Int?
+  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  conditionId Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  characterId Int
+
+  @@unique([conditionId, characterId])
+}
+
+model ItemConditionReference {
+  id          Int       @id @default(autoincrement())
+  stacks      Int?
+  condition   Condition @relation(fields: [conditionId], references: [id], onDelete: Cascade)
+  conditionId Int
+  item        Item?     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId      Int?
+
+  @@unique([conditionId, itemId])
 }
 
 model Keyword {
@@ -273,31 +283,31 @@ model Action {
 }
 
 model Item {
-  id                   Int                  @id @default(autoincrement())
-  updatedAt            DateTime             @default(now())
+  id                   Int                      @id @default(autoincrement())
+  updatedAt            DateTime                 @default(now())
   name                 String
   itemType             ItemType
   itemSubtype          String?
-  rarity               ItemRarity           @default(common)
-  grade                Int                  @default(1)
+  rarity               ItemRarity               @default(common)
+  grade                Int                      @default(1)
   picture              Json?
   description          String?
   stats                Json?
   modifiedStats        Json?
   price                Int?
-  equipped             Boolean?             @default(false)
-  characterInventory   CharacterInventory?  @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
+  equipped             Boolean?                 @default(false)
+  characterInventory   CharacterInventory?      @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
-  baseItem             Item?                @relation("BaseRelation", fields: [baseItemId], references: [id])
+  baseItem             Item?                    @relation("BaseRelation", fields: [baseItemId], references: [id])
   baseItemId           Int?
-  conditions           ConditionReference[]
+  conditions           ItemConditionReference[]
   keywords             KeywordReference[]
-  modifiedKeywords     KeywordReference[]   @relation("ModifiedKeywords")
-  itemLinkReference    ItemLinkReference?   @relation("PrimaryLink")
-  itemLink             ItemLinkReference?   @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
+  modifiedKeywords     KeywordReference[]       @relation("ModifiedKeywords")
+  itemLinkReference    ItemLinkReference?       @relation("PrimaryLink")
+  itemLink             ItemLinkReference?       @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
   itemLinkId           Int?
   cartRelation         CartItemRelation[]
-  derivedItems         Item[]               @relation("BaseRelation")
+  derivedItems         Item[]                   @relation("BaseRelation")
 
   @@index([itemType])
   @@index([characterInventoryId])

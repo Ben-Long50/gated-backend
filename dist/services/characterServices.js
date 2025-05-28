@@ -15,6 +15,7 @@ const characterServices = {
                             ownerId: true,
                         },
                     },
+                    conditions: { include: { condition: true } },
                     perks: { include: { modifiers: { include: { action: true } } } },
                     characterInventory: {
                         include: includeCharacterInventory,
@@ -49,6 +50,7 @@ const characterServices = {
                             ownerId: true,
                         },
                     },
+                    conditions: { include: { condition: true } },
                     affiliations: { include: { factions: true, characters: true } },
                     perks: { include: { modifiers: { include: { action: true } } } },
                     characterCart: {
@@ -79,6 +81,7 @@ const characterServices = {
                             ownerId: true,
                         },
                     },
+                    conditions: { include: { condition: true } },
                     perks: { include: { modifiers: { include: { action: true } } } },
                     characterInventory: {
                         include: includeCharacterInventory,
@@ -268,6 +271,44 @@ const characterServices = {
         catch (error) {
             console.error(error);
             throw new Error('Failed to update character');
+        }
+    },
+    createCharacterConditions: async (userId, characterId, formData) => {
+        try {
+            const character = await prisma.character.findUnique({
+                where: { id: characterId, userId },
+                include: {
+                    conditions: { select: { id: true } },
+                },
+            });
+            console.log(character);
+            if (!character) {
+                throw new Error('Failed to find character');
+            }
+            if (character && character.conditions) {
+                await prisma.characterConditionReference.deleteMany({
+                    where: {
+                        id: { in: character.conditions.map((condition) => condition.id) },
+                    },
+                });
+            }
+            const conditionData = (formData === null || formData === void 0 ? void 0 : formData.map((condition) => ({
+                conditionId: condition.conditionId,
+                stacks: condition.stacks ? condition.stacks : null,
+            }))) || [];
+            await prisma.character.update({
+                where: {
+                    userId: userId,
+                    id: Number(characterId),
+                },
+                data: {
+                    conditions: { createMany: { data: conditionData } },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create conditions');
         }
     },
     deleteCharacter: async (userId, characterId) => {
