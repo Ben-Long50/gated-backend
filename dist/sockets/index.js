@@ -6,6 +6,11 @@ export function setupSocketIO(io) {
             io.emit('character', characterId);
             console.log('Broadcasted character to all clients');
         });
+        socket.on('item', (itemId) => {
+            console.log('item', itemId);
+            io.emit('item', itemId);
+            console.log('Broadcasted character to all clients');
+        });
         socket.on('disconnect', (reason) => {
             console.log('User disconnected:', socket.id, 'Reason:', reason);
         });

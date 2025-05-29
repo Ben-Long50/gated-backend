@@ -15,6 +15,7 @@ const characterStatController = {
       res.status(500).json({ error: error.message });
     }
   },
+
   editCurrentSanity: async (req: Request, res: Response) => {
     try {
       await characterStatServices.editCurrentSanity(
