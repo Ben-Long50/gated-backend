@@ -45,35 +45,70 @@ const conditionServices = {
             throw new Error('Failed to create or update condition');
         }
     },
-    createCharacterCondition: async (characterId, formData) => {
+    updateCharacterConditionStacks: async (conditionId, value) => {
         try {
-            await prisma.conditionReference.upsert({
-                where: {
-                    conditionId_characterId: {
-                        conditionId: Number(formData.conditionId),
-                        characterId: Number(characterId),
-                    },
-                },
-                update: {
-                    stacks: Number(formData.stacks),
-                },
-                create: {
-                    characterId: Number(characterId),
-                    conditionId: Number(formData.conditionId),
-                    stacks: Number(formData.stacks),
+            const conditionReference = await prisma.characterConditionReference.findUnique({
+                where: { id: conditionId },
+                select: { stacks: true },
+            });
+            if (!conditionReference) {
+                throw new Error('Failed to find condition reference');
+            }
+            await prisma.characterConditionReference.update({
+                where: { id: conditionId },
+                data: {
+                    stacks: (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks)
+                        ? (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks) + value
+                        : value,
                 },
             });
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to create or update character condition');
+            throw new Error('Failed to udpate character condition stacks');
         }
     },
-    deleteCharacterCondition: async (characterConditionId) => {
+    updateItemConditionStacks: async (conditionId, value) => {
+        try {
+            const conditionReference = await prisma.itemConditionReference.findUnique({
+                where: { id: conditionId },
+                select: { stacks: true },
+            });
+            if (!conditionReference) {
+                throw new Error('Failed to find condition reference');
+            }
+            await prisma.itemConditionReference.update({
+                where: { id: conditionId },
+                data: {
+                    stacks: (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks)
+                        ? (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks) + value
+                        : value,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to udpate item condition stacks');
+        }
+    },
+    deleteCondition: async (conditionId) => {
         try {
             await prisma.condition.delete({
                 where: {
-                    id: Number(characterConditionId),
+                    id: conditionId,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete condition');
+        }
+    },
+    deleteCharacterCondition: async (conditionId) => {
+        try {
+            await prisma.characterConditionReference.delete({
+                where: {
+                    id: conditionId,
                 },
             });
         }
@@ -82,17 +117,17 @@ const conditionServices = {
             throw new Error('Failed to delete character condition');
         }
     },
-    deleteCondition: async (conditionId) => {
+    deleteItemCondition: async (conditionId) => {
         try {
-            await prisma.condition.delete({
+            await prisma.itemConditionReference.delete({
                 where: {
-                    id: Number(conditionId),
+                    id: conditionId,
                 },
             });
         }
         catch (error) {
             console.error(error);
-            throw new Error('Failed to delete condition');
+            throw new Error('Failed to delete item condition');
         }
     },
 };

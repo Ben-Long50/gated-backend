@@ -9,7 +9,7 @@ interface Action {
   id: number;
   name: string;
   description: string;
-  costs: ActionCost[];
+  costs: ActionCosts;
   roll: ActionRoll[];
   actionType: ActionType;
   actionSubtypes: string[];
@@ -26,9 +26,14 @@ interface Action {
   modifiers: Modifier[];
 }
 
-interface ActionCost {
-  stat: ActionCostStat;
-  value: number;
+interface ActionCosts {
+  actionPoints?: number;
+  reactionPoints?: number;
+  power?: number;
+  health?: number;
+  sanity?: number;
+  wyrmShells?: number;
+  currentAmmoCount?: number;
 }
 
 interface ActionRoll {

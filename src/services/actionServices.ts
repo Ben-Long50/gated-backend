@@ -1,6 +1,6 @@
 import { ActionType, Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
-import { ActionCost, ActionRoll } from '../types/action.js';
+import { ActionCosts, ActionRoll } from '../types/action.js';
 
 const actionServices = {
   getActions: async () => {
@@ -31,7 +31,7 @@ const actionServices = {
   createAction: async (formData: {
     name: string;
     description: string;
-    costs: ActionCost[];
+    costs: ActionCosts;
     roll: ActionRoll[];
     duration: { unit: string; value: number | null };
     actionType: ActionType;
@@ -44,7 +44,7 @@ const actionServices = {
         update: {
           name: formData.name,
           description: formData.description,
-          costs: formData.costs as unknown as Prisma.JsonArray,
+          costs: { ...formData.costs },
           roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
           actionType: formData.actionType,
@@ -53,7 +53,7 @@ const actionServices = {
         create: {
           name: formData.name,
           description: formData.description,
-          costs: formData.costs as unknown as Prisma.JsonArray,
+          costs: { ...formData.costs },
           roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
           actionType: formData.actionType,
@@ -66,6 +66,48 @@ const actionServices = {
       console.error(error);
       throw new Error('Failed to create or update action');
     }
+  },
+
+  createCharacterActionCopy: async (
+    inventoryId: number,
+    actionList: { actionId: number; quantity: number }[],
+  ) => {
+    const actionIds = actionList?.map((action) => action.actionId);
+
+    const actions = await prisma.action.findMany({
+      where: { id: { in: actionIds } },
+    });
+
+    const newAction = await Promise.all(
+      actionList.flatMap(({ actionId, quantity }) => {
+        const actionDetails = actions.find((action) => action.id === actionId);
+
+        if (actionDetails) {
+          return Array.from({ length: quantity }).map(() =>
+            prisma.action.create({
+              data: {
+                name: actionDetails.name,
+                description: actionDetails.description,
+                costs: actionDetails.costs || undefined,
+                roll: actionDetails.roll || undefined,
+                duration: actionDetails.duration || undefined,
+                actionType: actionDetails.actionType,
+                actionSubtypes: actionDetails.actionSubtypes,
+                characterInventory: {
+                  connect: { id: Number(inventoryId) },
+                },
+                baseActionId: actionDetails.id,
+              },
+            }),
+          );
+        }
+        return;
+      }),
+    );
+
+    return newAction
+      .filter((action) => action !== undefined)
+      .map((action) => action.id);
   },
 
   deleteAction: async (actionId: string) => {

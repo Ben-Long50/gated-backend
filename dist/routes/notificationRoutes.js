@@ -9,6 +9,7 @@ router.get('/notifications', authentication.authenticate, notificationController
 //   authentication.authenticateAdmin,
 //   notificationController.createNotification,
 // );
+router.put('/notifications/read', authentication.authenticate, notificationController.markNotificationsRead);
 router.delete('/notifications/:notificationId', authentication.authenticate, notificationController.deleteNotification);
 router.delete('/notifications', authentication.authenticate, notificationController.deleteNotifications);
 export default router;

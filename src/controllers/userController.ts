@@ -27,10 +27,8 @@ const userController = {
 
       const users = await userServices.getAllUsers(query, userId);
       res.status(200).json(users);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -49,10 +47,8 @@ const userController = {
         role: user.role,
         profilePicture: user.profilePicture,
       });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -81,7 +77,7 @@ const userController = {
       .escape()
       .notEmpty()
       .withMessage('The email field cannot be empty')
-      .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
+      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
       .withMessage('The email input must be in a valid email format')
       .custom(async (value) => {
         const user = await userServices.getUserByEmail(value);
@@ -155,7 +151,7 @@ const userController = {
     body('email', 'The email input must be in a valid email format')
       .trim()
       .escape()
-      .matches(/^[^s@]+@[^s@]+.[^s@]+$/)
+      .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
       .custom(async (value, { req }) => {
         if (value !== req.user.email && req.user.facebookId) {
           throw new Error(
@@ -217,10 +213,8 @@ const userController = {
       res
         .status(200)
         .json({ message: 'Successfully updated account information' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

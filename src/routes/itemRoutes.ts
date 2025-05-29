@@ -5,12 +5,73 @@ import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
-router.get('/items', authentication.authenticate, itemController.getItems);
+router.get(
+  '/items/:category',
+  authentication.authenticate,
+  itemController.getItems,
+);
 
 router.get(
-  '/items/:itemId',
+  '/items/:category/:itemId',
   authentication.authenticate,
   itemController.getItemById,
+);
+
+router.post(
+  '/items/:category',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  itemController.createOrUpdateItem,
+);
+
+router.post(
+  '/items/:category/:itemId/conditions',
+  authentication.authenticate,
+  itemController.createItemConditions,
+);
+
+router.put(
+  '/items/:category/:itemId/update',
+  authentication.authenticate,
+  authentication.authenticateItemModification,
+  itemController.createOrUpdateItem,
+);
+
+router.put(
+  '/characters/:characterId/items/:category/:itemId/modify',
+  authentication.authenticate,
+  authentication.authenticateItemModification,
+  itemController.modifyItem,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentAmmoCount',
+  authentication.authenticate,
+  itemStatController.editItemAmmo,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentMagCount',
+  authentication.authenticate,
+  itemStatController.reloadItem,
+);
+
+router.patch(
+  '/items/:itemId/stats/refreshAmmo',
+  authentication.authenticate,
+  itemStatController.refreshAmmo,
+);
+
+router.patch(
+  '/items/:itemId/stats/currentBlock',
+  authentication.authenticate,
+  itemStatController.editItemBlock,
+);
+
+router.patch(
+  '/items/:itemId/stats/refreshBlock',
+  authentication.authenticate,
+  itemStatController.refreshItemBlock,
 );
 
 router.patch(
@@ -20,39 +81,31 @@ router.patch(
 );
 
 router.patch(
-  '/items/:itemId/stats/currentStacks',
-  authentication.authenticate,
-  itemStatController.editItemStacks,
-);
-
-router.patch(
   '/items/:itemId/stats/refreshPower',
   authentication.authenticate,
   itemStatController.refreshItemPower,
 );
 
 router.patch(
-  '/items/:itemId/stats/refreshStacks',
+  '/items/:itemId/stats/currentHull',
   authentication.authenticate,
-  itemStatController.refreshItemStacks,
+  itemStatController.editItemHull,
 );
 
-router.post(
-  '/items',
+router.patch(
+  '/items/:itemId/stats/currentCargo',
   authentication.authenticate,
-  authentication.authenticateAdmin,
-  itemController.createOrUpdateItem,
+  itemStatController.editItemCargo,
 );
 
-router.put(
-  '/items/:itemId',
+router.patch(
+  '/items/:itemId/stats/currentPass',
   authentication.authenticate,
-  authentication.authenticateItemModification,
-  itemController.modifyItem,
+  itemStatController.editItemPass,
 );
 
 router.delete(
-  '/items/:itemId',
+  '/items/:category/:itemId',
   authentication.authenticate,
   authentication.authenticateAdmin,
   itemController.deleteItem,

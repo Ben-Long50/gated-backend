@@ -15,9 +15,7 @@ const sessionController = {
             res.status(200).json(sessions);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getSessionById: async (req, res) => {
@@ -26,9 +24,7 @@ const sessionController = {
             res.status(200).json(session);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getSessionNotes: async (req, res) => {
@@ -37,9 +33,7 @@ const sessionController = {
             res.status(200).json(notes);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createOrUpdateSessionNotes: async (req, res) => {
@@ -50,9 +44,7 @@ const sessionController = {
                 .json({ message: 'Successfully created or updated session notes' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     createOrUpdateSession: [
@@ -77,9 +69,7 @@ const sessionController = {
             res.status(200).json({ message: 'Successfully deleted session' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

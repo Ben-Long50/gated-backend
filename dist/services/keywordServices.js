@@ -1,3 +1,14 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 import prisma from '../config/database.js';
 const keywordServices = {
     getKeywords: async () => {
@@ -25,19 +36,12 @@ const keywordServices = {
         }
     },
     createKeyword: async (formData) => {
+        const _a = Object.fromEntries(Object.entries(formData).filter(([_, value]) => Boolean(value))), { keywordId } = _a, data = __rest(_a, ["keywordId"]);
         try {
             const newKeyword = await prisma.keyword.upsert({
-                where: { id: Number(formData.keywordId) || 0 },
-                update: {
-                    name: formData.name,
-                    description: formData.description,
-                    keywordType: formData.keywordType,
-                },
-                create: {
-                    name: formData.name,
-                    description: formData.description,
-                    keywordType: formData.keywordType,
-                },
+                where: { id: Number(keywordId) || 0 },
+                update: data,
+                create: data,
             });
             return newKeyword;
         }

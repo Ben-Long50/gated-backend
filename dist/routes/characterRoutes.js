@@ -7,7 +7,11 @@ const router = express.Router();
 router.get('/characters', authentication.authenticate, characterController.getCharacters);
 router.get('/characters/active', authentication.authenticate, characterController.getActiveCharacter);
 router.get('/characters/:characterId', authentication.authenticate, characterController.getCharacterById);
-router.get('/characters/:characterId/inventory/:inventoryId/equipment', authentication.authenticate, characterController.getEquippedItems);
+// router.get(
+//   '/characters/:characterId/inventory/:inventoryId/equipment',
+//   authentication.authenticate,
+//   characterController.getEquippedItems,
+// );
 router.patch('/characters/:characterId/inventory/:inventoryId/equipment/:itemId', authentication.authenticate, characterController.toggleEquipment);
 router.patch('/characters/active', authentication.authenticate, characterController.setActiveCharacter);
 router.patch('/characters/:characterId/stats/currentHealth', authentication.authenticate, characterStatController.editCurrentHealth);
@@ -16,6 +20,7 @@ router.patch('/characters/:characterId/cart/:cartId', authentication.authenticat
 router.post('/characters/:characterId/inventory/:inventoryId', authentication.authenticate, characterController.completePurchase);
 router.post('/characters', authentication.authenticate, characterController.createCharacter);
 router.post('/characters/:characterId/affiliations/create', authentication.authenticate, affiliationController.createCharacterAffiliation);
+router.post('/characters/:characterId/conditions', authentication.authenticate, characterController.createCharacterConditions);
 router.put('/characters/:characterId', authentication.authenticate, characterController.updateCharacter);
 router.put('/characters/:characterId/cart/:cartId', authentication.authenticate, characterController.clearCart);
 router.delete('/characters/:characterId', authentication.authenticate, characterController.deleteCharacter);

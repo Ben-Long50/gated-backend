@@ -6,10 +6,8 @@ const perkController = {
     try {
       const perks = await perkServices.getPerks();
       res.status(200).json(perks);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -17,10 +15,8 @@ const perkController = {
     try {
       const perk = await perkServices.getPerkById(req.params.perkId);
       res.status(200).json(perk);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -28,10 +24,8 @@ const perkController = {
     try {
       const perk = await perkServices.createPerk(req.body);
       res.status(200).json(perk);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -39,10 +33,8 @@ const perkController = {
     try {
       await perkServices.deletePerk(req.params.perkId);
       res.status(200).json({ message: 'Successfully deleted perk' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

@@ -2,10 +2,16 @@ import { $Enums, User } from '@prisma/client';
 import prisma from '../config/database.js';
 
 const campaignServices = {
-  getOwnerCampaigns: async (userId: number) => {
+  getCampaigns: async (userId: number) => {
     try {
       const campaigns = await prisma.campaign.findMany({
-        where: { ownerId: userId },
+        where: {
+          OR: [
+            { ownerId: userId },
+            { players: { some: { id: userId } } },
+            { pendingPlayers: { some: { id: userId } } },
+          ],
+        },
         include: {
           players: { orderBy: { firstName: 'desc' } },
           pendingPlayers: { orderBy: { firstName: 'desc' } },
@@ -21,42 +27,6 @@ const campaignServices = {
     }
   },
 
-  getPlayerCampaigns: async (userId: number) => {
-    try {
-      const campaigns = await prisma.campaign.findMany({
-        where: { players: { some: { id: userId } } },
-        include: {
-          players: { orderBy: { firstName: 'desc' } },
-          pendingPlayers: { orderBy: { firstName: 'desc' } },
-          owner: true,
-        },
-        orderBy: { name: 'asc' },
-      });
-      return campaigns;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to fetch player campaigns');
-    }
-  },
-
-  getPendingCampaigns: async (userId: number) => {
-    try {
-      const campaigns = await prisma.campaign.findMany({
-        where: { pendingPlayers: { some: { id: userId } } },
-        include: {
-          players: { orderBy: { firstName: 'desc' } },
-          pendingPlayers: { orderBy: { firstName: 'desc' } },
-          owner: true,
-        },
-        orderBy: { name: 'asc' },
-      });
-      return campaigns;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to fetch pending campaigns');
-    }
-  },
-
   getCampaignById: async (campaignId: string) => {
     try {
       const campaign = await prisma.campaign.findUnique({
@@ -67,7 +37,9 @@ const campaignServices = {
           pendingPlayers: { orderBy: { firstName: 'desc' } },
           factions: { include: { affiliations: true } },
           characters: {
-            select: { id: true },
+            select: {
+              id: true,
+            },
           },
 
           owner: true,

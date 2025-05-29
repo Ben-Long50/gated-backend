@@ -2,6 +2,7 @@ import characterServices from '../services/characterServices.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 import upload from '../utils/multer.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
+import cartServices from '../services/cartServices.js';
 const characterController = {
     getCharacters: async (req, res) => {
         try {
@@ -12,9 +13,7 @@ const characterController = {
             res.status(200).json(characters);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getActiveCharacter: async (req, res) => {
@@ -26,9 +25,7 @@ const characterController = {
             res.status(200).json(activeCharacter);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     getCharacterById: async (req, res) => {
@@ -37,9 +34,7 @@ const characterController = {
             res.status(200).json(character);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     setActiveCharacter: async (req, res) => {
@@ -51,20 +46,7 @@ const characterController = {
             res.status(200).json(activeCharacter);
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
-        }
-    },
-    getEquippedItems: async (req, res) => {
-        try {
-            const equipment = await characterServices.getEquippedItems(req.params.characterId, req.params.inventoryId);
-            res.status(200).json(equipment);
-        }
-        catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     toggleEquipment: async (req, res) => {
@@ -73,37 +55,31 @@ const characterController = {
             res.status(200).json({ message: 'Successfully toggled equipment' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     editCart: async (req, res) => {
         try {
-            await characterServices.editCart(req.params.characterId, req.params.cartId, req.body.category, req.body.itemId);
+            await cartServices.editCartItem(Number(req.params.cartId), Number(req.body.itemId), Number(req.body.value));
             res.status(200).json({ message: 'Successfully added item to cart' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     completePurchase: async (req, res) => {
         try {
-            await characterServices.addToInventory(req.params.characterId, req.params.inventoryId, req.body);
-            await characterServices.clearCart(req.params.characterId);
+            await characterServices.addToInventory(Number(req.params.characterId), Number(req.params.inventoryId));
+            await characterServices.clearCart(Number(req.params.characterId));
             res.status(200).json({ message: 'Purchase completed' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
     clearCart: async (req, res) => {
         try {
-            await characterServices.clearCart(req.params.characterId);
+            await characterServices.clearCart(Number(req.params.characterId));
             res.status(200).json({ message: 'Cart cleared' });
         }
         catch (error) { }
@@ -147,6 +123,20 @@ const characterController = {
             }
         },
     ],
+    createCharacterConditions: async (req, res) => {
+        try {
+            if (!req.user) {
+                throw new Error('Could not find authenticated user');
+            }
+            await characterServices.createCharacterConditions(req.user.id, Number(req.params.characterId), req.body);
+            res
+                .status(200)
+                .json({ message: 'Successfully created character conditions' });
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
     deleteCharacter: async (req, res) => {
         try {
             if (!req.user) {
@@ -156,9 +146,7 @@ const characterController = {
             res.status(200).json({ message: 'Successfully deleted character' });
         }
         catch (error) {
-            if (error instanceof Error) {
-                res.status(500).json({ error: error.message });
-            }
+            res.status(500).json({ error: error.message });
         }
     },
 };

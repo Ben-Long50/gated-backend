@@ -1,5 +1,5 @@
 {
-  "name": "PROJECT_NAME",
+  "name": "Electric_Death_Online",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "start": "node ./bin/www",
     "predevstart": "rimraf dist",
     "devstart": "concurrently \"npx tsc -w\" \"nodemon ./bin/www\"",
-    "serverstart": "DEBUG=PROJECT_NAME:* npm run devstart"
+    "serverstart": "DEBUG=Electric_Death_Online:* npm run devstart"
   },
   "dependencies": {
     "@prisma/client": "^5.17.0",

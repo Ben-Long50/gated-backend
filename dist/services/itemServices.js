@@ -10,13 +10,31 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import prisma from '../config/database.js';
-import actionServices from './actionServices.js';
+import addVariableStats from '../utils/addVariableStats.js';
+import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
+import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 const itemServices = {
-    getItems: async () => {
+    getItems: async (category) => {
         try {
             const items = await prisma.item.findMany({
-                where: { characterInventory: null },
-                include: { actions: true, modifiers: { include: { action: true } } },
+                where: category
+                    ? { characterInventory: null, itemType: { in: category } }
+                    : { characterInventory: null },
+                include: {
+                    itemLinkReference: { include: { items: true, actions: true } },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                    modifiedKeywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                    conditions: {
+                        include: { condition: true },
+                        orderBy: { condition: { name: 'asc' } },
+                    },
+                },
                 orderBy: { name: 'asc' },
             });
             return items;
@@ -26,11 +44,26 @@ const itemServices = {
             throw new Error('Failed to fetch items');
         }
     },
-    getItemById: async (itemId) => {
+    getItemById: async (category, itemId) => {
         try {
             const item = await prisma.item.findUnique({
-                where: { id: Number(itemId) },
-                include: { actions: true, modifiers: { include: { action: true } } },
+                where: { id: itemId, itemType: category },
+                include: {
+                    baseItem: true,
+                    itemLinkReference: { include: { items: true, actions: true } },
+                    keywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                    modifiedKeywords: {
+                        include: { keyword: true },
+                        orderBy: { keyword: { name: 'asc' } },
+                    },
+                    conditions: {
+                        include: { condition: true },
+                        orderBy: { condition: { name: 'asc' } },
+                    },
+                },
             });
             return item;
         }
@@ -39,69 +72,151 @@ const itemServices = {
             throw new Error('Failed to fetch item');
         }
     },
-    createOrUpdateItem: async (formData) => {
+    createOrUpdateItem: async (formData, category) => {
+        var _a;
         try {
-            const oldItem = (await prisma.item.findUnique({
-                where: { id: formData.id },
-                select: {
-                    actions: { select: { id: true } },
-                    modifiers: { include: { action: true } },
+            const item = await prisma.item.findUnique({
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: category },
+                include: {
+                    keywords: { select: { id: true } },
+                    modifiedKeywords: { select: { id: true } },
                 },
-            })) || undefined;
-            if (oldItem) {
-                const oldModifierIds = oldItem.modifiers.map((modifier) => modifier.id);
-                await prisma.modifier.deleteMany({
-                    where: { id: { in: oldModifierIds } },
+            });
+            if (item && item.keywords) {
+                await prisma.keywordReference.deleteMany({
+                    where: {
+                        id: { in: item.keywords.map((keyword) => keyword.id) },
+                    },
                 });
             }
-            const oldItemIds = oldItem === null || oldItem === void 0 ? void 0 : oldItem.actions.map((action) => action.id);
-            const newItemIds = formData.actions.map((action) => action.id);
-            const actionsToDelete = (oldItemIds === null || oldItemIds === void 0 ? void 0 : oldItemIds.filter((id) => !newItemIds.includes(id))) || [];
-            if (actionsToDelete.length > 0) {
-                await actionServices.deleteActions(actionsToDelete);
+            if (item && item.modifiedKeywords) {
+                await prisma.keywordReference.deleteMany({
+                    where: {
+                        id: { in: item.keywords.map((keyword) => keyword.id) },
+                    },
+                });
             }
-            const actionIds = await Promise.all(formData.actions.map(async (action) => {
-                const newAction = await actionServices.createAction(action);
-                return { id: newAction.id };
-            }));
-            const getPictureInfo = () => {
-                if (formData.publicId) {
-                    return { publicId: formData.publicId, imageUrl: formData.imageUrl };
-                }
-                else {
-                    return formData.picture;
-                }
-            };
-            const pictureInfo = getPictureInfo();
-            const { id, publicId, imageUrl, picture } = formData, itemData = __rest(formData, ["id", "publicId", "imageUrl", "picture"]);
-            const item = await prisma.item.upsert({
-                where: { id: formData.id },
-                update: Object.assign(Object.assign({}, itemData), { picture: pictureInfo, actions: {
-                        connect: actionIds,
-                    }, modifiers: {
-                        createMany: {
-                            data: formData.modifiers.map((_a) => {
-                                var { action } = _a, modifier = __rest(_a, ["action"]);
-                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
-                            }),
+            const { id, itemLinkId, itemIds, actionIds, keywordIds, modifiedKeywordIds, stats, characterInventoryId } = formData, data = __rest(formData, ["id", "itemLinkId", "itemIds", "actionIds", "keywordIds", "modifiedKeywordIds", "stats", "characterInventoryId"]);
+            await enforceSingularLinking(id, itemIds, actionIds);
+            const keywordData = (keywordIds === null || keywordIds === void 0 ? void 0 : keywordIds.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
+            const modifiedKeywordData = (modifiedKeywordIds === null || modifiedKeywordIds === void 0 ? void 0 : modifiedKeywordIds.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
+            const newItem = await prisma.item.upsert({
+                where: { id: id !== null && id !== void 0 ? id : 0 },
+                update: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { updatedAt: new Date(), itemType: category, itemLinkReference: {
+                        upsert: {
+                            where: { itemId: id !== null && id !== void 0 ? id : 0 },
+                            update: {
+                                items: {
+                                    set: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    set: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                            },
+                            create: {
+                                items: {
+                                    connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
+                                },
+                                actions: {
+                                    connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                                },
+                            },
                         },
-                    } }),
-                create: Object.assign(Object.assign({}, itemData), { picture: pictureInfo, actions: {
-                        connect: actionIds,
-                    }, modifiers: {
-                        createMany: {
-                            data: formData.modifiers.map((_a) => {
-                                var { action } = _a, modifier = __rest(_a, ["action"]);
-                                return (Object.assign(Object.assign({}, modifier), { actionId: action ? Number(action) : null }));
-                            }),
+                    }, keywords: { createMany: { data: keywordData } }, modifiedKeywords: { createMany: { data: modifiedKeywordData } }, characterInventoryId }),
+                create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemType: category, itemLinkReference: {
+                        create: {
+                            items: {
+                                connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
+                            },
+                            actions: {
+                                connect: actionIds === null || actionIds === void 0 ? void 0 : actionIds.map((id) => ({ id })),
+                            },
                         },
-                    } }),
+                    }, keywords: { createMany: { data: keywordData } }, modifiedKeywords: { createMany: { data: modifiedKeywordData } }, characterInventoryId }),
             });
-            return item;
+            return newItem;
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to create or update item');
+        }
+    },
+    createCharacterItemCopy: async (inventoryId, itemList) => {
+        const itemIds = itemList === null || itemList === void 0 ? void 0 : itemList.map((item) => item.itemId);
+        const items = await prisma.item.findMany({
+            where: { id: { in: itemIds } },
+            include: {
+                itemLinkReference: { include: { items: true, actions: true } },
+                keywords: { include: { keyword: true } },
+            },
+        });
+        const promises = [];
+        for (const { itemId, quantity } of itemList) {
+            const itemDetails = items.find((item) => item.id === itemId);
+            if (!itemDetails)
+                continue;
+            const stats = itemDetails.stats
+                ? addVariableStats(Object.assign({}, itemDetails.stats))
+                : null;
+            const { itemIds, actionIds } = await createLinkedCopies(itemDetails.itemLinkReference, inventoryId, quantity);
+            const keywordIds = (itemDetails === null || itemDetails === void 0 ? void 0 : itemDetails.keywords.map((keyword) => ({
+                keywordId: keyword.keywordId,
+                value: keyword.value,
+            }))) || [];
+            const { keywords } = itemDetails, rest = __rest(itemDetails, ["keywords"]);
+            const itemData = Object.assign(Object.assign({}, rest), { stats,
+                itemIds,
+                actionIds,
+                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseItemId: itemDetails.id });
+            if (itemDetails) {
+                for (let i = 0; i < quantity; i++) {
+                    promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemType));
+                }
+            }
+        }
+        const newItems = await Promise.all(promises);
+        return newItems.filter((item) => item !== undefined).map((item) => item.id);
+    },
+    createItemConditions: async (itemId, formData) => {
+        try {
+            const item = await prisma.item.findUnique({
+                where: { id: itemId },
+                include: {
+                    conditions: { select: { id: true } },
+                },
+            });
+            if (!item) {
+                throw new Error('Failed to find character');
+            }
+            if (item && item.conditions) {
+                await prisma.itemConditionReference.deleteMany({
+                    where: {
+                        id: { in: item.conditions.map((condition) => condition.id) },
+                    },
+                });
+            }
+            const conditionData = (formData === null || formData === void 0 ? void 0 : formData.map((condition) => ({
+                conditionId: condition.conditionId,
+                stacks: condition.stacks ? condition.stacks : null,
+            }))) || [];
+            await prisma.item.update({
+                where: {
+                    id: itemId,
+                },
+                data: {
+                    conditions: { createMany: { data: conditionData } },
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create item conditions');
         }
     },
     deleteItem: async (itemId) => {
@@ -117,12 +232,17 @@ const itemServices = {
             throw new Error('Failed to delete item');
         }
     },
-    deleteItems: async (itemIds) => {
+    deleteItems: async (itemIds, category) => {
         try {
             await prisma.item.deleteMany({
-                where: {
-                    id: { in: itemIds },
-                },
+                where: category
+                    ? {
+                        id: { in: itemIds },
+                        itemType: { in: category },
+                    }
+                    : {
+                        itemType: category,
+                    },
             });
         }
         catch (error) {

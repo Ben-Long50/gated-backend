@@ -6,10 +6,8 @@ const conditionController = {
     try {
       const conditions = await conditionServices.getConditions();
       res.status(200).json(conditions);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -19,10 +17,8 @@ const conditionController = {
         req.params.conditionId,
       );
       res.status(200).json(condition);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -30,52 +26,65 @@ const conditionController = {
     try {
       await conditionServices.createCondition(req.body);
       res.status(200).json({ message: 'Successfully created condition' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
-  createCharacterCondition: async (req: Request, res: Response) => {
+  updateConditionStacks: async (req: Request, res: Response) => {
     try {
-      await conditionServices.createCharacterCondition(
-        req.params.characterId,
-        req.body,
-      );
-      res.status(200).json({
-        message: `Successfully applied condition to character ${req.params.characterId}`,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
+      if (req.params.characterId) {
+        await conditionServices.updateCharacterConditionStacks(
+          Number(req.params.conditionId),
+          req.body.value,
+        );
       }
+
+      if (req.params.itemId) {
+        await conditionServices.updateItemConditionStacks(
+          Number(req.params.conditionId),
+          req.body.value,
+        );
+      }
+
+      res
+        .status(200)
+        .json({ message: 'Successfully updated condition stacks' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  deleteCondition: async (req: Request, res: Response) => {
+    try {
+      await conditionServices.deleteCondition(Number(req.params.conditionId));
+      res.status(200).json({ message: 'Successfully deleted condition' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
   deleteCharacterCondition: async (req: Request, res: Response) => {
     try {
       await conditionServices.deleteCharacterCondition(
-        req.params.characterConditionId,
+        Number(req.params.conditionId),
       );
       res
         .status(200)
         .json({ message: 'Successfully deleted character condition' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
-  deleteCondition: async (req: Request, res: Response) => {
+  deleteItemCondition: async (req: Request, res: Response) => {
     try {
-      await conditionServices.deleteCondition(req.params.conditionId);
-      res.status(200).json({ message: 'Successfully deleted condition' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+      await conditionServices.deleteItemCondition(
+        Number(req.params.conditionId),
+      );
+      res.status(200).json({ message: 'Successfully deleted item condition' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

@@ -8,7 +8,7 @@ import notificationServices from '../services/notificationServices.js';
 import parseRequestBody from '../utils/parseRequestBody.js';
 
 const campaignController = {
-  getOwnerCampaigns: async (req: Request, res: Response) => {
+  getCampaigns: async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         res
@@ -17,48 +17,11 @@ const campaignController = {
         return;
       }
 
-      const campaigns = await campaignServices.getOwnerCampaigns(req.user.id);
+      const campaigns = await campaignServices.getCampaigns(req.user.id);
+
       res.status(200).json(campaigns);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
-    }
-  },
-
-  getPlayerCampaigns: async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        res
-          .status(401)
-          .json({ error: 'You must be signed in to use this function' });
-        return;
-      }
-
-      const campaigns = await campaignServices.getPlayerCampaigns(req.user.id);
-      res.status(200).json(campaigns);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
-    }
-  },
-
-  getPendingCampaigns: async (req: Request, res: Response) => {
-    try {
-      if (!req.user) {
-        res
-          .status(401)
-          .json({ error: 'You must be signed in to use this function' });
-        return;
-      }
-
-      const campaigns = await campaignServices.getPendingCampaigns(req.user.id);
-      res.status(200).json(campaigns);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -68,10 +31,8 @@ const campaignController = {
         req.params.campaignId,
       );
       res.status(200).json(campaign);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -133,10 +94,8 @@ const campaignController = {
 
       await campaignServices.joinCampaign(req.params.campaignId, req.user.id);
       res.status(200).json({ message: 'Successfully joined the campaign' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -154,10 +113,8 @@ const campaignController = {
         req.user.id,
       );
       res.status(200).json({ message: 'Successfully deleted campaign' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

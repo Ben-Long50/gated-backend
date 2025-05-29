@@ -6,7 +6,7 @@ const notificationServices = {
                 where: { recipientId: userId },
                 include: {
                     sender: {
-                        select: { profilePicture: true, firstName: true, lastName: true },
+                        select: { profilePicture: true, username: true },
                     },
                 },
                 orderBy: { createdAt: 'asc' },
@@ -26,6 +26,18 @@ const notificationServices = {
                     recipientId: recipient,
                     senderId: sender,
                 })),
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update notification');
+        }
+    },
+    markNotificationsRead: async (userId) => {
+        try {
+            await prisma.notification.updateMany({
+                where: { recipientId: userId },
+                data: { read: true },
             });
         }
         catch (error) {

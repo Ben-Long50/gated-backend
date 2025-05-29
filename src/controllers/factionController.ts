@@ -19,10 +19,8 @@ const factionController = {
         req.params.campaignId,
       );
       res.status(200).json(factions);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -32,10 +30,8 @@ const factionController = {
         req.params.factionId,
       );
       res.status(200).json(faction);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -102,10 +98,8 @@ const factionController = {
 
       await factionServices.deleteFaction(req.params.factionId);
       res.status(200).json({ message: 'Successfully deleted faction' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

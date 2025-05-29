@@ -2,28 +2,39 @@ import { Request, Response } from 'express';
 import itemServices from '../services/itemServices.js';
 import upload from '../utils/multer.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
-import { Item } from '../types/item.js';
+import parseRequestBody from '../utils/parseRequestBody.js';
+import characterServices from '../services/characterServices.js';
+import { ItemType } from '@prisma/client';
 
 const itemController = {
-  getItems: async (_req: Request, res: Response) => {
+  getItems: async (req: Request, res: Response) => {
     try {
-      const items = await itemServices.getItems();
+      const category = req.params.category.slice(0, -1) as ItemType;
+
+      const items = await itemServices.getItems([category]);
+
       res.status(200).json(items);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
   getItemById: async (req: Request, res: Response) => {
     try {
-      const item = await itemServices.getItemById(req.params.itemId);
-      res.status(200).json(item);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
+      const category = req.params.category.slice(0, -1) as ItemType;
+
+      const item = await itemServices.getItemById(
+        category,
+        Number(req.params.itemId),
+      );
+
+      if (!item) {
+        throw new Error('Item not found');
       }
+
+      res.status(200).json(item);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -32,26 +43,18 @@ const itemController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
-        const parsedBody = Object.fromEntries(
-          Object.entries(req.body as FormData).map(([key, value]) => {
-            try {
-              return [key, JSON.parse(value)];
-            } catch {
-              return [key, value];
-            }
-          }),
-        ) as Item;
+        const parsedBody = parseRequestBody(req.body);
+        const category = req.params.category.slice(0, -1) as ItemType;
 
-        await itemServices.createOrUpdateItem(parsedBody);
+        await itemServices.createOrUpdateItem(parsedBody, category);
+
         res.status(200).json({
-          message: req.body.id
+          message: parsedBody.id
             ? 'Successfully updated item'
             : 'Successfully created item',
         });
-      } catch (error) {
-        if (error instanceof Error) {
-          res.status(500).json({ error: error.message });
-        }
+      } catch (error: any) {
+        res.status(500).json({ error: error.message });
       }
     },
   ],
@@ -61,34 +64,70 @@ const itemController = {
     uploadToCloudinary,
     async (req: Request, res: Response) => {
       try {
-        const parsedBody = Object.fromEntries(
-          Object.entries(req.body as FormData).map(([key, value]) => {
-            try {
-              return [key, JSON.parse(value)];
-            } catch {
-              return [key, value];
-            }
-          }),
-        ) as Item;
-
-        await itemServices.createOrUpdateItem(parsedBody);
-        res.status(200).json({ message: 'Successfully modified item' });
-      } catch (error) {
-        if (error instanceof Error) {
-          res.status(500).json({ error: error.message });
+        if (!req.user) {
+          throw new Error('You must be signed in to complete this action');
         }
+
+        const parsedBody = parseRequestBody(req.body);
+        const category = req.params.category.slice(0, -1) as ItemType;
+
+        const character = await characterServices.getCharacterById(
+          req.params.characterId,
+        );
+
+        if (!character) {
+          throw new Error(
+            'This item must be associated with an existing character to modify it',
+          );
+        }
+
+        if (character.profits < parsedBody.upgradePrice) {
+          throw new Error(
+            'You do not have enough profits to purchase the chosen upgrades',
+          );
+        }
+
+        const { upgradePrice, ...itemInfo } = parsedBody;
+
+        await characterServices.updateCharacter(
+          {
+            profits: character.profits - upgradePrice,
+          },
+          req.user.id,
+          character.id,
+        );
+
+        await itemServices.createOrUpdateItem(itemInfo, category);
+        res.status(200).json({ message: 'Successfully modified item' });
+      } catch (error: any) {
+        res.status(500).json({ error: error.message });
       }
     },
   ],
 
+  createItemConditions: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        throw new Error('Could not find authenticated user');
+      }
+
+      await itemServices.createItemConditions(
+        Number(req.params.itemId),
+        req.body,
+      );
+
+      res.status(200).json({ message: 'Successfully created item conditions' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   deleteItem: async (req: Request, res: Response) => {
     try {
-      await itemServices.deleteItem(req.params.itemId);
+      await itemServices.deleteItem(Number(req.params.itemId));
       res.status(200).json({ message: 'Successfully deleted item' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

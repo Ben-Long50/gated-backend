@@ -1,26 +1,54 @@
-import { $Enums } from '@prisma/client';
+import { $Enums, CharacterInventory } from '@prisma/client';
 
 interface Item {
   id: number;
-  publicId?: string;
-  imageUrl?: string;
-  picture?: { publicId: string; imageUrl: string };
-  category: $Enums.ItemCategory;
-  subcategory: $Enums.ItemSubcategory;
-  itemType?: string;
   name: string;
+  itemType: $Enums.ItemType;
   rarity: $Enums.ItemRarity;
   grade: number;
-  stats: Partial<ItemStats>;
-  price: number;
-  description: string;
-  actions: Action[];
-  modifiers: Modifier[];
+  picture: Picture;
+  description: string | null;
+  stats: Stats;
+  // modifiedStats?: Stats;
+  price: number | null;
+  actionIds?: number[];
+  itemIds?: number[];
+  itemLinkReferenceId?: number | null;
+  characterInventoryId: number | null;
+  itemLinkId: number | null;
+  baseItemId: number | null;
+  keywordIds?: { keywordId: number; value: number | null }[];
+  modifiedKeywordIds?: { keywordId: number; value: number | null }[];
 }
 
-interface ItemStats {
-  power: number;
-  weight: number;
-  currentStacks: number;
-  maxStacks: number;
-}
+type Stats = {
+  damage?: number;
+  salvo?: number;
+  flurry?: number;
+  range?: number;
+  currentAmmoCount?: number;
+  magCapacity?: number;
+  currentMagCount?: number;
+  magCount?: number;
+  armor?: number;
+  ward?: number;
+  currentBlock?: number;
+  block?: number;
+  cyber?: number;
+  currentPower?: number;
+  power?: number;
+  weight?: number;
+  size?: number;
+  speed?: number;
+  agility?: number;
+  hull?: number;
+  currentHull?: number;
+  cargo?: number;
+  currentCargo?: number;
+  hangar?: number;
+  currentHangar?: number;
+  pass?: number;
+  currentPass?: number;
+  weapon?: number;
+  currentWeapon?: number;
+} | null;

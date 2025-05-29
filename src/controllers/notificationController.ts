@@ -15,10 +15,25 @@ const notificationController = {
         req.user.id,
       );
       res.status(200).json(notifications);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  markNotificationsRead: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        res
+          .status(401)
+          .json({ error: 'You must be signed in to use this function' });
+        return;
       }
+
+      await notificationServices.markNotificationsRead(req.user.id);
+
+      res.status(200).json({ message: 'Notifications marked read' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -77,10 +92,8 @@ const notificationController = {
         Number(req.params.notificationId),
       );
       res.status(200).json({ message: 'Successfully deleted notification' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -95,10 +108,8 @@ const notificationController = {
 
       await notificationServices.deleteNotifications(req.user.id);
       res.status(200).json({ message: 'Successfully deleted notification' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

@@ -6,10 +6,8 @@ const patchNoteController = {
     try {
       const patchNotes = await patchNoteServices.getPatchNotes();
       res.status(200).json(patchNotes);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -19,10 +17,8 @@ const patchNoteController = {
         req.params.patchNoteId,
       );
       res.status(200).json(patchNote);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -30,10 +26,8 @@ const patchNoteController = {
     try {
       const patchNote = await patchNoteServices.createPatchNote(req.body);
       res.status(200).json(patchNote);
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -41,10 +35,8 @@ const patchNoteController = {
     try {
       await patchNoteServices.deletePatchNote(req.params.patchNoteId);
       res.status(200).json({ message: 'Patch note successfully deleted' });
-    } catch (error) {
-      if (error instanceof Error) {
-        res.status(500).json({ error: error.message });
-      }
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   },
 };

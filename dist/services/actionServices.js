@@ -32,7 +32,7 @@ const actionServices = {
                 update: {
                     name: formData.name,
                     description: formData.description,
-                    costs: formData.costs,
+                    costs: Object.assign({}, formData.costs),
                     roll: formData.roll,
                     duration: formData.duration,
                     actionType: formData.actionType,
@@ -41,7 +41,7 @@ const actionServices = {
                 create: {
                     name: formData.name,
                     description: formData.description,
-                    costs: formData.costs,
+                    costs: Object.assign({}, formData.costs),
                     roll: formData.roll,
                     duration: formData.duration,
                     actionType: formData.actionType,
@@ -54,6 +54,36 @@ const actionServices = {
             console.error(error);
             throw new Error('Failed to create or update action');
         }
+    },
+    createCharacterActionCopy: async (inventoryId, actionList) => {
+        const actionIds = actionList === null || actionList === void 0 ? void 0 : actionList.map((action) => action.actionId);
+        const actions = await prisma.action.findMany({
+            where: { id: { in: actionIds } },
+        });
+        const newAction = await Promise.all(actionList.flatMap(({ actionId, quantity }) => {
+            const actionDetails = actions.find((action) => action.id === actionId);
+            if (actionDetails) {
+                return Array.from({ length: quantity }).map(() => prisma.action.create({
+                    data: {
+                        name: actionDetails.name,
+                        description: actionDetails.description,
+                        costs: actionDetails.costs || undefined,
+                        roll: actionDetails.roll || undefined,
+                        duration: actionDetails.duration || undefined,
+                        actionType: actionDetails.actionType,
+                        actionSubtypes: actionDetails.actionSubtypes,
+                        characterInventory: {
+                            connect: { id: Number(inventoryId) },
+                        },
+                        baseActionId: actionDetails.id,
+                    },
+                }));
+            }
+            return;
+        }));
+        return newAction
+            .filter((action) => action !== undefined)
+            .map((action) => action.id);
     },
     deleteAction: async (actionId) => {
         try {
