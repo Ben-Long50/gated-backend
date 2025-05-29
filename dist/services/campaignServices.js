@@ -1,5 +1,4 @@
 import prisma from '../config/database.js';
-import { includeCharacterInventory } from '../utils/linkQueryStructures.js';
 const campaignServices = {
     getCampaigns: async (userId) => {
         try {
@@ -35,19 +34,8 @@ const campaignServices = {
                     pendingPlayers: { orderBy: { firstName: 'desc' } },
                     factions: { include: { affiliations: true } },
                     characters: {
-                        include: {
-                            campaign: {
-                                select: {
-                                    ownerId: true,
-                                },
-                            },
-                            conditions: { include: { condition: true } },
-                            perks: {
-                                include: { modifiers: { include: { action: true } } },
-                            },
-                            characterInventory: {
-                                include: includeCharacterInventory,
-                            },
+                        select: {
+                            id: true,
                         },
                     },
                     owner: true,

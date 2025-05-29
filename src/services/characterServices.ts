@@ -16,21 +16,7 @@ const characterServices = {
         where: {
           userId,
         },
-
-        include: {
-          campaign: {
-            select: {
-              name: true,
-              ownerId: true,
-            },
-          },
-          conditions: { include: { condition: true } },
-          perks: { include: { modifiers: { include: { action: true } } } },
-          characterInventory: {
-            include: includeCharacterInventory,
-          },
-        },
-        orderBy: [{ active: 'desc' }, { level: 'desc' }],
+        select: { id: true },
       });
 
       if (characters.length === 0) {
