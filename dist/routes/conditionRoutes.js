@@ -5,5 +5,7 @@ const router = express.Router();
 router.get('/conditions', authentication.authenticate, conditionController.getConditions);
 router.get('/conditions/:conditionId', authentication.authenticate, conditionController.getConditionById);
 router.post('/conditions', authentication.authenticate, authentication.authenticateAdmin, conditionController.createCondition);
+router.patch('/items/:itemId/conditions/:conditionId/stacks', authentication.authenticate, conditionController.updateConditionStacks);
+router.patch('/characters/:characterId/conditions/:conditionId/stacks', authentication.authenticate, conditionController.updateConditionStacks);
 router.delete('/conditions/:conditionId', authentication.authenticate, authentication.authenticateAdmin, conditionController.deleteCondition);
 export default router;

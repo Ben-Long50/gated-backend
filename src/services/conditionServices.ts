@@ -52,6 +52,62 @@ const conditionServices = {
     }
   },
 
+  updateCharacterConditionStacks: async (
+    conditionId: number,
+    value: number,
+  ) => {
+    try {
+      const conditionReference =
+        await prisma.characterConditionReference.findUnique({
+          where: { id: conditionId },
+          select: { stacks: true },
+        });
+
+      if (!conditionReference) {
+        throw new Error('Failed to find condition reference');
+      }
+
+      await prisma.characterConditionReference.update({
+        where: { id: conditionId },
+        data: {
+          stacks: conditionReference?.stacks
+            ? conditionReference?.stacks + value
+            : value,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to udpate character condition stacks');
+    }
+  },
+
+  updateItemConditionStacks: async (conditionId: number, value: number) => {
+    try {
+      const conditionReference = await prisma.itemConditionReference.findUnique(
+        {
+          where: { id: conditionId },
+          select: { stacks: true },
+        },
+      );
+
+      if (!conditionReference) {
+        throw new Error('Failed to find condition reference');
+      }
+
+      await prisma.itemConditionReference.update({
+        where: { id: conditionId },
+        data: {
+          stacks: conditionReference?.stacks
+            ? conditionReference?.stacks + value
+            : value,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to udpate item condition stacks');
+    }
+  },
+
   deleteCondition: async (conditionId: string) => {
     try {
       await prisma.condition.delete({

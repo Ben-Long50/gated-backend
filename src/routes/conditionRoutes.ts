@@ -23,6 +23,18 @@ router.post(
   conditionController.createCondition,
 );
 
+router.patch(
+  '/items/:itemId/conditions/:conditionId/stacks',
+  authentication.authenticate,
+  conditionController.updateConditionStacks,
+);
+
+router.patch(
+  '/characters/:characterId/conditions/:conditionId/stacks',
+  authentication.authenticate,
+  conditionController.updateConditionStacks,
+);
+
 router.delete(
   '/conditions/:conditionId',
   authentication.authenticate,

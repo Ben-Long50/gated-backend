@@ -45,6 +45,52 @@ const conditionServices = {
             throw new Error('Failed to create or update condition');
         }
     },
+    updateCharacterConditionStacks: async (conditionId, value) => {
+        try {
+            const conditionReference = await prisma.characterConditionReference.findUnique({
+                where: { id: conditionId },
+                select: { stacks: true },
+            });
+            if (!conditionReference) {
+                throw new Error('Failed to find condition reference');
+            }
+            await prisma.characterConditionReference.update({
+                where: { id: conditionId },
+                data: {
+                    stacks: (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks)
+                        ? (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks) + value
+                        : value,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to udpate character condition stacks');
+        }
+    },
+    updateItemConditionStacks: async (conditionId, value) => {
+        try {
+            const conditionReference = await prisma.itemConditionReference.findUnique({
+                where: { id: conditionId },
+                select: { stacks: true },
+            });
+            if (!conditionReference) {
+                throw new Error('Failed to find condition reference');
+            }
+            await prisma.itemConditionReference.update({
+                where: { id: conditionId },
+                data: {
+                    stacks: (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks)
+                        ? (conditionReference === null || conditionReference === void 0 ? void 0 : conditionReference.stacks) + value
+                        : value,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to udpate item condition stacks');
+        }
+    },
     deleteCondition: async (conditionId) => {
         try {
             await prisma.condition.delete({

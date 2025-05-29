@@ -47,7 +47,10 @@ const characterServices = {
               ownerId: true,
             },
           },
-          conditions: { include: { condition: true } },
+          conditions: {
+            include: { condition: true },
+            orderBy: { condition: { name: 'asc' } },
+          },
           affiliations: { include: { factions: true, characters: true } },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterCart: {
@@ -79,7 +82,10 @@ const characterServices = {
               ownerId: true,
             },
           },
-          conditions: { include: { condition: true } },
+          conditions: {
+            include: { condition: true },
+            orderBy: { condition: { name: 'asc' } },
+          },
           perks: { include: { modifiers: { include: { action: true } } } },
           characterInventory: {
             include: includeCharacterInventory,

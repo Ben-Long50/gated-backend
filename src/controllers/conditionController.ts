@@ -31,6 +31,30 @@ const conditionController = {
     }
   },
 
+  updateConditionStacks: async (req: Request, res: Response) => {
+    try {
+      if (req.params.characterId) {
+        await conditionServices.updateCharacterConditionStacks(
+          Number(req.params.conditionId),
+          req.body.value,
+        );
+      }
+
+      if (req.params.itemId) {
+        await conditionServices.updateItemConditionStacks(
+          Number(req.params.conditionId),
+          req.body.value,
+        );
+      }
+
+      res
+        .status(200)
+        .json({ message: 'Successfully updated condition stacks' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   deleteCondition: async (req: Request, res: Response) => {
     try {
       await conditionServices.deleteCondition(req.params.conditionId);

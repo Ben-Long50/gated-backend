@@ -14,7 +14,18 @@ export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
           actions: { orderBy: { name: 'asc' } },
         },
       },
-      keywords: { include: { keyword: true } },
+      keywords: {
+        include: { keyword: true },
+        orderBy: { keyword: { name: 'asc' } },
+      },
+      modifiedKeywords: {
+        include: { keyword: true },
+        orderBy: { keyword: { name: 'asc' } },
+      },
+      conditions: {
+        include: { condition: true },
+        orderBy: { condition: { name: 'asc' } },
+      },
     },
     orderBy: [{ name: 'asc' }, { grade: 'desc' }],
   },
