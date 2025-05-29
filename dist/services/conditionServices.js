@@ -95,13 +95,39 @@ const conditionServices = {
         try {
             await prisma.condition.delete({
                 where: {
-                    id: Number(conditionId),
+                    id: conditionId,
                 },
             });
         }
         catch (error) {
             console.error(error);
             throw new Error('Failed to delete condition');
+        }
+    },
+    deleteCharacterCondition: async (conditionId) => {
+        try {
+            await prisma.characterConditionReference.delete({
+                where: {
+                    id: conditionId,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete character condition');
+        }
+    },
+    deleteItemCondition: async (conditionId) => {
+        try {
+            await prisma.itemConditionReference.delete({
+                where: {
+                    id: conditionId,
+                },
+            });
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to delete item condition');
         }
     },
 };

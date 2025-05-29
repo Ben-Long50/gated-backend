@@ -42,4 +42,16 @@ router.delete(
   conditionController.deleteCondition,
 );
 
+router.delete(
+  '/characters/:characterId/conditions/:conditionId',
+  authentication.authenticate,
+  conditionController.deleteCharacterCondition,
+);
+
+router.delete(
+  '/items/:itemId/conditions/:conditionId',
+  authentication.authenticate,
+  conditionController.deleteItemCondition,
+);
+
 export default router;

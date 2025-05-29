@@ -8,4 +8,6 @@ router.post('/conditions', authentication.authenticate, authentication.authentic
 router.patch('/items/:itemId/conditions/:conditionId/stacks', authentication.authenticate, conditionController.updateConditionStacks);
 router.patch('/characters/:characterId/conditions/:conditionId/stacks', authentication.authenticate, conditionController.updateConditionStacks);
 router.delete('/conditions/:conditionId', authentication.authenticate, authentication.authenticateAdmin, conditionController.deleteCondition);
+router.delete('/characters/:characterId/conditions/:conditionId', authentication.authenticate, conditionController.deleteCharacterCondition);
+router.delete('/items/:itemId/conditions/:conditionId', authentication.authenticate, conditionController.deleteItemCondition);
 export default router;

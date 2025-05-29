@@ -2,32 +2,7 @@ import { Prisma } from '@prisma/client';
 
 export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
   items: {
-    include: {
-      itemLinkReference: {
-        include: {
-          items: {
-            include: {
-              baseItem: { select: { id: true, name: true, updatedAt: true } },
-            },
-            orderBy: { name: 'asc' },
-          },
-          actions: { orderBy: { name: 'asc' } },
-        },
-      },
-      keywords: {
-        include: { keyword: true },
-        orderBy: { keyword: { name: 'asc' } },
-      },
-      modifiedKeywords: {
-        include: { keyword: true },
-        orderBy: { keyword: { name: 'asc' } },
-      },
-      conditions: {
-        include: { condition: true },
-        orderBy: { condition: { name: 'asc' } },
-      },
-    },
-    orderBy: [{ name: 'asc' }, { grade: 'desc' }],
+    select: { id: true, itemType: true },
   },
   actions: { orderBy: { name: 'asc' } },
 };

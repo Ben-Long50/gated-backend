@@ -45,8 +45,28 @@ const conditionController = {
     },
     deleteCondition: async (req, res) => {
         try {
-            await conditionServices.deleteCondition(req.params.conditionId);
+            await conditionServices.deleteCondition(Number(req.params.conditionId));
             res.status(200).json({ message: 'Successfully deleted condition' });
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+    deleteCharacterCondition: async (req, res) => {
+        try {
+            await conditionServices.deleteCharacterCondition(Number(req.params.conditionId));
+            res
+                .status(200)
+                .json({ message: 'Successfully deleted character condition' });
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+    deleteItemCondition: async (req, res) => {
+        try {
+            await conditionServices.deleteItemCondition(Number(req.params.conditionId));
+            res.status(200).json({ message: 'Successfully deleted item condition' });
         }
         catch (error) {
             res.status(500).json({ error: error.message });
