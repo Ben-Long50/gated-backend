@@ -147,7 +147,7 @@ const itemServices = {
             throw new Error('Failed to create or update item');
         }
     },
-    createCharacterItemCopy: async (inventoryId, itemList) => {
+    createCharacterItemCopy: async (userId, inventoryId, itemList) => {
         const itemIds = itemList === null || itemList === void 0 ? void 0 : itemList.map((item) => item.itemId);
         const items = await prisma.item.findMany({
             where: { id: { in: itemIds } },
@@ -173,7 +173,7 @@ const itemServices = {
             const itemData = Object.assign(Object.assign({}, rest), { stats,
                 itemIds,
                 actionIds,
-                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseItemId: itemDetails.id });
+                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseItemId: itemDetails.id, userId });
             if (itemDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemType));

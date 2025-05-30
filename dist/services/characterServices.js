@@ -79,6 +79,9 @@ const characterServices = {
                     characterInventory: {
                         include: includeCharacterInventory,
                     },
+                    characterCart: {
+                        include: includeCharacterCart,
+                    },
                 },
             });
             return character;
@@ -181,7 +184,7 @@ const characterServices = {
             throw new Error('Failed to create character inventory');
         }
     },
-    addToInventory: async (characterId, inventoryId) => {
+    addToInventory: async (userId, characterId, inventoryId) => {
         var _a;
         try {
             const profits = ((_a = (await prisma.character.findUnique({
@@ -216,7 +219,7 @@ const characterServices = {
                 throw new Error('You do not have enough profits to complete this purchase');
             }
             if (items.length > 0) {
-                itemServices.createCharacterItemCopy(inventoryId, items);
+                itemServices.createCharacterItemCopy(userId, inventoryId, items);
             }
             await prisma.character.update({
                 where: { id: Number(characterId) },

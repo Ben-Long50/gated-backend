@@ -182,6 +182,7 @@ const itemServices = {
   },
 
   createCharacterItemCopy: async (
+    userId: number,
     inventoryId: number,
     itemList: { itemId: number; price: number | null; quantity: number }[],
   ) => {
@@ -229,6 +230,7 @@ const itemServices = {
         id: 0,
         characterInventoryId: Number(inventoryId),
         baseItemId: itemDetails.id,
+        userId,
       };
 
       if (itemDetails) {

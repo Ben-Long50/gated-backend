@@ -21,6 +21,7 @@ model User {
   role                  UserRole       @default(USER)
   createdAt             DateTime       @default(now())
   characters            Character[]
+  item                  Item[]
   errorReports          Error[]
   ownerCampaigns        Campaign[]     @relation("owner")
   pendingCampaigns      Campaign[]     @relation("pending")
@@ -285,6 +286,8 @@ model Action {
 model Item {
   id                   Int                      @id @default(autoincrement())
   updatedAt            DateTime                 @default(now())
+  user                 User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               Int?
   name                 String
   itemType             ItemType
   itemSubtype          String?

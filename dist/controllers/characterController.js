@@ -68,8 +68,12 @@ const characterController = {
         }
     },
     completePurchase: async (req, res) => {
+        var _a;
         try {
-            await characterServices.addToInventory(Number(req.params.characterId), Number(req.params.inventoryId));
+            if (!req.user) {
+                throw new Error('Could not find authenticated user');
+            }
+            await characterServices.addToInventory((_a = req.user) === null || _a === void 0 ? void 0 : _a.id, Number(req.params.characterId), Number(req.params.inventoryId));
             await characterServices.clearCart(Number(req.params.characterId));
             res.status(200).json({ message: 'Purchase completed' });
         }

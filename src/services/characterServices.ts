@@ -90,6 +90,9 @@ const characterServices = {
           characterInventory: {
             include: includeCharacterInventory,
           },
+          characterCart: {
+            include: includeCharacterCart,
+          },
         },
       });
 
@@ -208,7 +211,11 @@ const characterServices = {
     }
   },
 
-  addToInventory: async (characterId: number, inventoryId: number) => {
+  addToInventory: async (
+    userId: number,
+    characterId: number,
+    inventoryId: number,
+  ) => {
     try {
       const profits =
         (
@@ -259,7 +266,7 @@ const characterServices = {
       }
 
       if (items.length > 0) {
-        itemServices.createCharacterItemCopy(inventoryId, items);
+        itemServices.createCharacterItemCopy(userId, inventoryId, items);
       }
 
       await prisma.character.update({
