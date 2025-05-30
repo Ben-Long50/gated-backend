@@ -164,7 +164,7 @@ const itemServices = {
             const stats = itemDetails.stats
                 ? addVariableStats(Object.assign({}, itemDetails.stats))
                 : null;
-            const { itemIds, actionIds } = await createLinkedCopies(itemDetails.itemLinkReference, inventoryId, quantity);
+            const { itemIds, actionIds } = await createLinkedCopies(userId, itemDetails.itemLinkReference, inventoryId, quantity);
             const keywordIds = (itemDetails === null || itemDetails === void 0 ? void 0 : itemDetails.keywords.map((keyword) => ({
                 keywordId: keyword.keywordId,
                 value: keyword.value,

@@ -3,6 +3,7 @@ import itemServices from '../services/itemServices.js';
 import { LinkReferencePlaylaod } from '../types/linkReferencePayloads';
 
 export const createLinkedCopies = async (
+  userId: number,
   itemReference: LinkReferencePlaylaod,
   inventoryId: number,
   quantity: number,
@@ -19,6 +20,7 @@ export const createLinkedCopies = async (
       return { itemId: item.id, price: 0, quantity };
     });
     itemIds = await itemServices.createCharacterItemCopy(
+      userId,
       inventoryId,
       modificationInfo,
     );

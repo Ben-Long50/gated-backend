@@ -1,6 +1,6 @@
 import actionServices from '../services/actionServices.js';
 import itemServices from '../services/itemServices.js';
-export const createLinkedCopies = async (itemReference, inventoryId, quantity) => {
+export const createLinkedCopies = async (userId, itemReference, inventoryId, quantity) => {
     let itemIds = [];
     let actionIds = [];
     if (itemReference &&
@@ -9,7 +9,7 @@ export const createLinkedCopies = async (itemReference, inventoryId, quantity) =
         const modificationInfo = itemReference.items.map((item) => {
             return { itemId: item.id, price: 0, quantity };
         });
-        itemIds = await itemServices.createCharacterItemCopy(inventoryId, modificationInfo);
+        itemIds = await itemServices.createCharacterItemCopy(userId, inventoryId, modificationInfo);
     }
     if (itemReference &&
         'actions' in itemReference &&

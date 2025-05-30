@@ -208,6 +208,7 @@ const itemServices = {
         : null;
 
       const { itemIds, actionIds } = await createLinkedCopies(
+        userId,
         itemDetails.itemLinkReference,
         inventoryId,
         quantity,
