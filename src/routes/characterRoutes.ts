@@ -55,6 +55,12 @@ router.patch(
 );
 
 router.patch(
+  '/characters/:characterId/profits',
+  authentication.authenticate,
+  characterStatController.editProfits,
+);
+
+router.patch(
   '/characters/:characterId/cart/:cartId',
   authentication.authenticate,
   characterController.editCart,

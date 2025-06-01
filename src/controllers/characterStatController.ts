@@ -29,6 +29,20 @@ const characterStatController = {
       res.status(500).json({ error: error.message });
     }
   },
+
+  editProfits: async (req: Request, res: Response) => {
+    try {
+      await characterStatServices.editProfits(
+        Number(req.params.characterId),
+        Number(req.body.value),
+      );
+      res
+        .status(200)
+        .json({ message: `Changed current profits by ${req.body.value}` });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
 export default characterStatController;

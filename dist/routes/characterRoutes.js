@@ -16,6 +16,7 @@ router.patch('/characters/:characterId/inventory/:inventoryId/equipment/:itemId'
 router.patch('/characters/active', authentication.authenticate, characterController.setActiveCharacter);
 router.patch('/characters/:characterId/stats/currentHealth', authentication.authenticate, characterStatController.editCurrentHealth);
 router.patch('/characters/:characterId/stats/currentSanity', authentication.authenticate, characterStatController.editCurrentSanity);
+router.patch('/characters/:characterId/profits', authentication.authenticate, characterStatController.editProfits);
 router.patch('/characters/:characterId/cart/:cartId', authentication.authenticate, characterController.editCart);
 router.post('/characters/:characterId/inventory/:inventoryId', authentication.authenticate, characterController.completePurchase);
 router.post('/characters', authentication.authenticate, characterController.createCharacter);
