@@ -49,15 +49,20 @@ const campaignServices = {
         }
     },
     createOrUpdateCampaign: async (formData, ownerId) => {
+        let currentPending = [];
         if (formData.id) {
             const campaign = await prisma.campaign.findUnique({
                 where: { id: formData.id },
-                select: { ownerId: true },
+                select: { ownerId: true, players: true, pendingPlayers: true },
             });
             if ((campaign === null || campaign === void 0 ? void 0 : campaign.ownerId) !== ownerId) {
                 throw new Error('Only the owner of the campaign can update it');
             }
+            currentPending = campaign.pendingPlayers || [];
+            console.log(currentPending);
         }
+        const newPending = formData.pendingPlayers.filter((player) => !currentPending.some((user) => user.id === player.id));
+        console.log(newPending);
         try {
             const campaign = await prisma.campaign.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },
@@ -66,8 +71,11 @@ const campaignServices = {
                     location: formData.location,
                     picture: formData.picture,
                     ownerId,
+                    players: {
+                        set: formData.players.map((user) => ({ id: user.id })),
+                    },
                     pendingPlayers: {
-                        connect: formData.players.map((user) => ({ id: user.id })),
+                        set: formData.pendingPlayers.map((user) => ({ id: user.id })),
                     },
                 },
                 create: {
@@ -76,7 +84,7 @@ const campaignServices = {
                     picture: formData.picture,
                     ownerId,
                     pendingPlayers: {
-                        connect: formData.players.map((user) => ({ id: user.id })),
+                        connect: formData.pendingPlayers.map((user) => ({ id: user.id })),
                     },
                 },
             });
@@ -95,7 +103,7 @@ const campaignServices = {
                     });
                 }
             }
-            return campaign;
+            return { campaign, newPending };
         }
         catch (error) {
             console.error(error);

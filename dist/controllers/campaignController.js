@@ -41,16 +41,18 @@ const campaignController = {
                     return;
                 }
                 const parsedBody = parseRequestBody(req.body);
-                const campaign = await campaignServices.createOrUpdateCampaign(parsedBody, req.user.id);
+                const campaignInfo = await campaignServices.createOrUpdateCampaign(parsedBody, req.user.id);
                 const sessionInfo = {
                     name: 'Introduction',
                     sessionNumber: 0,
                     briefing: parsedBody.briefing,
                 };
                 if (!parsedBody.id) {
-                    await sessionServices.createOrUpdateSession(sessionInfo, campaign.id);
+                    await sessionServices.createOrUpdateSession(sessionInfo, campaignInfo.campaign.id);
                 }
-                await notificationServices.createNotification('campaignInvite', parsedBody.players.map((player) => player.id), req.user.id);
+                if (campaignInfo.newPending.length > 0) {
+                    await notificationServices.createNotification('campaignInvite', campaignInfo.newPending.map((player) => player.id), req.user.id);
+                }
                 res
                     .status(200)
                     .json({ message: 'Successfully created campaign and session 0' });
