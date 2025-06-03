@@ -1,6 +1,7 @@
 import { ActionType, Prisma } from '@prisma/client';
 import prisma from '../config/database.js';
 import { ActionCosts, ActionRoll } from '../types/action.js';
+import { Stats } from '../types/item.js';
 
 const actionServices = {
   getActions: async () => {
@@ -36,6 +37,7 @@ const actionServices = {
     duration: { unit: string; value: number | null };
     actionType: ActionType;
     actionSubtypes: string[];
+    modifiers: Stats;
     id?: number;
   }) => {
     try {
@@ -49,6 +51,7 @@ const actionServices = {
           duration: formData.duration,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
+          modifiers: { ...formData.modifiers },
         },
         create: {
           name: formData.name,
@@ -58,6 +61,7 @@ const actionServices = {
           duration: formData.duration,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
+          modifiers: { ...formData.modifiers },
         },
       });
 
@@ -93,6 +97,7 @@ const actionServices = {
                 duration: actionDetails.duration || undefined,
                 actionType: actionDetails.actionType,
                 actionSubtypes: actionDetails.actionSubtypes,
+                modifiers: { ...(actionDetails.modifiers as Stats) },
                 characterInventory: {
                   connect: { id: Number(inventoryId) },
                 },

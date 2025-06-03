@@ -37,6 +37,7 @@ const actionServices = {
                     duration: formData.duration,
                     actionType: formData.actionType,
                     actionSubtypes: formData.actionSubtypes,
+                    modifiers: Object.assign({}, formData.modifiers),
                 },
                 create: {
                     name: formData.name,
@@ -46,6 +47,7 @@ const actionServices = {
                     duration: formData.duration,
                     actionType: formData.actionType,
                     actionSubtypes: formData.actionSubtypes,
+                    modifiers: Object.assign({}, formData.modifiers),
                 },
             });
             return action;
@@ -72,6 +74,7 @@ const actionServices = {
                         duration: actionDetails.duration || undefined,
                         actionType: actionDetails.actionType,
                         actionSubtypes: actionDetails.actionSubtypes,
+                        modifiers: Object.assign({}, actionDetails.modifiers),
                         characterInventory: {
                             connect: { id: Number(inventoryId) },
                         },

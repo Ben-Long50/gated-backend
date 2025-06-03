@@ -124,13 +124,13 @@ const characterServices = {
   toggleEquipment: async (
     inventoryId: string,
     itemId: string,
-    category: ItemType,
+    category: ItemType[],
   ) => {
     try {
       const item = await prisma.item.findUnique({
         where: {
           id: Number(itemId),
-          itemTypes: { has: category },
+          itemTypes: { hasSome: category },
           characterInventoryId: Number(inventoryId),
         },
         select: { id: true, equipped: true },
