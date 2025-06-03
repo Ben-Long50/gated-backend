@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 
 export const includeCharacterInventory: Prisma.CharacterInventoryInclude = {
   items: {
-    select: { id: true, itemType: true },
+    select: { id: true, itemTypes: true },
   },
   actions: { orderBy: { name: 'asc' } },
 };

@@ -21,12 +21,7 @@ const itemController = {
 
   getItemById: async (req: Request, res: Response) => {
     try {
-      const category = req.params.category.slice(0, -1) as ItemType;
-
-      const item = await itemServices.getItemById(
-        category,
-        Number(req.params.itemId),
-      );
+      const item = await itemServices.getItemById(Number(req.params.itemId));
 
       if (!item) {
         throw new Error('Item not found');
@@ -46,7 +41,7 @@ const itemController = {
         const parsedBody = parseRequestBody(req.body);
         const category = req.params.category.slice(0, -1) as ItemType;
 
-        await itemServices.createOrUpdateItem(parsedBody, category);
+        await itemServices.createOrUpdateItem(parsedBody, [category]);
 
         res.status(200).json({
           message: parsedBody.id
@@ -97,7 +92,7 @@ const itemController = {
           character.id,
         );
 
-        await itemServices.createOrUpdateItem(itemInfo, category);
+        await itemServices.createOrUpdateItem(itemInfo, [category]);
         res.status(200).json({ message: 'Successfully modified item' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });

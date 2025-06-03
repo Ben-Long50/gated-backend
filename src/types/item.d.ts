@@ -3,7 +3,7 @@ import { $Enums, CharacterInventory } from '@prisma/client';
 interface Item {
   id: number;
   name: string;
-  itemType: $Enums.ItemType;
+  itemTypes: $Enums.ItemType[];
   rarity: $Enums.ItemRarity;
   grade: number;
   picture: Picture;

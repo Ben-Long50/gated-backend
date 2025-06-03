@@ -289,8 +289,8 @@ model Item {
   user                 User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId               Int?
   name                 String
-  itemType             ItemType
-  itemSubtype          String?
+  itemTypes            ItemType[]
+  itemSubtypes         String[]
   rarity               ItemRarity               @default(common)
   grade                Int                      @default(1)
   picture              Json?
@@ -312,9 +312,9 @@ model Item {
   cartRelation         CartItemRelation[]
   derivedItems         Item[]                   @relation("BaseRelation")
 
-  @@index([itemType])
+  @@index([itemTypes])
   @@index([characterInventoryId])
-  @@index([itemType, characterInventoryId])
+  @@index([itemTypes, characterInventoryId])
 }
 
 model ItemLinkReference {

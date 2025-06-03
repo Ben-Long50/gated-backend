@@ -1,6 +1,6 @@
 export const includeCharacterInventory = {
     items: {
-        select: { id: true, itemType: true },
+        select: { id: true, itemTypes: true },
     },
     actions: { orderBy: { name: 'asc' } },
 };

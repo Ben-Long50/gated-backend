@@ -3,14 +3,14 @@ import { Item, Stats } from '../types/item.js';
 import addVariableStats from '../utils/addVariableStats.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 import { createLinkedCopies } from '../utils/createLinkedCopies.js';
-import { ItemType } from '@prisma/client';
+import { $Enums } from '@prisma/client';
 
 const itemServices = {
-  getItems: async (category?: ItemType[]) => {
+  getItems: async (category?: $Enums.ItemType[]) => {
     try {
       const items = await prisma.item.findMany({
         where: category
-          ? { characterInventory: null, itemType: { in: category } }
+          ? { characterInventory: null, itemTypes: { hasEvery: category } }
           : { characterInventory: null },
         include: {
           itemLinkReference: { include: { items: true, actions: true } },
@@ -37,10 +37,10 @@ const itemServices = {
     }
   },
 
-  getItemById: async (category: ItemType, itemId: number) => {
+  getItemById: async (itemId: number) => {
     try {
       const item = await prisma.item.findUnique({
-        where: { id: itemId, itemType: category },
+        where: { id: itemId },
         include: {
           baseItem: true,
           itemLinkReference: { include: { items: true, actions: true } },
@@ -66,10 +66,10 @@ const itemServices = {
     }
   },
 
-  createOrUpdateItem: async (formData: Item, category: ItemType) => {
+  createOrUpdateItem: async (formData: Item, category: $Enums.ItemType[]) => {
     try {
       const item = await prisma.item.findUnique({
-        where: { id: formData.id ?? 0, itemType: category },
+        where: { id: formData.id ?? 0, itemTypes: { hasEvery: category } },
         include: {
           keywords: { select: { id: true } },
           modifiedKeywords: { select: { id: true } },
@@ -128,7 +128,6 @@ const itemServices = {
           ...data,
           ...(stats ? { stats } : {}),
           updatedAt: new Date(),
-          itemType: category,
           itemLinkReference: {
             upsert: {
               where: { itemId: id ?? 0 },
@@ -157,7 +156,6 @@ const itemServices = {
         create: {
           ...data,
           ...(stats ? { stats } : {}),
-          itemType: category,
           itemLinkReference: {
             create: {
               items: {
@@ -237,7 +235,7 @@ const itemServices = {
       if (itemDetails) {
         for (let i = 0; i < quantity; i++) {
           promises.push(
-            itemServices.createOrUpdateItem(itemData, itemData.itemType),
+            itemServices.createOrUpdateItem(itemData, itemData.itemTypes),
           );
         }
       }
@@ -305,16 +303,16 @@ const itemServices = {
     }
   },
 
-  deleteItems: async (itemIds: number[], category: ItemType[]) => {
+  deleteItems: async (itemIds: number[], category?: $Enums.ItemType[]) => {
     try {
       await prisma.item.deleteMany({
         where: category
           ? {
               id: { in: itemIds },
-              itemType: { in: category },
+              itemTypes: { hasSome: category },
             }
           : {
-              itemType: category,
+              itemTypes: { hasSome: category },
             },
       });
     } catch (error) {

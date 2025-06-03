@@ -130,7 +130,7 @@ const characterServices = {
       const item = await prisma.item.findUnique({
         where: {
           id: Number(itemId),
-          itemType: category,
+          itemTypes: { has: category },
           characterInventoryId: Number(inventoryId),
         },
         select: { id: true, equipped: true },
@@ -230,7 +230,7 @@ const characterServices = {
         select: {
           items: {
             include: {
-              item: { select: { id: true, price: true, itemType: true } },
+              item: { select: { id: true, price: true, itemTypes: true } },
             },
           },
         },

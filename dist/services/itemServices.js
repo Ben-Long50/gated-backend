@@ -16,9 +16,10 @@ import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 const itemServices = {
     getItems: async (category) => {
         try {
+            console.log(category);
             const items = await prisma.item.findMany({
                 where: category
-                    ? { characterInventory: null, itemType: { in: category } }
+                    ? { characterInventory: null, itemTypes: { hasEvery: category } }
                     : { characterInventory: null },
                 include: {
                     itemLinkReference: { include: { items: true, actions: true } },
@@ -44,10 +45,10 @@ const itemServices = {
             throw new Error('Failed to fetch items');
         }
     },
-    getItemById: async (category, itemId) => {
+    getItemById: async (itemId) => {
         try {
             const item = await prisma.item.findUnique({
-                where: { id: itemId, itemType: category },
+                where: { id: itemId },
                 include: {
                     baseItem: true,
                     itemLinkReference: { include: { items: true, actions: true } },
@@ -76,7 +77,7 @@ const itemServices = {
         var _a;
         try {
             const item = await prisma.item.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemType: category },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemTypes: { hasEvery: category } },
                 include: {
                     keywords: { select: { id: true } },
                     modifiedKeywords: { select: { id: true } },
@@ -108,7 +109,7 @@ const itemServices = {
             }))) || [];
             const newItem = await prisma.item.upsert({
                 where: { id: id !== null && id !== void 0 ? id : 0 },
-                update: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { updatedAt: new Date(), itemType: category, itemLinkReference: {
+                update: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { updatedAt: new Date(), itemLinkReference: {
                         upsert: {
                             where: { itemId: id !== null && id !== void 0 ? id : 0 },
                             update: {
@@ -129,7 +130,7 @@ const itemServices = {
                             },
                         },
                     }, keywords: { createMany: { data: keywordData } }, modifiedKeywords: { createMany: { data: modifiedKeywordData } }, characterInventoryId }),
-                create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemType: category, itemLinkReference: {
+                create: Object.assign(Object.assign(Object.assign({}, data), (stats ? { stats } : {})), { itemLinkReference: {
                         create: {
                             items: {
                                 connect: itemIds === null || itemIds === void 0 ? void 0 : itemIds.map((id) => ({ id })),
@@ -176,7 +177,7 @@ const itemServices = {
                 keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseItemId: itemDetails.id, userId });
             if (itemDetails) {
                 for (let i = 0; i < quantity; i++) {
-                    promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemType));
+                    promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemTypes));
                 }
             }
         }
@@ -238,10 +239,10 @@ const itemServices = {
                 where: category
                     ? {
                         id: { in: itemIds },
-                        itemType: { in: category },
+                        itemTypes: { hasSome: category },
                     }
                     : {
-                        itemType: category,
+                        itemTypes: { hasSome: category },
                     },
             });
         }
