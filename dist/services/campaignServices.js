@@ -59,10 +59,8 @@ const campaignServices = {
                 throw new Error('Only the owner of the campaign can update it');
             }
             currentPending = campaign.pendingPlayers || [];
-            console.log(currentPending);
         }
         const newPending = formData.pendingPlayers.filter((player) => !currentPending.some((user) => user.id === player.id));
-        console.log(newPending);
         try {
             const campaign = await prisma.campaign.upsert({
                 where: { id: (formData === null || formData === void 0 ? void 0 : formData.id) || 0 },

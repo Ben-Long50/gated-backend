@@ -79,15 +79,11 @@ const campaignServices = {
       }
 
       currentPending = campaign.pendingPlayers || [];
-
-      console.log(currentPending);
     }
 
     const newPending = formData.pendingPlayers.filter(
       (player) => !currentPending.some((user) => user.id === player.id),
     );
-
-    console.log(newPending);
 
     try {
       const campaign = await prisma.campaign.upsert({

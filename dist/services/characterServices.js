@@ -42,7 +42,7 @@ const characterServices = {
                         orderBy: { condition: { name: 'asc' } },
                     },
                     affiliations: { include: { factions: true, characters: true } },
-                    perks: { include: { modifiers: { include: { action: true } } } },
+                    perks: true,
                     characterCart: {
                         include: includeCharacterCart,
                     },
@@ -75,7 +75,7 @@ const characterServices = {
                         include: { condition: true },
                         orderBy: { condition: { name: 'asc' } },
                     },
-                    perks: { include: { modifiers: { include: { action: true } } } },
+                    perks: true,
                     characterInventory: {
                         include: includeCharacterInventory,
                     },

@@ -278,7 +278,7 @@ model Action {
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseActionId         Int?
-  modifiers            Modifier[]
+  modifiers            Json?
   itemLink             ItemLinkReference?  @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
   itemLinkId           Int?
 }
@@ -337,31 +337,10 @@ enum ItemType {
   consumable
 }
 
-model Modifier {
-  id        Int          @id @default(autoincrement())
-  type      ModifierType
-  stat      String?
-  operator  String
-  valueType ValueType?
-  attribute String?
-  skill     String?
-  value     Int?
-  duration  Json?
-  action    Action?      @relation(fields: [actionId], references: [id], onDelete: Cascade)
-  actionId  Int?
-  perk      Perk?        @relation(fields: [perkId], references: [id], onDelete: Cascade)
-  perkId    Int?
-}
-
 enum ValueType {
   number
   attribute
   skill
-}
-
-enum ModifierType {
-  roll
-  stat
 }
 
 enum ItemCategory {
@@ -389,7 +368,7 @@ model Perk {
   description  String
   requirements Json?
   characters   Character[] @relation("CharacterToPerk")
-  modifiers    Modifier[]
+  modifiers    Json?
 }
 
 model BookSection {
