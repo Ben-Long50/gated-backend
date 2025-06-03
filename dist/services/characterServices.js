@@ -212,7 +212,7 @@ const characterServices = {
                     ? reference.quantity * targetObject.price
                     : 0;
             }).reduce((sum, item) => sum + item, 0);
-            if (!totalPrice) {
+            if (typeof totalPrice !== 'number') {
                 throw new Error('Failed to calculate total cart price');
             }
             if (totalPrice > profits) {

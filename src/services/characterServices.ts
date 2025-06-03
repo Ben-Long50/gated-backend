@@ -255,7 +255,7 @@ const characterServices = {
         })
         .reduce((sum, item) => sum + item, 0);
 
-      if (!totalPrice) {
+      if (typeof totalPrice !== 'number') {
         throw new Error('Failed to calculate total cart price');
       }
 

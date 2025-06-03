@@ -16,7 +16,6 @@ import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 const itemServices = {
     getItems: async (category) => {
         try {
-            console.log(category);
             const items = await prisma.item.findMany({
                 where: category
                     ? { characterInventory: null, itemTypes: { hasEvery: category } }
