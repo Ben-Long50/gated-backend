@@ -21,7 +21,27 @@ const itemServices = {
                     ? { characterInventory: null, itemTypes: { hasEvery: category } }
                     : { characterInventory: null },
                 include: {
-                    itemLinkReference: { include: { items: true, actions: true } },
+                    itemLinkReference: {
+                        include: {
+                            items: {
+                                include: {
+                                    keywords: {
+                                        include: { keyword: true },
+                                        orderBy: { keyword: { name: 'asc' } },
+                                    },
+                                    modifiedKeywords: {
+                                        include: { keyword: true },
+                                        orderBy: { keyword: { name: 'asc' } },
+                                    },
+                                    conditions: {
+                                        include: { condition: true },
+                                        orderBy: { condition: { name: 'asc' } },
+                                    },
+                                },
+                            },
+                            actions: true,
+                        },
+                    },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
@@ -50,7 +70,27 @@ const itemServices = {
                 where: { id: itemId },
                 include: {
                     baseItem: true,
-                    itemLinkReference: { include: { items: true, actions: true } },
+                    itemLinkReference: {
+                        include: {
+                            items: {
+                                include: {
+                                    keywords: {
+                                        include: { keyword: true },
+                                        orderBy: { keyword: { name: 'asc' } },
+                                    },
+                                    modifiedKeywords: {
+                                        include: { keyword: true },
+                                        orderBy: { keyword: { name: 'asc' } },
+                                    },
+                                    conditions: {
+                                        include: { condition: true },
+                                        orderBy: { condition: { name: 'asc' } },
+                                    },
+                                },
+                            },
+                            actions: true,
+                        },
+                    },
                     keywords: {
                         include: { keyword: true },
                         orderBy: { keyword: { name: 'asc' } },
