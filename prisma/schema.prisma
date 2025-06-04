@@ -274,6 +274,7 @@ model Action {
   actionType           ActionType
   actionSubtypes       String[]
   duration             Json?
+  cooldown             Json?
   equipped             Boolean             @default(false)
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?

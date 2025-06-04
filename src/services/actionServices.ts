@@ -35,6 +35,7 @@ const actionServices = {
     costs: ActionCosts;
     roll: ActionRoll[];
     duration: { unit: string; value: number | null };
+    cooldown: { unit: string; value: number | null };
     actionType: ActionType;
     actionSubtypes: string[];
     modifiers: Stats;
@@ -49,6 +50,7 @@ const actionServices = {
           costs: { ...formData.costs },
           roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
+          cooldown: formData.cooldown,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
           modifiers: { ...formData.modifiers },
@@ -59,6 +61,7 @@ const actionServices = {
           costs: { ...formData.costs },
           roll: formData.roll as unknown as Prisma.JsonArray,
           duration: formData.duration,
+          cooldown: formData.cooldown,
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
           modifiers: { ...formData.modifiers },
@@ -95,6 +98,7 @@ const actionServices = {
                 costs: actionDetails.costs || undefined,
                 roll: actionDetails.roll || undefined,
                 duration: actionDetails.duration || undefined,
+                cooldown: actionDetails.cooldown || undefined,
                 actionType: actionDetails.actionType,
                 actionSubtypes: actionDetails.actionSubtypes,
                 modifiers: { ...(actionDetails.modifiers as Stats) },
