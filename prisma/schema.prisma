@@ -276,10 +276,12 @@ model Action {
   duration             Json?
   cooldown             Json?
   equipped             Boolean             @default(false)
+  modifiers            Json?
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
+  baseAction           Action?             @relation("BaseRelation", fields: [baseActionId], references: [id])
   baseActionId         Int?
-  modifiers            Json?
+  derivedActions       Action[]            @relation("BaseRelation")
   itemLink             ItemLinkReference?  @relation(fields: [itemLinkId], references: [id], onDelete: Cascade)
   itemLinkId           Int?
 }

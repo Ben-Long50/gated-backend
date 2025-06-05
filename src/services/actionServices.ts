@@ -7,7 +7,7 @@ const actionServices = {
   getActions: async () => {
     try {
       const actions = await prisma.action.findMany({
-        where: { characterInventory: null },
+        where: { characterInventory: null, baseActionId: null },
         orderBy: { name: 'asc' },
       });
       return actions;
@@ -96,6 +96,7 @@ const actionServices = {
           ...(duration ? { duration } : {}),
           ...(cooldown ? { cooldown } : {}),
           ...(modifiers ? { modifiers } : {}),
+          baseActionId: id,
         },
       });
 
