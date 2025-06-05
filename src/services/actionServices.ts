@@ -75,6 +75,37 @@ const actionServices = {
     }
   },
 
+  createActionCopy: async (actionId: number) => {
+    try {
+      const actionInfo = await prisma.action.findUnique({
+        where: { id: actionId },
+      });
+
+      if (!actionInfo) {
+        throw new Error('Failed to find action');
+      }
+
+      const { id, costs, roll, duration, cooldown, modifiers, ...data } =
+        actionInfo;
+
+      const action = await prisma.action.create({
+        data: {
+          ...data,
+          ...(costs ? { costs } : {}),
+          ...(roll ? { roll } : {}),
+          ...(duration ? { duration } : {}),
+          ...(cooldown ? { cooldown } : {}),
+          ...(modifiers ? { modifiers } : {}),
+        },
+      });
+
+      return action;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to create or update action');
+    }
+  },
+
   createCharacterActionCopy: async (
     inventoryId: number,
     actionList: { actionId: number; quantity: number }[],

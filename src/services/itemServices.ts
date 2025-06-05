@@ -3,7 +3,8 @@ import { Item, Stats } from '../types/item.js';
 import addVariableStats from '../utils/addVariableStats.js';
 import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 import { createLinkedCopies } from '../utils/createLinkedCopies.js';
-import { $Enums } from '@prisma/client';
+import { $Enums, Keyword } from '@prisma/client';
+import actionServices from './actionServices.js';
 
 const itemServices = {
   getItems: async (category?: $Enums.ItemType[]) => {
@@ -237,6 +238,102 @@ const itemServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create or update item');
+    }
+  },
+
+  createItemCopy: async (itemId: number, category: $Enums.ItemType[]) => {
+    try {
+      const itemDetails = await prisma.item.findUnique({
+        where: { id: itemId, itemTypes: { hasEvery: category } },
+        include: {
+          keywords: { include: { keyword: true } },
+          itemLinkReference: { include: { items: true, actions: true } },
+        },
+      });
+
+      if (!itemDetails) {
+        throw new Error('Failed to find original item');
+      }
+
+      const {
+        id,
+        baseItemId,
+        itemLinkId,
+        stats,
+        modifiedStats,
+        picture,
+        keywords,
+        //@ts-ignore
+        modifiedKeywords,
+        itemLinkReference,
+        ...data
+      } = itemDetails;
+
+      const keywordData =
+        keywords?.map(
+          (keyword: { keyword: Keyword; value?: number | null }) => ({
+            keywordId: keyword.keyword.id,
+            value: keyword.value,
+          }),
+        ) || [];
+
+      const modifiedKeywordData =
+        modifiedKeywords?.map(
+          (keyword: { keyword: Keyword; value?: number | null }) => ({
+            keywordId: keyword.keyword.id,
+            value: keyword.value,
+          }),
+        ) || [];
+
+      const itemIds = [] as number[];
+      const actionIds = [] as number[];
+
+      if (itemLinkReference?.items) {
+        for (let item of itemLinkReference?.items) {
+          const newItem = await itemServices.createItemCopy(
+            item.id,
+            item.itemTypes,
+          );
+
+          itemIds.push(newItem.id);
+        }
+      }
+
+      if (itemLinkReference?.actions) {
+        for (let action of itemLinkReference?.actions) {
+          const newItem = await actionServices.createActionCopy(action.id);
+
+          actionIds.push(newItem.id);
+        }
+      }
+
+      const itemCopy = await prisma.item.create({
+        data: {
+          ...data,
+          ...(stats ? { stats } : {}),
+          ...(picture ? { picture } : {}),
+          ...(modifiedStats ? { modifiedStats } : {}),
+          itemLinkReference: {
+            create: {
+              items: {
+                connect: itemIds.map((id) => ({ id })),
+              },
+
+              actions: {
+                connect: actionIds.map((id) => ({ id })),
+              },
+            },
+          },
+          keywords: { createMany: { data: keywordData } },
+          modifiedKeywords: { createMany: { data: modifiedKeywordData } },
+          baseItemId: id,
+        },
+      });
+
+      return itemCopy;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to create item copy');
     }
   },
 

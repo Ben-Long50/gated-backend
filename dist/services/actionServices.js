@@ -1,3 +1,14 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 import prisma from '../config/database.js';
 const actionServices = {
     getActions: async () => {
@@ -51,6 +62,25 @@ const actionServices = {
                     actionSubtypes: formData.actionSubtypes,
                     modifiers: Object.assign({}, formData.modifiers),
                 },
+            });
+            return action;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to create or update action');
+        }
+    },
+    createActionCopy: async (actionId) => {
+        try {
+            const actionInfo = await prisma.action.findUnique({
+                where: { id: actionId },
+            });
+            if (!actionInfo) {
+                throw new Error('Failed to find action');
+            }
+            const { id, costs, roll, duration, cooldown, modifiers } = actionInfo, data = __rest(actionInfo, ["id", "costs", "roll", "duration", "cooldown", "modifiers"]);
+            const action = await prisma.action.create({
+                data: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, data), (costs ? { costs } : {})), (roll ? { roll } : {})), (duration ? { duration } : {})), (cooldown ? { cooldown } : {})), (modifiers ? { modifiers } : {})),
             });
             return action;
         }

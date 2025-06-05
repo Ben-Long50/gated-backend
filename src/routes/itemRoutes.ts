@@ -25,6 +25,13 @@ router.post(
 );
 
 router.post(
+  '/items/:category/:itemId',
+  authentication.authenticate,
+  authentication.authenticateAdmin,
+  itemController.createItemCopy,
+);
+
+router.post(
   '/items/:category/:itemId/conditions',
   authentication.authenticate,
   itemController.createItemConditions,
