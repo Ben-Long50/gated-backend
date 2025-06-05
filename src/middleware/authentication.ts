@@ -83,6 +83,10 @@ const authentication = {
       return;
     }
 
+    if (req.user.role === 'ADMIN' || req.user.role === 'SUPERADMIN') {
+      return next();
+    }
+
     const item = await prisma.item.findUnique({
       where: { id: Number(req.params.itemId) },
       select: {

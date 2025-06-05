@@ -35,6 +35,7 @@ const itemServices = {
               }
           : { characterInventory: null, itemLinkId: null },
         include: {
+          baseItem: true,
           itemLinkReference: {
             include: {
               items: {
