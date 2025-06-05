@@ -19,6 +19,7 @@ const itemServices = {
           ? excludeAugments
             ? {
                 characterInventory: null,
+                itemLinkId: null,
                 itemTypes: { hasEvery: category },
                 NOT: {
                   itemTypes: {
@@ -28,9 +29,10 @@ const itemServices = {
               }
             : {
                 characterInventory: null,
+                itemLinkId: null,
                 itemTypes: { hasEvery: category },
               }
-          : { characterInventory: null },
+          : { characterInventory: null, itemLinkId: null },
         include: {
           itemLinkReference: {
             include: {
@@ -286,7 +288,7 @@ const itemServices = {
         actionIds,
         keywordIds,
         id: 0,
-        characterInventoryId: Number(inventoryId),
+        characterInventoryId: inventoryId,
         baseItemId: itemDetails.id,
         userId,
       };

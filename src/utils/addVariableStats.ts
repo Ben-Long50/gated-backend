@@ -31,10 +31,6 @@ const addVariableStats = (itemStats: Stats) => {
     stats = { ...stats, currentCargo: 0 };
   }
 
-  if (stats?.hangar && !stats?.currentHangar) {
-    stats = { ...stats, currentHangar: 0 };
-  }
-
   if (stats?.pass && !stats?.currentPass) {
     stats = { ...stats, currentPass: 0 };
   }

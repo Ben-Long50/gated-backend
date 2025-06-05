@@ -25,6 +25,7 @@ const itemServices = {
                     ? excludeAugments
                         ? {
                             characterInventory: null,
+                            itemLinkId: null,
                             itemTypes: { hasEvery: category },
                             NOT: {
                                 itemTypes: {
@@ -34,9 +35,10 @@ const itemServices = {
                         }
                         : {
                             characterInventory: null,
+                            itemLinkId: null,
                             itemTypes: { hasEvery: category },
                         }
-                    : { characterInventory: null },
+                    : { characterInventory: null, itemLinkId: null },
                 include: {
                     itemLinkReference: {
                         include: {
@@ -230,7 +232,7 @@ const itemServices = {
             const itemData = Object.assign(Object.assign({}, rest), { stats,
                 itemIds,
                 actionIds,
-                keywordIds, id: 0, characterInventoryId: Number(inventoryId), baseItemId: itemDetails.id, userId });
+                keywordIds, id: 0, characterInventoryId: inventoryId, baseItemId: itemDetails.id, userId });
             if (itemDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemTypes));

@@ -21,9 +21,6 @@ const addVariableStats = (itemStats) => {
     if ((stats === null || stats === void 0 ? void 0 : stats.cargo) && !(stats === null || stats === void 0 ? void 0 : stats.currentCargo)) {
         stats = Object.assign(Object.assign({}, stats), { currentCargo: 0 });
     }
-    if ((stats === null || stats === void 0 ? void 0 : stats.hangar) && !(stats === null || stats === void 0 ? void 0 : stats.currentHangar)) {
-        stats = Object.assign(Object.assign({}, stats), { currentHangar: 0 });
-    }
     if ((stats === null || stats === void 0 ? void 0 : stats.pass) && !(stats === null || stats === void 0 ? void 0 : stats.currentPass)) {
         stats = Object.assign(Object.assign({}, stats), { currentPass: 0 });
     }
