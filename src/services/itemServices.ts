@@ -7,10 +7,29 @@ import { $Enums } from '@prisma/client';
 
 const itemServices = {
   getItems: async (category?: $Enums.ItemType[]) => {
+    let excludeAugments = false;
+
+    if (category?.includes('weapon') || category?.includes('armor')) {
+      excludeAugments = true;
+    }
+
     try {
       const items = await prisma.item.findMany({
         where: category
-          ? { characterInventory: null, itemTypes: { hasEvery: category } }
+          ? excludeAugments
+            ? {
+                characterInventory: null,
+                itemTypes: { hasEvery: category },
+                NOT: {
+                  itemTypes: {
+                    has: 'augmentation',
+                  },
+                },
+              }
+            : {
+                characterInventory: null,
+                itemTypes: { hasEvery: category },
+              }
           : { characterInventory: null },
         include: {
           itemLinkReference: {

@@ -15,10 +15,27 @@ import { enforceSingularLinking } from '../utils/enforceSingularLinking.js';
 import { createLinkedCopies } from '../utils/createLinkedCopies.js';
 const itemServices = {
     getItems: async (category) => {
+        let excludeAugments = false;
+        if ((category === null || category === void 0 ? void 0 : category.includes('weapon')) || (category === null || category === void 0 ? void 0 : category.includes('armor'))) {
+            excludeAugments = true;
+        }
         try {
             const items = await prisma.item.findMany({
                 where: category
-                    ? { characterInventory: null, itemTypes: { hasEvery: category } }
+                    ? excludeAugments
+                        ? {
+                            characterInventory: null,
+                            itemTypes: { hasEvery: category },
+                            NOT: {
+                                itemTypes: {
+                                    has: 'augmentation',
+                                },
+                            },
+                        }
+                        : {
+                            characterInventory: null,
+                            itemTypes: { hasEvery: category },
+                        }
                     : { characterInventory: null },
                 include: {
                     itemLinkReference: {
