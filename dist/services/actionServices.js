@@ -14,7 +14,7 @@ const actionServices = {
     getActions: async () => {
         try {
             const actions = await prisma.action.findMany({
-                where: { characterInventory: null },
+                where: { characterInventory: null, baseActionId: null },
                 orderBy: { name: 'asc' },
             });
             return actions;
@@ -80,7 +80,7 @@ const actionServices = {
             }
             const { id, costs, roll, duration, cooldown, modifiers } = actionInfo, data = __rest(actionInfo, ["id", "costs", "roll", "duration", "cooldown", "modifiers"]);
             const action = await prisma.action.create({
-                data: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, data), (costs ? { costs } : {})), (roll ? { roll } : {})), (duration ? { duration } : {})), (cooldown ? { cooldown } : {})), (modifiers ? { modifiers } : {})),
+                data: Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign(Object.assign({}, data), (costs ? { costs } : {})), (roll ? { roll } : {})), (duration ? { duration } : {})), (cooldown ? { cooldown } : {})), (modifiers ? { modifiers } : {})), { baseActionId: id }),
             });
             return action;
         }
@@ -111,7 +111,7 @@ const actionServices = {
                         characterInventory: {
                             connect: { id: Number(inventoryId) },
                         },
-                        baseActionId: actionDetails.id,
+                        baseAction: { connect: { id: actionDetails.id } },
                     },
                 }));
             }

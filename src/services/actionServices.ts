@@ -7,7 +7,7 @@ const actionServices = {
   getActions: async () => {
     try {
       const actions = await prisma.action.findMany({
-        where: { characterInventory: null },
+        where: { characterInventory: null, baseActionId: null },
         orderBy: { name: 'asc' },
       });
       return actions;
@@ -96,6 +96,7 @@ const actionServices = {
           ...(duration ? { duration } : {}),
           ...(cooldown ? { cooldown } : {}),
           ...(modifiers ? { modifiers } : {}),
+          baseActionId: id,
         },
       });
 
@@ -136,7 +137,7 @@ const actionServices = {
                 characterInventory: {
                   connect: { id: Number(inventoryId) },
                 },
-                baseActionId: actionDetails.id,
+                baseAction: { connect: { id: actionDetails.id } },
               },
             }),
           );
