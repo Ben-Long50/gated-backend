@@ -8,6 +8,7 @@ const actionServices = {
     try {
       const actions = await prisma.action.findMany({
         where: { characterInventory: null, baseActionId: null },
+        include: { keywordModifiers: { include: { keyword: true } } },
         orderBy: { name: 'asc' },
       });
       return actions;
@@ -21,6 +22,7 @@ const actionServices = {
     try {
       const action = await prisma.action.findUnique({
         where: { id: Number(actionId) },
+        include: { keywordModifiers: { include: { keyword: true } } },
       });
       return action;
     } catch (error) {
@@ -39,10 +41,34 @@ const actionServices = {
     actionType: ActionType;
     actionSubtypes: string[];
     modifiers: Stats;
+    keywordModifierIds: { keywordId: number; value?: number | null }[];
     id?: number;
   }) => {
     try {
-      const action = await prisma.action.upsert({
+      const action = await prisma.action.findUnique({
+        where: { id: formData.id ?? 0 },
+        include: {
+          keywordModifiers: { select: { id: true } },
+        },
+      });
+
+      if (action && action.keywordModifiers) {
+        await prisma.keywordReference.deleteMany({
+          where: {
+            id: { in: action.keywordModifiers.map((keyword) => keyword.id) },
+          },
+        });
+      }
+
+      const keywordModifierData =
+        formData.keywordModifierIds?.map(
+          (keyword: { keywordId: number; value?: number | null }) => ({
+            keywordId: keyword.keywordId,
+            value: keyword.value,
+          }),
+        ) || [];
+
+      const newAction = await prisma.action.upsert({
         where: { id: Number(formData?.id) || 0 },
         update: {
           name: formData.name,
@@ -54,6 +80,7 @@ const actionServices = {
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
           modifiers: { ...formData.modifiers },
+          keywordModifiers: { createMany: { data: keywordModifierData } },
         },
         create: {
           name: formData.name,
@@ -65,10 +92,11 @@ const actionServices = {
           actionType: formData.actionType,
           actionSubtypes: formData.actionSubtypes,
           modifiers: { ...formData.modifiers },
+          keywordModifiers: { createMany: { data: keywordModifierData } },
         },
       });
 
-      return action;
+      return newAction;
     } catch (error) {
       console.error(error);
       throw new Error('Failed to create or update action');

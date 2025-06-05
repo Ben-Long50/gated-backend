@@ -216,6 +216,8 @@ model KeywordReference {
   itemId         Int?
   modifiedItem   Item?   @relation("ModifiedKeywords", fields: [modifiedItemId], references: [id], onDelete: Cascade)
   modifiedItemId Int?
+  Action         Action? @relation(fields: [actionId], references: [id])
+  actionId       Int?
 
   @@unique([keywordId, itemId])
 }
@@ -277,6 +279,7 @@ model Action {
   cooldown             Json?
   equipped             Boolean             @default(false)
   modifiers            Json?
+  keywordModifiers     KeywordReference[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
   characterInventoryId Int?
   baseAction           Action?             @relation("BaseRelation", fields: [baseActionId], references: [id])

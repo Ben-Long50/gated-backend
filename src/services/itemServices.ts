@@ -54,7 +54,9 @@ const itemServices = {
                   },
                 },
               },
-              actions: true,
+              actions: {
+                include: { keywordModifiers: { include: { keyword: true } } },
+              },
             },
           },
           keywords: {
@@ -104,7 +106,9 @@ const itemServices = {
                   },
                 },
               },
-              actions: true,
+              actions: {
+                include: { keywordModifiers: { include: { keyword: true } } },
+              },
             },
           },
           keywords: {
