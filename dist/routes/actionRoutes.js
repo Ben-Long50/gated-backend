@@ -5,5 +5,6 @@ const router = express.Router();
 router.get('/actions', authentication.authenticate, actionController.getActions);
 router.get('/actions/:actionId', authentication.authenticate, actionController.getActionById);
 router.post('/actions', authentication.authenticate, authentication.authenticateAdmin, actionController.createAction);
+router.patch('/actions/:actionId/toggle', authentication.authenticate, actionController.activateAction);
 router.delete('/actions/:actionId', authentication.authenticate, authentication.authenticateAdmin, actionController.deleteAction);
 export default router;

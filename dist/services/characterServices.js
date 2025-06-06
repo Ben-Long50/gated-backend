@@ -1,5 +1,5 @@
 import prisma from '../config/database.js';
-import { equipLinked, includeCharacterCart, includeCharacterInventory, unequipLinked, } from '../utils/linkQueryStructures.js';
+import { includeCharacterCart, includeCharacterInventory, unequipLinked, } from '../utils/linkQueryStructures.js';
 import itemServices from './itemServices.js';
 const characterServices = {
     getCharacters: async (userId) => {
@@ -125,10 +125,47 @@ const characterServices = {
                 where: { id: item.id },
                 data: { equipped: item.equipped ? false : true },
             });
-            await prisma.itemLinkReference.update({
-                where: { itemId: item.id },
-                data: item.equipped ? unequipLinked : equipLinked,
-            });
+            await prisma.$transaction([
+                prisma.itemLinkReference.update({
+                    where: { itemId: item.id },
+                    data: item.equipped
+                        ? unequipLinked
+                        : {
+                            items: {
+                                updateMany: {
+                                    where: {},
+                                    data: {
+                                        equipped: true,
+                                    },
+                                },
+                            },
+                            actions: {
+                                updateMany: {
+                                    where: { actionType: 'passive' },
+                                    data: {
+                                        active: true,
+                                        equipped: true,
+                                    },
+                                },
+                            },
+                        },
+                }),
+                prisma.itemLinkReference.update({
+                    where: { itemId: item.id },
+                    data: item.equipped
+                        ? unequipLinked
+                        : {
+                            actions: {
+                                updateMany: {
+                                    where: { actionType: { not: 'passive' } },
+                                    data: {
+                                        equipped: true,
+                                    },
+                                },
+                            },
+                        },
+                }),
+            ]);
         }
         catch (error) {
             console.error(error);

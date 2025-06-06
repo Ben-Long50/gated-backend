@@ -32,7 +32,7 @@ export const equipLinked = {
     },
     actions: {
         updateMany: {
-            where: {},
+            where: { itemType: 'passive' },
             data: {
                 equipped: true,
             },
@@ -52,6 +52,7 @@ export const unequipLinked = {
         updateMany: {
             where: {},
             data: {
+                active: false,
                 equipped: false,
             },
         },

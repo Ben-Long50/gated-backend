@@ -23,6 +23,12 @@ router.post(
   actionController.createAction,
 );
 
+router.patch(
+  '/actions/:actionId/toggle',
+  authentication.authenticate,
+  actionController.activateAction,
+);
+
 router.delete(
   '/actions/:actionId',
   authentication.authenticate,

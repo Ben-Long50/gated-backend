@@ -107,7 +107,10 @@ const itemServices = {
                 },
               },
               actions: {
-                include: { keywordModifiers: { include: { keyword: true } } },
+                include: {
+                  keywordModifiers: { include: { keyword: true } },
+                  itemLink: { select: { itemId: true } },
+                },
               },
             },
           },

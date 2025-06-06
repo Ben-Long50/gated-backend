@@ -143,6 +143,19 @@ const actionServices = {
             .filter((action) => action !== undefined)
             .map((action) => action.id);
     },
+    activateAction: async (actionId, value) => {
+        try {
+            const action = await prisma.action.update({
+                where: { id: actionId },
+                data: { active: !value },
+            });
+            return action;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to toggle action');
+        }
+    },
     deleteAction: async (actionId) => {
         try {
             await prisma.action.delete({

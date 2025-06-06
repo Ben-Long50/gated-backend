@@ -179,6 +179,19 @@ const actionServices = {
       .map((action) => action.id);
   },
 
+  activateAction: async (actionId: number, value: boolean) => {
+    try {
+      const action = await prisma.action.update({
+        where: { id: actionId },
+        data: { active: !value },
+      });
+      return action;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to toggle action');
+    }
+  },
+
   deleteAction: async (actionId: string) => {
     try {
       await prisma.action.delete({

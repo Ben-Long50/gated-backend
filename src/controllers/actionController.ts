@@ -29,6 +29,18 @@ const actionController = {
     }
   },
 
+  activateAction: async (req: Request, res: Response) => {
+    try {
+      await actionServices.activateAction(
+        Number(req.params.actionId),
+        req.body.value,
+      );
+      res.status(200).json({ message: 'Successfully toggled action' });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   deleteAction: async (req: Request, res: Response) => {
     try {
       await actionServices.deleteAction(req.params.actionId);

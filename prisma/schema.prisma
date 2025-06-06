@@ -278,6 +278,8 @@ model Action {
   duration             Json?
   cooldown             Json?
   equipped             Boolean             @default(false)
+  active               Boolean             @default(false)
+  available            Boolean             @default(true)
   modifiers            Json?
   keywordModifiers     KeywordReference[]
   characterInventory   CharacterInventory? @relation(fields: [characterInventoryId], references: [id], onDelete: Cascade)
