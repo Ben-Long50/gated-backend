@@ -1,7 +1,6 @@
 import prisma from '../config/database.js';
 import { Character } from '../types/character.js';
 import {
-  equipLinked,
   includeCharacterCart,
   includeCharacterInventory,
   unequipLinked,
