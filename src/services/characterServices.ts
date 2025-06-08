@@ -29,6 +29,45 @@ const characterServices = {
     }
   },
 
+  getBatchCharacters: async (characterIds: number[]) => {
+    try {
+      const characters = await prisma.character.findMany({
+        where: {
+          id: { in: characterIds },
+        },
+        include: {
+          campaign: {
+            select: {
+              name: true,
+              ownerId: true,
+            },
+          },
+          conditions: {
+            include: { condition: true },
+            orderBy: { condition: { name: 'asc' } },
+          },
+          affiliations: { select: { id: true } },
+          perks: true,
+          characterInventory: {
+            include: includeCharacterInventory,
+          },
+          characterCart: {
+            include: includeCharacterCart,
+          },
+        },
+      });
+
+      if (characters.length === 0) {
+        throw new Error('You have not created any characters');
+      }
+
+      return characters;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch characters');
+    }
+  },
+
   getActiveCharacter: async (userId: number) => {
     try {
       const activeCharacter = await prisma.character.findFirst({

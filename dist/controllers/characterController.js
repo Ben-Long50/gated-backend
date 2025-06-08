@@ -16,6 +16,19 @@ const characterController = {
             res.status(500).json({ error: error.message });
         }
     },
+    getBatchCharacters: async (req, res) => {
+        try {
+            if (!req.user) {
+                throw new Error('Could not find authenticated user');
+            }
+            const characterIds = req.query.ids.split(',').map(Number);
+            const characters = await characterServices.getBatchCharacters(characterIds);
+            res.status(200).json(characters);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
     getActiveCharacter: async (req, res) => {
         try {
             if (!req.user) {

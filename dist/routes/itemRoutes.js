@@ -4,6 +4,7 @@ import itemController from '../controllers/itemController.js';
 import itemStatController from '../controllers/itemStatController.js';
 const router = express.Router();
 router.get('/items/:category', authentication.authenticate, itemController.getItems);
+router.get('/items/batch', authentication.authenticate, itemController.getBatchItems);
 router.get('/items/:category/:itemId', authentication.authenticate, itemController.getItemById);
 router.post('/items/:category', authentication.authenticate, authentication.authenticateAdmin, itemController.createOrUpdateItem);
 router.post('/items/:category/:itemId', authentication.authenticate, authentication.authenticateAdmin, itemController.createItemCopy);

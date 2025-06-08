@@ -12,6 +12,12 @@ router.get(
 );
 
 router.get(
+  '/items/batch',
+  authentication.authenticate,
+  itemController.getBatchItems,
+);
+
+router.get(
   '/items/:category/:itemId',
   authentication.authenticate,
   itemController.getItemById,

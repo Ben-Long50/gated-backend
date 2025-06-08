@@ -13,6 +13,12 @@ router.get(
 );
 
 router.get(
+  '/characters/batch',
+  authentication.authenticate,
+  characterController.getBatchCharacters,
+);
+
+router.get(
   '/characters/active',
   authentication.authenticate,
   characterController.getActiveCharacter,

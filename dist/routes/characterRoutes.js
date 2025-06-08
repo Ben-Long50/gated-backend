@@ -5,6 +5,7 @@ import characterStatController from '../controllers/characterStatController.js';
 import affiliationController from '../controllers/affiliationController.js';
 const router = express.Router();
 router.get('/characters', authentication.authenticate, characterController.getCharacters);
+router.get('/characters/batch', authentication.authenticate, characterController.getBatchCharacters);
 router.get('/characters/active', authentication.authenticate, characterController.getActiveCharacter);
 router.get('/characters/:characterId', authentication.authenticate, characterController.getCharacterById);
 // router.get(

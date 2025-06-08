@@ -21,7 +21,7 @@ const itemServices = {
             ? {
                 characterInventory: null,
                 itemLinkId: null,
-                itemTypes: { hasEvery: category },
+                // itemTypes: { hasEvery: category },
                 NOT: {
                   itemTypes: {
                     has: 'augmentation',
@@ -31,7 +31,7 @@ const itemServices = {
             : {
                 characterInventory: null,
                 itemLinkId: null,
-                itemTypes: { hasEvery: category },
+                // itemTypes: { hasEvery: category },
               }
           : { characterInventory: null, itemLinkId: null },
         include: {
@@ -79,6 +79,60 @@ const itemServices = {
     } catch (error) {
       console.error(error);
       throw new Error('Failed to fetch items');
+    }
+  },
+
+  getBatchItems: async (itemIds: number[]) => {
+    try {
+      const items = await prisma.item.findMany({
+        where: { id: { in: itemIds } },
+        include: {
+          baseItem: true,
+          itemLinkReference: {
+            include: {
+              items: {
+                include: {
+                  keywords: {
+                    include: { keyword: true },
+                    orderBy: { keyword: { name: 'asc' } },
+                  },
+                  modifiedKeywords: {
+                    include: { keyword: true },
+                    orderBy: { keyword: { name: 'asc' } },
+                  },
+                  conditions: {
+                    include: { condition: true },
+                    orderBy: { condition: { name: 'asc' } },
+                  },
+                },
+              },
+              actions: {
+                include: {
+                  keywordModifiers: { include: { keyword: true } },
+                  itemLink: { select: { itemId: true } },
+                },
+              },
+            },
+          },
+          keywords: {
+            include: { keyword: true },
+            orderBy: { keyword: { name: 'asc' } },
+          },
+          modifiedKeywords: {
+            include: { keyword: true },
+            orderBy: { keyword: { name: 'asc' } },
+          },
+          conditions: {
+            include: { condition: true },
+            orderBy: { condition: { name: 'asc' } },
+          },
+        },
+      });
+
+      return items;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch item');
     }
   },
 

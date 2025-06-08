@@ -25,6 +25,20 @@ const itemController = {
             res.status(500).json({ error: error.message });
         }
     },
+    getBatchItems: async (req, res) => {
+        try {
+            if (!req.user) {
+                throw new Error('Could not find authenticated user');
+            }
+            const itemIds = req.query.ids.split(',').map(Number);
+            const items = await itemServices.getBatchItems(itemIds);
+            console.log(items);
+            res.status(200).json(items);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
     getItemById: async (req, res) => {
         try {
             const item = await itemServices.getItemById(Number(req.params.itemId));
