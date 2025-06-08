@@ -35,13 +35,16 @@ const campaignServices = {
           sessions: true,
           players: { orderBy: { firstName: 'desc' } },
           pendingPlayers: { orderBy: { firstName: 'desc' } },
-          factions: { include: { affiliations: true } },
+          factions: { select: { id: true, name: true } },
           characters: {
             select: {
               id: true,
+              firstName: true,
+              lastName: true,
+              picture: true,
             },
           },
-
+          affiliations: { select: { id: true } },
           owner: true,
         },
       });

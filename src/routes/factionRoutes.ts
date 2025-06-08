@@ -17,6 +17,12 @@ router.get(
   affiliationController.getAffiliationById,
 );
 
+router.patch(
+  '/affiliations/:affiliationId/value',
+  authentication.authenticate,
+  affiliationController.updateAffiliationValue,
+);
+
 router.post(
   '/factions/:factionId/affiliations/create',
   authentication.authenticate,

@@ -15,7 +15,14 @@ export function setupSocketIO(io: Server) {
       console.log('item', itemId);
 
       io.emit('item', itemId);
-      console.log('Broadcasted character to all clients');
+      console.log('Broadcasted item to all clients');
+    });
+
+    socket.on('affiliation', (affiliationId) => {
+      console.log('affiliation', affiliationId);
+
+      io.emit('affiliation', affiliationId);
+      console.log('Broadcasted affiliation to all clients');
     });
 
     socket.on('disconnect', (reason) => {

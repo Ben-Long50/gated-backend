@@ -24,7 +24,12 @@ const affiliationServices = {
         try {
             const affiliation = await prisma.affiliation.findUnique({
                 where: { id: affiliationId },
-                include: { factions: true, gangs: true, characters: true },
+                include: {
+                    factions: true,
+                    gangs: true,
+                    characters: true,
+                    campaign: { select: { ownerId: true } },
+                },
             });
             return affiliation;
         }
