@@ -27,7 +27,7 @@ const itemServices = {
                         ? {
                             characterInventory: null,
                             itemLinkId: null,
-                            // itemTypes: { hasEvery: category },
+                            itemTypes: { hasEvery: category },
                             NOT: {
                                 itemTypes: {
                                     has: 'augmentation',
@@ -37,7 +37,7 @@ const itemServices = {
                         : {
                             characterInventory: null,
                             itemLinkId: null,
-                            // itemTypes: { hasEvery: category },
+                            itemTypes: { hasEvery: category },
                         }
                     : { characterInventory: null, itemLinkId: null },
                 include: {

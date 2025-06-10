@@ -32,13 +32,13 @@ const perkServices = {
                     name: formData.name,
                     description: formData.description,
                     modifiers: Object.assign({}, formData.modifiers),
-                    requirements: formData.requirements,
+                    attributes: formData.attributes,
                 },
                 create: {
                     name: formData.name,
                     description: formData.description,
                     modifiers: Object.assign({}, formData.modifiers),
-                    requirements: formData.requirements,
+                    attributes: formData.attributes,
                 },
             });
             return newUser;

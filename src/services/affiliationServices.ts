@@ -64,6 +64,27 @@ const affiliationServices = {
     }
   },
 
+  getBatchAffiliations: async (affiliationIds: number[]) => {
+    try {
+      const affiliations = prisma.affiliation.findMany({
+        where: {
+          id: { in: affiliationIds },
+        },
+        include: {
+          factions: true,
+          gangs: true,
+          characters: true,
+          campaign: { select: { ownerId: true } },
+        },
+      });
+
+      return affiliations;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch characters');
+    }
+  },
+
   createFactionAffiliation: async (
     factionId: number,
     formData: {

@@ -31,7 +31,7 @@ const perkServices = {
     name: string;
     description: string;
     modifiers: Stats;
-    requirements: object;
+    attributes: object;
   }) => {
     try {
       const newUser = await prisma.perk.upsert({
@@ -40,13 +40,13 @@ const perkServices = {
           name: formData.name,
           description: formData.description,
           modifiers: { ...formData.modifiers },
-          requirements: formData.requirements,
+          attributes: formData.attributes,
         },
         create: {
           name: formData.name,
           description: formData.description,
           modifiers: { ...formData.modifiers },
-          requirements: formData.requirements,
+          attributes: formData.attributes,
         },
       });
       return newUser;

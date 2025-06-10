@@ -22,6 +22,7 @@ const factionServices = {
         where: { id: Number(factionId) },
         include: {
           affiliations: { select: { id: true } },
+          campaign: { select: { ownerId: true } },
         },
       });
       return faction;

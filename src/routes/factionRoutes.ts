@@ -12,6 +12,12 @@ router.get(
 );
 
 router.get(
+  '/affiliations/batch',
+  authentication.authenticate,
+  affiliationController.getBatchAffiliations,
+);
+
+router.get(
   '/affiliations/:affiliationId',
   authentication.authenticate,
   affiliationController.getAffiliationById,

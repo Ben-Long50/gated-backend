@@ -371,12 +371,12 @@ enum DurationUnit {
 }
 
 model Perk {
-  id           Int         @id @default(autoincrement())
-  name         String      @unique
-  description  String
-  requirements Json?
-  characters   Character[] @relation("CharacterToPerk")
-  modifiers    Json?
+  id          Int         @id @default(autoincrement())
+  name        String      @unique
+  description String
+  attributes  Json?
+  characters  Character[] @relation("CharacterToPerk")
+  modifiers   Json?
 }
 
 model BookSection {

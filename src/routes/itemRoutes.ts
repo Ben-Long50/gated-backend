@@ -5,22 +5,12 @@ import itemStatController from '../controllers/itemStatController.js';
 
 const router = express.Router();
 
+router.get('/items', authentication.authenticate, itemController.getBatchItems);
+
 router.get(
   '/items/:category',
   authentication.authenticate,
   itemController.getItems,
-);
-
-router.get(
-  '/items/batch',
-  authentication.authenticate,
-  itemController.getBatchItems,
-);
-
-router.get(
-  '/items/:category/:itemId',
-  authentication.authenticate,
-  itemController.getItemById,
 );
 
 router.post(

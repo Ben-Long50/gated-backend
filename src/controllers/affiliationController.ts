@@ -52,6 +52,22 @@ const affiliationController = {
     }
   },
 
+  getBatchAffiliations: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        throw new Error('Could not find authenticated user');
+      }
+      const affiliationIds = (req.query.ids as string).split(',').map(Number);
+
+      const affiliations =
+        await affiliationServices.getBatchAffiliations(affiliationIds);
+
+      res.status(200).json(affiliations);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   createFactionAffiliation: [
     upload.none(),
     async (req: Request, res: Response) => {

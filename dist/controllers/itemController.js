@@ -32,7 +32,6 @@ const itemController = {
             }
             const itemIds = req.query.ids.split(',').map(Number);
             const items = await itemServices.getBatchItems(itemIds);
-            console.log(items);
             res.status(200).json(items);
         }
         catch (error) {

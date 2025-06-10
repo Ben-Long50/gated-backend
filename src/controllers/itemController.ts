@@ -28,8 +28,6 @@ const itemController = {
 
       const items = await itemServices.getBatchItems(itemIds);
 
-      console.log(items);
-
       res.status(200).json(items);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

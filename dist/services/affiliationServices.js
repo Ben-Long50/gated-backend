@@ -38,6 +38,26 @@ const affiliationServices = {
             throw new Error(error.message || 'Failed to create faction affiliation');
         }
     },
+    getBatchAffiliations: async (affiliationIds) => {
+        try {
+            const affiliations = prisma.affiliation.findMany({
+                where: {
+                    id: { in: affiliationIds },
+                },
+                include: {
+                    factions: true,
+                    gangs: true,
+                    characters: true,
+                    campaign: { select: { ownerId: true } },
+                },
+            });
+            return affiliations;
+        }
+        catch (error) {
+            console.error(error);
+            throw new Error('Failed to fetch characters');
+        }
+    },
     createFactionAffiliation: async (factionId, formData) => {
         try {
             const character = await prisma.faction.findUnique({

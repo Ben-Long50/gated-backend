@@ -4,6 +4,7 @@ import factionController from '../controllers/factionController.js';
 import affiliationController from '../controllers/affiliationController.js';
 const router = express.Router();
 router.get('/factions/:factionId', authentication.authenticate, factionController.getFactionById);
+router.get('/affiliations/batch', authentication.authenticate, affiliationController.getBatchAffiliations);
 router.get('/affiliations/:affiliationId', authentication.authenticate, affiliationController.getAffiliationById);
 router.patch('/affiliations/:affiliationId/value', authentication.authenticate, affiliationController.updateAffiliationValue);
 router.post('/factions/:factionId/affiliations/create', authentication.authenticate, affiliationController.createFactionAffiliation);
