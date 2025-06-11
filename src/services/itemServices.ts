@@ -438,7 +438,7 @@ const itemServices = {
           value: keyword.value,
         })) || [];
 
-      const { keywords, ...rest } = itemDetails;
+      const { keywords, baseItemId, ...rest } = itemDetails;
 
       const itemData = {
         ...rest,
@@ -448,9 +448,11 @@ const itemServices = {
         keywordIds,
         id: 0,
         characterInventoryId: inventoryId,
-        baseItemId: itemDetails.id,
+        baseItemId: baseItemId ?? itemDetails.id,
         userId,
       };
+
+      console.log(itemDetails, itemData);
 
       if (itemDetails) {
         for (let i = 0; i < quantity; i++) {

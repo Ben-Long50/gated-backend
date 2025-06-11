@@ -18,6 +18,11 @@ export const includeCharacterCart: Prisma.CharacterCartInclude = {
               actions: { orderBy: { name: 'asc' } },
             },
           },
+          characterInventory: {
+            include: {
+              character: { select: { firstName: true, lastName: true } },
+            },
+          },
         },
       },
     },

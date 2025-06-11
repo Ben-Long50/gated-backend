@@ -15,6 +15,11 @@ export const includeCharacterCart = {
                             actions: { orderBy: { name: 'asc' } },
                         },
                     },
+                    characterInventory: {
+                        include: {
+                            character: { select: { firstName: true, lastName: true } },
+                        },
+                    },
                 },
             },
         },

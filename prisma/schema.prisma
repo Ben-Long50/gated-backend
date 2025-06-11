@@ -162,6 +162,7 @@ model Character {
   firstName          String
   lastName           String?
   playerCharacter    Boolean                       @default(false)
+  npcTypes           NpcTypes[]
   preferences        Json?
   user               User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
   active             Boolean                       @default(false)
@@ -412,6 +413,10 @@ model Error {
   content   String
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
+}
+
+enum NpcTypes {
+  shop
 }
 
 enum UserRole {

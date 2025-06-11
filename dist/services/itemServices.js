@@ -346,11 +346,12 @@ const itemServices = {
                 keywordId: keyword.keywordId,
                 value: keyword.value,
             }))) || [];
-            const { keywords } = itemDetails, rest = __rest(itemDetails, ["keywords"]);
+            const { keywords, baseItemId } = itemDetails, rest = __rest(itemDetails, ["keywords", "baseItemId"]);
             const itemData = Object.assign(Object.assign({}, rest), { stats,
                 itemIds,
                 actionIds,
-                keywordIds, id: 0, characterInventoryId: inventoryId, baseItemId: itemDetails.id, userId });
+                keywordIds, id: 0, characterInventoryId: inventoryId, baseItemId: baseItemId !== null && baseItemId !== void 0 ? baseItemId : itemDetails.id, userId });
+            console.log(itemDetails, itemData);
             if (itemDetails) {
                 for (let i = 0; i < quantity; i++) {
                     promises.push(itemServices.createOrUpdateItem(itemData, itemData.itemTypes));
