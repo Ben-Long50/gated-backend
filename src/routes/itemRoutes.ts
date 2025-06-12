@@ -28,7 +28,7 @@ router.post(
 );
 
 router.post(
-  '/items/:category/:itemId/conditions',
+  '/items/:itemId/conditions',
   authentication.authenticate,
   itemController.createItemConditions,
 );

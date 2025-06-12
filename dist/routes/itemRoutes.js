@@ -7,7 +7,7 @@ router.get('/items', authentication.authenticate, itemController.getBatchItems);
 router.get('/items/:category', authentication.authenticate, itemController.getItems);
 router.post('/items/:category', authentication.authenticate, authentication.authenticateAdmin, itemController.createOrUpdateItem);
 router.post('/items/:category/:itemId', authentication.authenticate, authentication.authenticateAdmin, itemController.createItemCopy);
-router.post('/items/:category/:itemId/conditions', authentication.authenticate, itemController.createItemConditions);
+router.post('/items/:itemId/conditions', authentication.authenticate, itemController.createItemConditions);
 router.put('/items/:category/:itemId/update', authentication.authenticate, authentication.authenticateItemModification, itemController.createOrUpdateItem);
 router.put('/characters/:characterId/items/:category/:itemId/modify', authentication.authenticate, authentication.authenticateItemModification, itemController.modifyItem);
 router.patch('/items/:itemId/stats/currentAmmoCount', authentication.authenticate, itemStatController.editItemAmmo);
