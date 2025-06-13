@@ -54,9 +54,8 @@ const itemController = {
     async (req: Request, res: Response) => {
       try {
         const parsedBody = parseRequestBody(req.body);
-        const category = req.params.category.slice(0, -1) as ItemType;
 
-        await itemServices.createOrUpdateItem(parsedBody, [category]);
+        await itemServices.createOrUpdateItem(parsedBody);
 
         res.status(200).json({
           message: parsedBody.id
@@ -121,7 +120,7 @@ const itemController = {
           character.id,
         );
 
-        await itemServices.createOrUpdateItem(itemInfo, [category]);
+        await itemServices.createOrUpdateItem(itemInfo);
         res.status(200).json({ message: 'Successfully modified item' });
       } catch (error: any) {
         res.status(500).json({ error: error.message });

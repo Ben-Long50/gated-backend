@@ -193,11 +193,11 @@ const itemServices = {
             throw new Error('Failed to fetch item');
         }
     },
-    createOrUpdateItem: async (formData, category) => {
+    createOrUpdateItem: async (formData) => {
         var _a;
         try {
             const item = await prisma.item.findUnique({
-                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0, itemTypes: { hasEvery: category } },
+                where: { id: (_a = formData.id) !== null && _a !== void 0 ? _a : 0 },
                 include: {
                     keywords: { select: { id: true } },
                     modifiedKeywords: { select: { id: true } },
@@ -213,7 +213,7 @@ const itemServices = {
             if (item && item.modifiedKeywords) {
                 await prisma.keywordReference.deleteMany({
                     where: {
-                        id: { in: item.keywords.map((keyword) => keyword.id) },
+                        id: { in: item.modifiedKeywords.map((keyword) => keyword.id) },
                     },
                 });
             }

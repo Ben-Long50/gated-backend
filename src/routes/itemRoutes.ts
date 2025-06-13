@@ -34,7 +34,7 @@ router.post(
 );
 
 router.put(
-  '/items/:category/:itemId/update',
+  '/items/:itemId/update',
   authentication.authenticate,
   authentication.authenticateItemModification,
   itemController.createOrUpdateItem,

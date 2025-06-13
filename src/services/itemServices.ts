@@ -190,10 +190,10 @@ const itemServices = {
     }
   },
 
-  createOrUpdateItem: async (formData: Item, category: $Enums.ItemType[]) => {
+  createOrUpdateItem: async (formData: Item) => {
     try {
       const item = await prisma.item.findUnique({
-        where: { id: formData.id ?? 0, itemTypes: { hasEvery: category } },
+        where: { id: formData.id ?? 0 },
         include: {
           keywords: { select: { id: true } },
           modifiedKeywords: { select: { id: true } },
@@ -211,7 +211,7 @@ const itemServices = {
       if (item && item.modifiedKeywords) {
         await prisma.keywordReference.deleteMany({
           where: {
-            id: { in: item.keywords.map((keyword) => keyword.id) },
+            id: { in: item.modifiedKeywords.map((keyword) => keyword.id) },
           },
         });
       }
