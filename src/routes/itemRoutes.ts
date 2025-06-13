@@ -21,16 +21,16 @@ router.post(
 );
 
 router.post(
+  '/items/:itemId/conditions',
+  authentication.authenticate,
+  itemController.createItemConditions,
+);
+
+router.post(
   '/items/:category/:itemId',
   authentication.authenticate,
   authentication.authenticateAdmin,
   itemController.createItemCopy,
-);
-
-router.post(
-  '/items/:itemId/conditions',
-  authentication.authenticate,
-  itemController.createItemConditions,
 );
 
 router.put(
