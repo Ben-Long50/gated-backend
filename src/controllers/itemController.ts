@@ -92,7 +92,6 @@ const itemController = {
         }
 
         const parsedBody = parseRequestBody(req.body);
-        const category = req.params.category.slice(0, -1) as ItemType;
 
         const character = await characterServices.getCharacterById(
           req.params.characterId,

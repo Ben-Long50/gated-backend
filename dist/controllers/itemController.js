@@ -89,7 +89,6 @@ const itemController = {
                     throw new Error('You must be signed in to complete this action');
                 }
                 const parsedBody = parseRequestBody(req.body);
-                const category = req.params.category.slice(0, -1);
                 const character = await characterServices.getCharacterById(req.params.characterId);
                 if (!character) {
                     throw new Error('This item must be associated with an existing character to modify it');
