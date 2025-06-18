@@ -35,18 +35,6 @@ const sessionController = {
     }
   },
 
-  getSessionNotes: async (req: Request, res: Response) => {
-    try {
-      const notes = await sessionServices.getSessionNotes(
-        Number(req.params.sessionId),
-        Number(req.params.characterId),
-      );
-      res.status(200).json(notes);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-
   createOrUpdateSessionNotes: async (req: Request, res: Response) => {
     try {
       await sessionServices.createOrUpdateSessionNotes(

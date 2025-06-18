@@ -146,6 +146,33 @@ const campaignServices = {
     }
   },
 
+  getCharacterNotes: async (characterId: number) => {
+    try {
+      const notes = await prisma.note.findMany({
+        where: { characterId },
+        include: {
+          character: {
+            select: {
+              userId: true,
+              firstName: true,
+              lastName: true,
+              picture: true,
+            },
+          },
+          session: {
+            select: { sessionNumber: true, createdAt: true, name: true },
+          },
+        },
+        orderBy: { session: { sessionNumber: 'asc' } },
+      });
+
+      return notes;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to fetch notes');
+    }
+  },
+
   joinCampaign: async (campaignId: string, userId: number) => {
     try {
       const campaign = await prisma.campaign.findUnique({

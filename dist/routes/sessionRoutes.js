@@ -4,7 +4,6 @@ import sessionController from '../controllers/sessionController.js';
 const router = express.Router();
 router.get('/campaigns/:campaignId/sessions', authentication.authenticate, sessionController.getCampaignSessions);
 router.get('/campaigns/:campaignId/sessions/:sessionId', authentication.authenticate, sessionController.getSessionById);
-router.get('/campaigns/:campaignId/sessions/:sessionId/characters/:characterId/notes', authentication.authenticate, sessionController.getSessionNotes);
 router.post('/campaigns/:campaignId/sessions', authentication.authenticate, sessionController.createOrUpdateSession);
 router.post('/campaigns/:campaignId/sessions/:sessionId/characters/:characterId/notes', authentication.authenticate, sessionController.createOrUpdateSessionNotes);
 router.delete('/campaigns/:campaignId/sessions/:sessionId', authentication.authenticate, sessionController.deleteSession);

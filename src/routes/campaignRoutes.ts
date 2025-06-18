@@ -25,6 +25,12 @@ router.get(
 );
 
 router.get(
+  '/campaigns/:campaignId/characters/:characterId/notes',
+  authentication.authenticate,
+  campaignController.getCharacterNotes,
+);
+
+router.get(
   '/factions/:factionId',
   authentication.authenticate,
   factionController.getFactionById,

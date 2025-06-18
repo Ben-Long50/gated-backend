@@ -27,15 +27,6 @@ const sessionController = {
             res.status(500).json({ error: error.message });
         }
     },
-    getSessionNotes: async (req, res) => {
-        try {
-            const notes = await sessionServices.getSessionNotes(Number(req.params.sessionId), Number(req.params.characterId));
-            res.status(200).json(notes);
-        }
-        catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    },
     createOrUpdateSessionNotes: async (req, res) => {
         try {
             await sessionServices.createOrUpdateSessionNotes(Number(req.params.sessionId), Number(req.params.characterId), req.body.content);

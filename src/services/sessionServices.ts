@@ -53,20 +53,6 @@ const sessionServices = {
     }
   },
 
-  getSessionNotes: async (sessionId: number, characterId: number) => {
-    try {
-      const notes = await prisma.note.findUnique({
-        where: { sessionId_characterId: { sessionId, characterId } },
-        include: { character: { select: { userId: true } } },
-      });
-
-      return notes;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to fetch notes');
-    }
-  },
-
   createOrUpdateSession: async (
     formData: {
       id?: number;

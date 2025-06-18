@@ -64,6 +64,15 @@ const campaignController = {
             }
         },
     ],
+    getCharacterNotes: async (req, res) => {
+        try {
+            const notes = await campaignServices.getCharacterNotes(Number(req.params.characterId));
+            res.status(200).json(notes);
+        }
+        catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
     joinCampaign: async (req, res) => {
         try {
             if (!req.user) {

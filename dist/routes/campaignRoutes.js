@@ -7,6 +7,7 @@ const router = express.Router();
 router.patch('/campaigns/:campaignId/players', authentication.authenticate, campaignController.joinCampaign);
 router.get('/campaigns', authentication.authenticate, campaignController.getCampaigns);
 router.get('/campaigns/:campaignId', authentication.authenticate, campaignController.getCampaignById);
+router.get('/campaigns/:campaignId/characters/:characterId/notes', authentication.authenticate, campaignController.getCharacterNotes);
 router.get('/factions/:factionId', authentication.authenticate, factionController.getFactionById);
 router.post('/factions/:factionId/affiliations/create', authentication.authenticate, affiliationController.createFactionAffiliation);
 router.post('/campaigns', authentication.authenticate, campaignController.createCampaign);
